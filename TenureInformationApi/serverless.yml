@@ -10,14 +10,6 @@ provider:
   stage: ${opt:stage}
   account: ${opt:account}
   region: eu-west-2
-  apiKeys:
-    - secureAccess:
-      - api-key-${self:service}-${self:provider.stage}
-  usagePlan:
-    - secureAccess:
-        throttle:
-          burstLimit: 200
-          rateLimit: 100
 
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
@@ -31,7 +23,13 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
-          private: true
+          authorizer:
+            arn: ${ssm:/api-authenticator/${self:provider.stage}/arn}
+            type: request
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            managedExternally: true       
+          cors: true
 resources:
   Resources:
     lambdaExecutionRole:
@@ -50,7 +48,6 @@ resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
           - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
-          - arn:aws:iam::${self:provider.account}:policy/tenure-information-api/lambda-dynamodb-tenure-information-api
         Policies:
           - PolicyName: manageLogs
             PolicyDocument:
