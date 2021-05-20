@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build tenure-information-api
 
 .PHONY: serve
 serve:
-	docker-compose build base-api && docker-compose up base-api
+	docker-compose build tenure-information-api && docker-compose up tenure-information-api
 
 .PHONY: shell
 shell:
-	docker-compose run base-api bash
+	docker-compose run tenure-information-api bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+	docker-compose up test-database & docker-compose build tenure-information-api-test && docker-compose up tenure-information-api-test
 
 .PHONY: lint
 lint:
