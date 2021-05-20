@@ -113,9 +113,7 @@ namespace TenureInformationApi
 
             ConfigureLogging(services, Configuration);
 
-            ConfigureDbContext(services);
-            //TODO: For DynamoDb, remove the line above and uncomment the line below.
-            // services.ConfigureDynamoDB();
+            services.ConfigureDynamoDB();
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -151,10 +149,7 @@ namespace TenureInformationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IExampleGateway, ExampleGateway>();
-
-            //TODO: For DynamoDb, remove the line above and uncomment the line below.
-            //services.AddScoped<IExampleGateway, DynamoDbGateway>();
+            services.AddScoped<IExampleGateway, DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
