@@ -1,3 +1,4 @@
+using System;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
@@ -15,7 +16,7 @@ namespace TenureInformationApi.V1.UseCase
         }
 
         //TODO: rename id to the name of the identifier that will be used for this API, the type may also need to change
-        public ResponseObject Execute(int id)
+        public TenureResponseObject Execute(Guid id)
         {
             return _gateway.GetEntityById(id).ToResponse();
         }

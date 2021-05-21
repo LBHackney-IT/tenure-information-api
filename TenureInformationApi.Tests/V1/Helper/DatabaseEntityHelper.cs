@@ -1,24 +1,24 @@
 using AutoFixture;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.Helper
 {
     public static class DatabaseEntityHelper
     {
-        public static DatabaseEntity CreateDatabaseEntity()
+        public static TenureInformationDb CreateDatabaseEntity()
         {
-            var entity = new Fixture().Create<Entity>();
+            var entity = new Fixture().Create<TenureInformation>();
 
             return CreateDatabaseEntityFrom(entity);
         }
 
-        public static DatabaseEntity CreateDatabaseEntityFrom(Entity entity)
+        public static TenureInformationDb CreateDatabaseEntityFrom(TenureInformation entity)
         {
-            return new DatabaseEntity
+            return new TenureInformationDb
             {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
+                Id = entity.Id
             };
         }
     }

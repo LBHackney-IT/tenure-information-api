@@ -5,26 +5,24 @@ namespace TenureInformationApi.V1.Factories
 {
     public static class EntityFactory
     {
-        public static Entity ToDomain(this DatabaseEntity databaseEntity)
+        public static TenureInformation ToDomain(this TenureInformationDb databaseEntity)
         {
             //TODO: Map the rest of the fields in the domain object.
             // More information on this can be found here https://github.com/LBHackney-IT/lbh-base-api/wiki/Factory-object-mappings
 
-            return new Entity
+            return new TenureInformation
             {
-                Id = databaseEntity.Id,
-                CreatedAt = databaseEntity.CreatedAt
+                Id = databaseEntity.Id
             };
         }
 
-        public static DatabaseEntity ToDatabase(this Entity entity)
+        public static TenureInformationDb ToDatabase(this TenureInformation entity)
         {
             //TODO: Map the rest of the fields in the database object.
 
-            return new DatabaseEntity
+            return new TenureInformationDb
             {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt
+                Id = entity.Id
             };
         }
     }

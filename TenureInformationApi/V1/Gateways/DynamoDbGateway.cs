@@ -3,6 +3,7 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using System.Collections.Generic;
+using System;
 
 namespace TenureInformationApi.V1.Gateways
 {
@@ -15,14 +16,14 @@ namespace TenureInformationApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
-        public List<Entity> GetAll()
+        public List<TenureInformation> GetAll()
         {
-            return new List<Entity>();
+            return new List<TenureInformation>();
         }
 
-        public Entity GetEntityById(int id)
+        public TenureInformation GetEntityById(Guid id)
         {
-            var result = _dynamoDbContext.LoadAsync<DatabaseEntity>(id).GetAwaiter().GetResult();
+            var result = _dynamoDbContext.LoadAsync<TenureInformationDb>(id).GetAwaiter().GetResult();
             return result?.ToDomain();
         }
     }

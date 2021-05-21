@@ -17,11 +17,10 @@ namespace TenureInformationApi.Tests.V1.Factories
         [Test]
         public void CanMapADatabaseEntityToADomainObject()
         {
-            var databaseEntity = _fixture.Create<DatabaseEntity>();
+            var databaseEntity = _fixture.Create<TenureInformationDb>();
             var entity = databaseEntity.ToDomain();
 
             databaseEntity.Id.Should().Be(entity.Id);
-            databaseEntity.CreatedAt.Should().BeSameDateAs(entity.CreatedAt);
         }
 
         //TODO: add assertions for all the fields being mapped in `EntityFactory.ToDatabase()`. Also be sure to add test cases for
@@ -29,11 +28,10 @@ namespace TenureInformationApi.Tests.V1.Factories
         [Test]
         public void CanMapADomainEntityToADatabaseObject()
         {
-            var entity = _fixture.Create<Entity>();
+            var entity = _fixture.Create<TenureInformation>();
             var databaseEntity = entity.ToDatabase();
 
             entity.Id.Should().Be(databaseEntity.Id);
-            entity.CreatedAt.Should().BeSameDateAs(databaseEntity.CreatedAt);
         }
     }
 }

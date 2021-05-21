@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
@@ -15,16 +16,16 @@ namespace TenureInformationApi.V1.Gateways
             _databaseContext = databaseContext;
         }
 
-        public Entity GetEntityById(int id)
+        public TenureInformation GetEntityById(Guid id)
         {
             var result = _databaseContext.DatabaseEntities.Find(id);
 
             return result?.ToDomain();
         }
 
-        public List<Entity> GetAll()
+        public List<TenureInformation> GetAll()
         {
-            return new List<Entity>();
+            return new List<TenureInformation>();
         }
     }
 }

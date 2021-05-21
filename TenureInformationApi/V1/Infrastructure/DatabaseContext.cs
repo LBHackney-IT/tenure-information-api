@@ -11,6 +11,6 @@ namespace TenureInformationApi.V1.Infrastructure
         {
         }
 
-        public DbSet<DatabaseEntity> DatabaseEntities { get; set; }
+        public DbSet<TenureInformationDb> DatabaseEntities { get; set; }
     }
 }
