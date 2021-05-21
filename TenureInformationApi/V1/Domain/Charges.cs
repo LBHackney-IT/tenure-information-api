@@ -4,9 +4,9 @@ namespace TenureInformationApi.V1.Domain
 {
     public class Charges
     {
-        public string Rent { get; set; }
+        public float Rent { get; set; }
 
-        public string CurrentBalance { get; set; }
+        public float CurrentBalance { get; set; }
 
         public string BillingFrequency { get; set; }
 
@@ -16,18 +16,18 @@ namespace TenureInformationApi.V1.Domain
 
         public string RentGroupDescription { get; set; }
 
-        public string ServiceCharge { get; set; }
+        public float ServiceCharge { get; set; }
 
-        public string OtherCharges { get; set; }
+        public float OtherCharges { get; set; }
 
-        public string CombinedServiceCharges { get; set; }
+        public float CombinedServiceCharges { get; set; }
 
-        public string CombinedRentCharges { get; set; }
+        public float CombinedRentCharges { get; set; }
 
-        public string TenancyInsuranceCharge { get; set; }
+        public float TenancyInsuranceCharge { get; set; }
 
-        public string OriginalRentCharge { get; set; }
+        public float OriginalRentCharge { get; set; }
 
-        public string OriginalServiceCharge { get; set; }
+        public float OriginalServiceCharge { get; set; }
     }
 }

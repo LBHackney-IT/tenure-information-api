@@ -8,8 +8,9 @@ namespace TenureInformationApi.V1.Domain
 
         public DateTime ServedDate { get; set; }
 
-        public string Expiry { get; set; }
+        public DateTime ExpiryDate { get; set; }
 
+        public DateTime EffectiveDate { get; set; }
         public DateTime EndDate { get; set; }
     }
 }
