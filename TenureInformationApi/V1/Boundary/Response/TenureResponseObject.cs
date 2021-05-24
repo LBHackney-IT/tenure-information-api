@@ -27,5 +27,8 @@ namespace TenureInformationApi.V1.Boundary.Response
         public bool InformHousingBenefitsForChanges { get; set; }
         public bool IsSublet { get; set; }
         public DateTime SubletEndDate { get; set; }
+        public List<string> SubsidiaryAccountsReferences { get; set; }
+        public List<Notices> Notices { get; set; }
+        public List<LegacyReference> LegacyReferences { get; set; }
     }
 }
