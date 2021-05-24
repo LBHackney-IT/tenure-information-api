@@ -11,7 +11,7 @@ WORKDIR /app
 COPY ./TenureInformationApi.sln ./
 COPY ./TenureInformationApi/TenureInformationApi.csproj ./TenureInformationApi/
 COPY ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj ./TenureInformationApi.Tests/
-# COPY /nuget.config /root/.nuget/NuGet/NuGet.Config
+COPY /nuget.config /root/.nuget/NuGet/NuGet.Config
 
 RUN dotnet restore ./TenureInformationApi/TenureInformationApi.csproj
 RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
