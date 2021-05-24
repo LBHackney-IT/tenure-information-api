@@ -16,8 +16,7 @@ namespace TenureInformationApi.Tests
 
         private readonly List<TableDef> _tables = new List<TableDef>
         {
-            // TODO: Populate the list of table(s) and their key property details here, for example:
-            //new TableDef { Name = "example_table", KeyName = "id", KeyType = ScalarAttributeType.N }
+            new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.N }
         };
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)

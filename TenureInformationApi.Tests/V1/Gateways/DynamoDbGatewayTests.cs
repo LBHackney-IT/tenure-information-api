@@ -11,27 +11,24 @@ using System;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
-    //TODO: Remove this file if DynamoDb gateway not being used
-    //TODO: Rename Tests to match gateway name
-    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-base-api/wiki/Running-the-test-suite.
+    
     [TestFixture]
-    public class DynamoDbGatewayTests
+    public class DynamoDbGatewayTests : DynamoDbTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IDynamoDBContext> _dynamoDb;
         private DynamoDbGateway _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
-            _dynamoDb = new Mock<IDynamoDBContext>();
-            _classUnderTest = new DynamoDbGateway(_dynamoDb.Object);
+            _classUnderTest = new DynamoDbGateway(DynamoDbContext);
         }
 
         [Test]
         public void GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
-            var response = _classUnderTest.GetEntityById(Guid.NewGuid());
+            var id = Guid.NewGuid();
+            var response = _classUnderTest.GetEntityById(id);
 
             response.Should().BeNull();
         }
@@ -39,17 +36,18 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Test]
         public void GetEntityByIdReturnsTheEntityIfItExists()
         {
-            var entity = _fixture.Create<TenureInformation>();
-            var dbEntity = DatabaseEntityHelper.CreateDatabaseEntityFrom(entity);
-
-            _dynamoDb.Setup(x => x.LoadAsync<TenureInformationDb>(entity.Id, default))
-                     .ReturnsAsync(dbEntity);
+            var entity = _fixture.Build<TenureInformation>().Create();
+            InsertDatatoDynamoDB(entity);
 
             var response = _classUnderTest.GetEntityById(entity.Id);
 
-            _dynamoDb.Verify(x => x.LoadAsync<TenureInformationDb>(entity.Id, default), Times.Once);
+            entity.Should().BeEquivalentTo(response);
+            
+        }
 
-            entity.Id.Should().Be(response.Id);
+        private void InsertDatatoDynamoDB(TenureInformation entity)
+        {
+            DynamoDbContext.SaveAsync(entity).GetAwaiter().GetResult();
         }
     }
 }

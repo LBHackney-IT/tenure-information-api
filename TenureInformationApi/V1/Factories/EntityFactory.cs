@@ -7,18 +7,38 @@ namespace TenureInformationApi.V1.Factories
     {
         public static TenureInformation ToDomain(this TenureInformationDb databaseEntity)
         {
-            //TODO: Map the rest of the fields in the domain object.
-            // More information on this can be found here https://github.com/LBHackney-IT/lbh-base-api/wiki/Factory-object-mappings
-
             return new TenureInformation
             {
-                Id = databaseEntity.Id
+                Id = databaseEntity.Id,
+                AccountType = databaseEntity.AccountType,
+                Terminated = databaseEntity.Terminated,
+                TenureType = databaseEntity.TenureType,
+                TenuredAsset = databaseEntity.TenuredAsset,
+                SuccessionDate = databaseEntity.SuccessionDate,
+                SubsidiaryAccountsReferences = databaseEntity.SubsidiaryAccountsReferences,
+                AgreementType = databaseEntity.AgreementType,
+                Charges = databaseEntity.Charges,
+                EndOfTenureDate = databaseEntity.EndOfTenureDate,
+                EvictionDate = databaseEntity.EvictionDate,
+                HouseholdMembers = databaseEntity.HouseholdMembers,
+                InformHousingBenefitsForChanges = databaseEntity.InformHousingBenefitsForChanges,
+                IsActive = databaseEntity.IsActive,
+                IsMutualExchange = databaseEntity.IsMutualExchange,
+                IsSublet = databaseEntity.IsSublet,
+                IsTenanted = databaseEntity.IsTenanted,
+                LegacyReferences = databaseEntity.LegacyReferences,
+                MasterAccountTenureReference = databaseEntity.MasterAccountTenureReference,
+                Notices = databaseEntity.Notices,
+                PaymentReference = databaseEntity.PaymentReference,
+                PotentialEndDate = databaseEntity.PotentialEndDate,
+                RentCostCentre = databaseEntity.RentCostCentre,
+                StartOfTenureDate = databaseEntity.StartOfTenureDate,
+                SubletEndDate = databaseEntity.SubletEndDate
             };
         }
 
         public static TenureInformationDb ToDatabase(this TenureInformation entity)
         {
-            //TODO: Map the rest of the fields in the database object.
 
             return new TenureInformationDb
             {

@@ -8,6 +8,5 @@ namespace TenureInformationApi.V1.Gateways
     {
         TenureInformation GetEntityById(Guid id);
 
-        List<TenureInformation> GetAll();
     }
 }

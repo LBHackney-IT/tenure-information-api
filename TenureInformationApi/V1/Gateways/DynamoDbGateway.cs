@@ -16,10 +16,6 @@ namespace TenureInformationApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
-        public List<TenureInformation> GetAll()
-        {
-            return new List<TenureInformation>();
-        }
 
         public TenureInformation GetEntityById(Guid id)
         {

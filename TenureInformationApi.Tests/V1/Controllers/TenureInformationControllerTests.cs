@@ -7,6 +7,7 @@ using FluentAssertions;
 using TenureInformationApi.V1.Boundary.Response;
 using Microsoft.AspNetCore.Mvc;
 using AutoFixture;
+using TenureInformationApi.V1.Domain;
 
 namespace TenureInformationApi.Tests.V1.Controllers
 {
@@ -28,11 +29,11 @@ namespace TenureInformationApi.Tests.V1.Controllers
     public void GetTenureWithNoIdReturnsNotFound()
     {
       var id = Guid.NewGuid();
-      _mockGetByIdUsecase.Setup(x => x.Execute(id)).Returns((TenureResponseObject) null);
+      _mockGetByIdUsecase.Setup(x => x.Execute(id)).Throws<NotFoundException>();
 
       var response = _classUnderTest.GetByID(id) as NotFoundObjectResult;
-      response.Should().BeNull();
-      // response.StatusCode.Should().Be(404);
+      response.Should().BeOfType(typeof(NotFoundObjectResult));
+      response.StatusCode.Should().Be(404);
     }
 
     [Test]

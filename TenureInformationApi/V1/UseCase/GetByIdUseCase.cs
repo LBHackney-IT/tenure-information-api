@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Mvc;
 using System;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase
 {
-    //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetClaimantByIdUseCase
     public class GetByIdUseCase : IGetByIdUseCase
     {
         private IExampleGateway _gateway;
@@ -15,10 +16,9 @@ namespace TenureInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        //TODO: rename id to the name of the identifier that will be used for this API, the type may also need to change
         public TenureResponseObject Execute(Guid id)
         {
-            return _gateway.GetEntityById(id).ToResponse();
+            return _gateway.GetEntityById(id).ToResponse();            
         }
     }
 }

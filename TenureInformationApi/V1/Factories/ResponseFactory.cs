@@ -8,11 +8,36 @@ namespace TenureInformationApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        //TODO: Map the fields in the domain object(s) to fields in the response object(s).
-        // More information on this can be found here https://github.com/LBHackney-IT/lbh-base-api/wiki/Factory-object-mappings
         public static TenureResponseObject ToResponse(this TenureInformation domain)
         {
-            return new TenureResponseObject();
+            if (domain == null) return null;
+            return new TenureResponseObject
+            {
+                Id = domain.Id,
+                AccountType = domain.AccountType,
+                Charges = domain.Charges,
+                EndOfTenureDate = domain.EndOfTenureDate,
+                EvictionDate = domain.EvictionDate,
+                HouseholdMembers = domain.HouseholdMembers,
+                InformHousingBenefitsForChanges = domain.InformHousingBenefitsForChanges,
+                IsActive = domain.IsActive,
+                IsMutualExchange = domain.IsMutualExchange,
+                IsSublet = domain.IsSublet,
+                IsTenanted = domain.IsTenanted,
+                LegacyReferences = domain.LegacyReferences.ToList(),
+                MasterAccountTenureReference = domain.MasterAccountTenureReference,
+                Notices = domain.Notices.ToList(),
+                PaymentReference = domain.PaymentReference,
+                PotentialEndDate = domain.PotentialEndDate,
+                RentCostCode = domain.RentCostCentre,
+                StartOfTenureDate = domain.StartOfTenureDate,
+                SubletEndDate = domain.SubletEndDate,
+                SubsidiaryAccountsReferences = domain.SubsidiaryAccountsReferences.ToList(),
+                SuccessionDate = domain.SuccessionDate,
+                TenuredAsset = domain.TenuredAsset,
+                TenureType = domain.TenureType,
+                Terminated = domain.Terminated
+            };
         }
 
         public static List<TenureResponseObject> ToResponse(this IEnumerable<TenureInformation> domainList)
