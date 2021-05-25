@@ -14,13 +14,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
 {
     public class GetByIdUseCaseTests
     {
-        private Mock<IExampleGateway> _mockGateway;
+        private Mock<ITenureGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         [SetUp]
         public void SetUp()
         {
-            _mockGateway = new Mock<IExampleGateway>();
+            _mockGateway = new Mock<ITenureGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 

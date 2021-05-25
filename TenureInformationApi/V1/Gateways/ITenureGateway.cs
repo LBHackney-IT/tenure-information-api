@@ -5,7 +5,7 @@ using TenureInformationApi.V1.Domain;
 
 namespace TenureInformationApi.V1.Gateways
 {
-    public interface IExampleGateway
+    public interface ITenureGateway
     {
         TenureInformation GetEntityById(Guid id);
 
