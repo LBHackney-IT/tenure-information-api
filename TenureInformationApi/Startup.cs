@@ -22,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Hackney.Core.Logging;
 
 namespace TenureInformationApi
 {
@@ -113,7 +114,7 @@ namespace TenureInformationApi
             ConfigureLogging(services, Configuration);
 
             services.ConfigureDynamoDB();
-
+            services.AddLogCallAspect();
             RegisterGateways(services);
             RegisterUseCases(services);
         }
@@ -194,6 +195,8 @@ namespace TenureInformationApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseLogCall();
+
         }
     }
 }

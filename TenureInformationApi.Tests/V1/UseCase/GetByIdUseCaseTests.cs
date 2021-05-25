@@ -1,30 +1,29 @@
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase;
 using Moq;
-using NUnit.Framework;
 using System;
 using TenureInformationApi.V1.Domain;
 using FluentAssertions;
 using AutoFixture;
 using TenureInformationApi.V1.Factories;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
+    [Collection("LogCall collection")]
     public class GetByIdUseCaseTests
     {
         private Mock<IExampleGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
-        [SetUp]
-        public void SetUp()
+        public GetByIdUseCaseTests()
         {
             _mockGateway = new Mock<IExampleGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 
-        [Test]
+        [Fact]
         public void GetByIdUsecaseShouldBeNull()
         {
             var id = Guid.NewGuid();
@@ -33,7 +32,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var response = _classUnderTest.Execute(id);
             response.Should().BeNull();
         }
-        [Test]
+        [Fact]
         public void GetByIdUsecaseShouldReturnOkResponse()
         {
             var tenure = _fixture.Create<TenureInformation>();
@@ -43,7 +42,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var response = _classUnderTest.Execute(tenure.Id);
             response.Should().BeEquivalentTo(tenure.ToResponse());
         }
-        [Test]
+        [Fact]
         public void GetByIdThrowsException()
         {
             var id = Guid.NewGuid();

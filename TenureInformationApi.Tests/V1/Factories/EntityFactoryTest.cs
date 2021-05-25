@@ -3,16 +3,15 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Factories
 {
-    [TestFixture]
     public class EntityFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
 
-        [Test]
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
             var databaseEntity = _fixture.Create<TenureInformationDb>();
@@ -22,7 +21,7 @@ namespace TenureInformationApi.Tests.V1.Factories
         }
 
 
-        [Test]
+        [Fact]
         public void CanMapADomainEntityToADatabaseObject()
         {
             var entity = _fixture.Create<TenureInformation>();

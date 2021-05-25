@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using TenureInformationApi.V1.Domain;
+using Hackney.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace TenureInformationApi.V1.Controllers
 {
@@ -28,6 +30,7 @@ namespace TenureInformationApi.V1.Controllers
         [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("{id}")]
+        [LogCall(LogLevel.Information)]
         public IActionResult GetByID(Guid id)
         {
             var result = _getByIdUseCase.Execute(id);

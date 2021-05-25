@@ -1,21 +1,18 @@
-using System;
 using TenureInformationApi.V1.Domain;
-using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Domain
 {
-    [TestFixture]
     public class EntityTests
     {
-        [Test]
+        [Fact]
         public void EntitiesHaveAnId()
         {
             var entity = new TenureInformation();
             //entity.Id.Should().GetType(Type);
         }
 
-        [Test]
+        [Fact]
         public void EntitiesHaveACreatedAt()
         {
             var entity = new TenureInformation();
