@@ -10,6 +10,7 @@ using NUnit.Framework;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Response;
 
 namespace TenureInformationApi.Tests.V1.E2ETests
 {
@@ -25,10 +26,17 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         /// <returns></returns>
         private TenureInformation ConstructTestEntity()
         {
-            var entity = _fixture.Create<TenureInformation>();
+            var entity = _fixture.Build<TenureInformation>()
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
+
+                                 .Create();
             return entity;
         }
-
         /// <summary>
         /// Method to add an entity instance to the database so that it can be used in a test.
         /// Also adds the corresponding action to remove the upserted data from the database when the test is done.
@@ -45,7 +53,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         public async Task GetEntityByIdNotFoundReturns404()
         {
             var id = Guid.NewGuid();
-            var uri = new Uri($"api/v1/tenure/{id}", UriKind.Relative);
+            var uri = new Uri($"api/v1/tenures/{id}", UriKind.Relative);
             var response = await Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -57,15 +65,15 @@ namespace TenureInformationApi.Tests.V1.E2ETests
             var entity = ConstructTestEntity();
             await SetupTestData(entity).ConfigureAwait(false);
 
-            var uri = new Uri($"api/v1/tenure/{entity.Id}", UriKind.Relative);
+            var uri = new Uri($"api/v1/tenures/{entity.Id}", UriKind.Relative);
             var response = await Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiEntity = JsonConvert.DeserializeObject<TenureInformation>(responseContent);
+            var apiEntity = JsonConvert.DeserializeObject<TenureResponseObject>(responseContent);
 
-            apiEntity.Should().BeEquivalentTo(entity);
+            apiEntity.Should().BeEquivalentTo(entity.ToResponse());
         }
     }
 }

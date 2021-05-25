@@ -8,7 +8,7 @@ using TenureInformationApi.V1.Domain;
 namespace TenureInformationApi.V1.Controllers
 {
     [ApiController]
-    [Route("api/v1/tenure")]
+    [Route("api/v1/tenures")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class TenureInformationController : BaseController
@@ -30,14 +30,9 @@ namespace TenureInformationApi.V1.Controllers
         [Route("{id}")]
         public IActionResult GetByID(Guid id)
         {
-            try
-            {
-                return Ok(_getByIdUseCase.Execute(id));
-            }
-            catch (NotFoundException e)
-            {
-                return new NotFoundObjectResult(e.Message);
-            }
+            var result = _getByIdUseCase.Execute(id);
+            if (result == null) return NotFound(id);
+            return Ok(result);
         }
     }
 }

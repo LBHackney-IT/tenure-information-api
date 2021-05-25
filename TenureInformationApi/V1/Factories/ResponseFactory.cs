@@ -29,14 +29,15 @@ namespace TenureInformationApi.V1.Factories
                 Notices = domain.Notices.ToList(),
                 PaymentReference = domain.PaymentReference,
                 PotentialEndDate = domain.PotentialEndDate,
-                RentCostCode = domain.RentCostCentre,
+                RentCostCentre = domain.RentCostCentre,
                 StartOfTenureDate = domain.StartOfTenureDate,
                 SubletEndDate = domain.SubletEndDate,
                 SubsidiaryAccountsReferences = domain.SubsidiaryAccountsReferences.ToList(),
                 SuccessionDate = domain.SuccessionDate,
                 TenuredAsset = domain.TenuredAsset,
                 TenureType = domain.TenureType,
-                Terminated = domain.Terminated
+                Terminated = domain.Terminated,
+                AgreementType = domain.AgreementType
             };
         }
 

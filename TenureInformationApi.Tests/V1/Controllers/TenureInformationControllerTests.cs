@@ -29,7 +29,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         public void GetTenureWithNoIdReturnsNotFound()
         {
             var id = Guid.NewGuid();
-            _mockGetByIdUsecase.Setup(x => x.Execute(id)).Throws<NotFoundException>();
+            _mockGetByIdUsecase.Setup(x => x.Execute(id)).Returns((TenureResponseObject) null);
 
             var response = _classUnderTest.GetByID(id) as NotFoundObjectResult;
             response.Should().BeOfType(typeof(NotFoundObjectResult));

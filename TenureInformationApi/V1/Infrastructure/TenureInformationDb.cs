@@ -52,7 +52,7 @@ namespace TenureInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<AgreementType>))]
         public AgreementType AgreementType { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<string>))]
+        [DynamoDBProperty]
         public List<string> SubsidiaryAccountsReferences { get; set; } = new List<string>();
 
         [DynamoDBProperty]

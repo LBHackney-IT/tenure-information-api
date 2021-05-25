@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System;
 using TenureInformationApi.V1.Domain;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Factories;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
@@ -34,7 +35,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Test]
         public void GetEntityByIdReturnsTheEntityIfItExists()
         {
-            var entity = _fixture.Build<TenureInformation>().Create();
+            var entity = _fixture.Build<TenureInformation>()
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .Create();
             InsertDatatoDynamoDB(entity);
 
             var response = _classUnderTest.GetEntityById(entity.Id);
@@ -45,7 +53,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private void InsertDatatoDynamoDB(TenureInformation entity)
         {
-            DynamoDbContext.SaveAsync(entity).GetAwaiter().GetResult();
+            DynamoDbContext.SaveAsync(entity.ToDatabase()).GetAwaiter().GetResult();
         }
     }
 }
