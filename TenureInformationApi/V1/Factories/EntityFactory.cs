@@ -1,3 +1,4 @@
+using System.Linq;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
 
@@ -42,7 +43,32 @@ namespace TenureInformationApi.V1.Factories
 
             return new TenureInformationDb
             {
-                Id = entity.Id
+                Id = entity.Id,
+                AccountType = entity.AccountType,
+                Terminated = entity.Terminated,
+                TenureType = entity.TenureType,
+                TenuredAsset = entity.TenuredAsset,
+                SuccessionDate = entity.SuccessionDate,
+                SubsidiaryAccountsReferences = entity.SubsidiaryAccountsReferences.ToList(),
+                AgreementType = entity.AgreementType,
+                Charges = entity.Charges,
+                EndOfTenureDate = entity.EndOfTenureDate,
+                EvictionDate = entity.EvictionDate,
+                HouseholdMembers = entity.HouseholdMembers,
+                InformHousingBenefitsForChanges = entity.InformHousingBenefitsForChanges,
+                IsActive = entity.IsActive,
+                IsMutualExchange = entity.IsMutualExchange,
+                IsSublet = entity.IsSublet,
+                IsTenanted = entity.IsTenanted,
+                LegacyReferences = entity.LegacyReferences.ToList(),
+                MasterAccountTenureReference = entity.MasterAccountTenureReference,
+                Notices = entity.Notices.ToList(),
+                PaymentReference = entity.PaymentReference,
+                PotentialEndDate = entity.PotentialEndDate,
+                RentCostCentre = entity.RentCostCentre,
+                StartOfTenureDate = entity.StartOfTenureDate,
+                SubletEndDate = entity.SubletEndDate
+
             };
         }
     }

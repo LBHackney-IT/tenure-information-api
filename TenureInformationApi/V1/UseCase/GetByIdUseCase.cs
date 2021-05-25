@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
@@ -18,7 +19,7 @@ namespace TenureInformationApi.V1.UseCase
 
         public TenureResponseObject Execute(Guid id)
         {
-            return _gateway.GetEntityById(id).ToResponse();            
+            return _gateway.GetEntityById(id).ToResponse();
         }
     }
 }

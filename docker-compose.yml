@@ -4,8 +4,10 @@ services:
   tenure-information-api:
     image: tenure-information-api
     build:
-      context: TenureInformationApi/
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: TenureInformationApi/Dockerfile
+      args:
+        - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
     ports:
       - 3000:3000
     environment:
@@ -22,6 +24,8 @@ services:
     build:
       context: .
       dockerfile: TenureInformationApi.Tests/Dockerfile
+      args:
+        - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
     environment:
       - DynamoDb_LocalMode=true
       - DynamoDb_LocalServiceUrl=http://dynamodb-database:8000

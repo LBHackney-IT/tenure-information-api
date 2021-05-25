@@ -1,17 +1,15 @@
-using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
-using TenureInformationApi.Tests.V1.Helper;
-using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 using System;
+using TenureInformationApi.V1.Domain;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
-    
+
     [TestFixture]
     public class DynamoDbGatewayTests : DynamoDbTests
     {
@@ -41,8 +39,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             var response = _classUnderTest.GetEntityById(entity.Id);
 
-            entity.Should().BeEquivalentTo(response);
-            
+            response.Should().BeEquivalentTo(entity);
+
         }
 
         private void InsertDatatoDynamoDB(TenureInformation entity)

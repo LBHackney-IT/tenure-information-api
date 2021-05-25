@@ -51,7 +51,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _mockGateway.Setup(x => x.GetEntityById(id)).Throws(exception);
             Func<TenureResponseObject> throwException = () => _classUnderTest.Execute(id);
             throwException.Should().Throw<ApplicationException>().WithMessage("Test Exception");
-            
+
         }
     }
 }

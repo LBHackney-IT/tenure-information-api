@@ -34,7 +34,7 @@ namespace TenureInformationApi.V1.Controllers
             {
                 return Ok(_getByIdUseCase.Execute(id));
             }
-            catch(NotFoundException e)
+            catch (NotFoundException e)
             {
                 return new NotFoundObjectResult(e.Message);
             }

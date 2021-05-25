@@ -22,7 +22,7 @@ namespace TenureInformationApi.Tests
         protected void RunBeforeTests()
         {
             AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
-            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://dynamodb-database:8000" };
+            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" };
             DynamoDBClient = new AmazonDynamoDBClient(clientConfig);
             try
             {
