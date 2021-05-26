@@ -65,9 +65,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         {
             if (disposing && !_disposed)
             {
-                //if (null != Tenure)
-                //    _dbContext.DeleteAsync<TenureInformationDb>(Tenure.Id).GetAwaiter().GetResult();
-
                 _disposed = true;
             }
         }
