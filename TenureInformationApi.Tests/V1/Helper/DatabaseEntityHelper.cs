@@ -1,7 +1,6 @@
 using AutoFixture;
 using System.Linq;
 using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.Helper

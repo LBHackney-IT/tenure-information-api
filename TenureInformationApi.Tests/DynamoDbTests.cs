@@ -1,24 +1,18 @@
-using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Strategies;
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
 
 namespace TenureInformationApi.Tests
 {
-    [TestFixture]
     public class DynamoDbTests
     {
         protected IDynamoDBContext DynamoDbContext { get; private set; }
         protected AmazonDynamoDBClient DynamoDBClient { get; private set; }
         private const string ID = "id";
 
-        [SetUp]
         protected void RunBeforeTests()
         {
             AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
@@ -40,10 +34,6 @@ namespace TenureInformationApi.Tests
             DynamoDbContext = new DynamoDBContext(DynamoDBClient);
         }
 
-        [TearDown]
-        protected void RunAfterTests()
-        {
-            DynamoDBClient.Dispose();
-        }
+
     }
 }

@@ -1,22 +1,28 @@
 using AutoFixture;
-using TenureInformationApi;
-using TenureInformationApi.Tests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using System;
 using System.Net;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.E2ETests
 {
-    public class E2EGetByIdTest : DynamoDbIntegrationTests<Startup>
+    [Collection("DynamoDb collection")]
+    public class E2EGetByIdTest : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
+        public TenureInformationDb Tenure { get; private set; }
+        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+
+        public E2EGetByIdTest(DynamoDbIntegrationTests<Startup> dbFixture)
+        {
+            _dbFixture = dbFixture;
+        }
 
         /// <summary>
         /// Method to construct a test entity that can be used in a test
@@ -44,28 +50,46 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         /// <returns></returns>
         private async Task SetupTestData(TenureInformation entity)
         {
-            await DynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-            CleanupActions.Add(async () => await DynamoDbContext.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
+            await _dbFixture.DynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
+            _dbFixture.CleanupActions.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
         }
 
-        [Test]
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                //if (null != Tenure)
+                //    _dbContext.DeleteAsync<TenureInformationDb>(Tenure.Id).GetAwaiter().GetResult();
+
+                _disposed = true;
+            }
+        }
+
+        [Fact]
         public async Task GetEntityByIdNotFoundReturns404()
         {
             var id = Guid.NewGuid();
             var uri = new Uri($"api/v1/tenures/{id}", UriKind.Relative);
-            var response = await Client.GetAsync(uri).ConfigureAwait(false);
+            var response = await _dbFixture.Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
-        [Test]
+        [Fact]
         public async Task GetTenureByIdFoundReturnsResponse()
         {
             var entity = ConstructTestEntity();
             await SetupTestData(entity).ConfigureAwait(false);
 
             var uri = new Uri($"api/v1/tenures/{entity.Id}", UriKind.Relative);
-            var response = await Client.GetAsync(uri).ConfigureAwait(false);
+            var response = await _dbFixture.Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
