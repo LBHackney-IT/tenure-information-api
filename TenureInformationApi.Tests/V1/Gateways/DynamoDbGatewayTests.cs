@@ -24,16 +24,16 @@ namespace TenureInformationApi.Tests.V1.Gateways
         }
 
         [Test]
-        public void GetEntityByIdReturnsNullIfEntityDoesntExist()
+        public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
             var id = Guid.NewGuid();
-            var response = _classUnderTest.GetEntityById(id);
+            var response = await _classUnderTest.GetEntityById(id).ConfigureAwait(false);
 
             response.Should().BeNull();
         }
 
         [Test]
-        public void GetEntityByIdReturnsTheEntityIfItExists()
+        public async Task GetEntityByIdReturnsTheEntityIfItExists()
         {
             var entity = _fixture.Build<TenureInformation>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow)
@@ -43,17 +43,17 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Create();
-            InsertDatatoDynamoDB(entity);
+            await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            var response = _classUnderTest.GetEntityById(entity.Id);
+            var response = await _classUnderTest.GetEntityById(entity.Id).ConfigureAwait(false);
 
             response.Should().BeEquivalentTo(entity);
 
         }
 
-        private void InsertDatatoDynamoDB(TenureInformation entity)
+        private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
-            DynamoDbContext.SaveAsync(entity.ToDatabase()).GetAwaiter().GetResult();
+            await DynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
         }
     }
 }

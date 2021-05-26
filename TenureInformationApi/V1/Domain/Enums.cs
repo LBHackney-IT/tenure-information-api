@@ -5,14 +5,14 @@ namespace TenureInformationApi.V1.Domain
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum HouseholdMembersType
     {
-        person,
-        organisation
+        Person,
+        Organisation
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TenuredAssetType
     {
-        dwelling,
-        garage
+        Dwelling,
+        Garage
     }
 }

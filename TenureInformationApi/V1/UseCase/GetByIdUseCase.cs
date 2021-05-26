@@ -17,9 +17,11 @@ namespace TenureInformationApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public TenureResponseObject Execute(Guid id)
+        public async Task<TenureResponseObject> Execute(Guid id)
         {
-            return _gateway.GetEntityById(id).ToResponse();
+            var tenure = await _gateway.GetEntityById(id).ConfigureAwait(false);
+
+            return tenure.ToResponse();
         }
     }
 }

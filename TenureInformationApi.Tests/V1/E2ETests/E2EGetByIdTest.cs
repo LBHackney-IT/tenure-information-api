@@ -14,7 +14,6 @@ using TenureInformationApi.V1.Boundary.Response;
 
 namespace TenureInformationApi.Tests.V1.E2ETests
 {
-
     public class E2EGetByIdTest : DynamoDbIntegrationTests<Startup>
     {
         private readonly Fixture _fixture = new Fixture();

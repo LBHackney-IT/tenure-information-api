@@ -25,22 +25,22 @@ namespace TenureInformationApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void GetByIdUsecaseShouldBeNull()
+        public async Task GetByIdUsecaseShouldBeNull()
         {
             var id = Guid.NewGuid();
-            _mockGateway.Setup(x => x.GetEntityById(id)).Returns((TenureInformation) null);
+            _mockGateway.Setup(x => x.GetEntityById(id)).ReturnsAsync((TenureInformation) null);
 
-            var response = _classUnderTest.Execute(id);
+            var response = await _classUnderTest.Execute(id).ConfigureAwait(false);
             response.Should().BeNull();
         }
         [Test]
-        public void GetByIdUsecaseShouldReturnOkResponse()
+        public async Task GetByIdUsecaseShouldReturnOkResponse()
         {
             var tenure = _fixture.Create<TenureInformation>();
-            _mockGateway.Setup(x => x.GetEntityById(tenure.Id)).Returns(tenure);
+            _mockGateway.Setup(x => x.GetEntityById(tenure.Id)).ReturnsAsync(tenure);
 
 
-            var response = _classUnderTest.Execute(tenure.Id);
+            var response = await _classUnderTest.Execute(tenure.Id).ConfigureAwait(false);
             response.Should().BeEquivalentTo(tenure.ToResponse());
         }
         [Test]
@@ -48,8 +48,8 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             var id = Guid.NewGuid();
             var exception = new ApplicationException("Test Exception");
-            _mockGateway.Setup(x => x.GetEntityById(id)).Throws(exception);
-            Func<TenureResponseObject> throwException = () => _classUnderTest.Execute(id);
+            _mockGateway.Setup(x => x.GetEntityById(id)).ThrowsAsync(exception);
+            Func<Task<TenureResponseObject>> throwException = async () => await _classUnderTest.Execute(id).ConfigureAwait(false);
             throwException.Should().Throw<ApplicationException>().WithMessage("Test Exception");
 
         }

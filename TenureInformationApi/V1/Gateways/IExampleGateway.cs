@@ -7,7 +7,7 @@ namespace TenureInformationApi.V1.Gateways
 {
     public interface IExampleGateway
     {
-        TenureInformation GetEntityById(Guid id);
+        Task<TenureInformation> GetEntityById(Guid id);
 
     }
 }

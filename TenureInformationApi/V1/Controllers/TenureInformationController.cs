@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using TenureInformationApi.V1.Domain;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.V1.Controllers
 {
@@ -28,9 +29,9 @@ namespace TenureInformationApi.V1.Controllers
         [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetByID(Guid id)
+        public async Task<IActionResult> GetByID(Guid id)
         {
-            var result = _getByIdUseCase.Execute(id);
+            var result = await _getByIdUseCase.Execute(id).ConfigureAwait(false);
             if (result == null) return NotFound(id);
             return Ok(result);
         }

@@ -18,9 +18,9 @@ namespace TenureInformationApi.V1.Gateways
         }
 
 
-        public TenureInformation GetEntityById(Guid id)
+        public async Task<TenureInformation> GetEntityById(Guid id)
         {
-            var result = _dynamoDbContext.LoadAsync<TenureInformationDb>(id).GetAwaiter().GetResult();
+            var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(id).ConfigureAwait(false);
             return result?.ToDomain();
         }
     }
