@@ -1,4 +1,6 @@
+using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
@@ -12,11 +14,13 @@ namespace TenureInformationApi.V1.UseCase
     public class GetByIdUseCase : IGetByIdUseCase
     {
         private ITenureGateway _gateway;
+
         public GetByIdUseCase(ITenureGateway gateway)
         {
             _gateway = gateway;
         }
 
+        [LogCall]
         public async Task<TenureResponseObject> Execute(Guid id)
         {
             var tenure = await _gateway.GetEntityById(id).ConfigureAwait(false);

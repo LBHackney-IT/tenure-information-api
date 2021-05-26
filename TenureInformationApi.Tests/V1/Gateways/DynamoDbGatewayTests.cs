@@ -9,6 +9,7 @@ using Amazon.DynamoDBv2.DataModel;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
@@ -47,10 +48,10 @@ namespace TenureInformationApi.Tests.V1.Gateways
         }
 
         [Fact]
-        public void GetEntityByIdReturnsNullIfEntityDoesntExist()
+        public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
             var id = Guid.NewGuid();
-            var response = _classUnderTest.GetEntityById(id);
+            var response = await _classUnderTest.GetEntityById(id).ConfigureAwait(false);
 
             response.Should().BeNull();
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {id}", Times.Once());
@@ -58,7 +59,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         }
 
         [Fact]
-        public void GetEntityByIdReturnsTheEntityIfItExists()
+        public async Task GetEntityByIdReturnsTheEntityIfItExists()
         {
             var entity = _fixture.Build<TenureInformation>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow)
@@ -68,18 +69,18 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Create();
-            InsertDatatoDynamoDB(entity);
+            await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            var response = _classUnderTest.GetEntityById(entity.Id);
+            var response = await _classUnderTest.GetEntityById(entity.Id).ConfigureAwait(false);
 
             response.Should().BeEquivalentTo(entity);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {entity.Id}", Times.Once());
 
         }
 
-        private void InsertDatatoDynamoDB(TenureInformation entity)
+        private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
-            _dynamoDb.SaveAsync(entity.ToDatabase()).GetAwaiter().GetResult();
+            await _dynamoDb.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity.ToDatabase()).ConfigureAwait(false));
         }
     }

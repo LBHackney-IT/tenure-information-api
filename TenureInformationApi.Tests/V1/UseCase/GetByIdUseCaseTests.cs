@@ -8,38 +8,39 @@ using AutoFixture;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Boundary.Response;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
     public class GetByIdUseCaseTests
     {
-        private Mock<IExampleGateway> _mockGateway;
+        private Mock<ITenureGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         public GetByIdUseCaseTests()
         {
-            _mockGateway = new Mock<IExampleGateway>();
+            _mockGateway = new Mock<ITenureGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 
         [Fact]
-        public void GetByIdUsecaseShouldBeNull()
+        public async Task GetByIdUsecaseShouldBeNull()
         {
             var id = Guid.NewGuid();
-            _mockGateway.Setup(x => x.GetEntityById(id)).Returns((TenureInformation) null);
+            _mockGateway.Setup(x => x.GetEntityById(id)).ReturnsAsync((TenureInformation) null);
 
-            var response = _classUnderTest.Execute(id);
+            var response = await _classUnderTest.Execute(id).ConfigureAwait(false);
             response.Should().BeNull();
         }
         [Fact]
-        public void GetByIdUsecaseShouldReturnOkResponse()
+        public async Task GetByIdUsecaseShouldReturnOkResponse()
         {
             var tenure = _fixture.Create<TenureInformation>();
-            _mockGateway.Setup(x => x.GetEntityById(tenure.Id)).Returns(tenure);
+            _mockGateway.Setup(x => x.GetEntityById(tenure.Id)).ReturnsAsync(tenure);
 
 
-            var response = _classUnderTest.Execute(tenure.Id);
+            var response = await _classUnderTest.Execute(tenure.Id).ConfigureAwait(false);
             response.Should().BeEquivalentTo(tenure.ToResponse());
         }
         [Fact]
@@ -47,8 +48,8 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             var id = Guid.NewGuid();
             var exception = new ApplicationException("Test Exception");
-            _mockGateway.Setup(x => x.GetEntityById(id)).Throws(exception);
-            Func<TenureResponseObject> throwException = () => _classUnderTest.Execute(id);
+            _mockGateway.Setup(x => x.GetEntityById(id)).ThrowsAsync(exception);
+            Func<Task<TenureResponseObject>> throwException = async () => await _classUnderTest.Execute(id).ConfigureAwait(false);
             throwException.Should().Throw<ApplicationException>().WithMessage("Test Exception");
 
         }

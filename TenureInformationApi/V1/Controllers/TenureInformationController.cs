@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using TenureInformationApi.V1.Domain;
 using System.Threading.Tasks;
+using Hackney.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace TenureInformationApi.V1.Controllers
 {
@@ -29,6 +31,7 @@ namespace TenureInformationApi.V1.Controllers
         [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status200OK)]
         [HttpGet]
         [Route("{id}")]
+        [LogCall(LogLevel.Information)]
         public async Task<IActionResult> GetByID(Guid id)
         {
             var result = await _getByIdUseCase.Execute(id).ConfigureAwait(false);

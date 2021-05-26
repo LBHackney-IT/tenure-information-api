@@ -7,6 +7,7 @@ using TenureInformationApi.V1.Boundary.Response;
 using Microsoft.AspNetCore.Mvc;
 using AutoFixture;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.Controllers
 {
@@ -24,25 +25,25 @@ namespace TenureInformationApi.Tests.V1.Controllers
         }
 
         [Fact]
-        public void GetTenureWithNoIdReturnsNotFound()
+        public async Task GetTenureWithNoIdReturnsNotFound()
         {
             var id = Guid.NewGuid();
-            _mockGetByIdUsecase.Setup(x => x.Execute(id)).Returns((TenureResponseObject) null);
+            _mockGetByIdUsecase.Setup(x => x.Execute(id)).ReturnsAsync((TenureResponseObject) null);
 
-            var response = _classUnderTest.GetByID(id) as NotFoundObjectResult;
+            var response = await _classUnderTest.GetByID(id).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
-            response.StatusCode.Should().Be(404);
+            (response as NotFoundObjectResult).Value.Should().Be(id);
         }
 
         [Fact]
-        public void GetTenureWithValidIdReturnsOKResponse()
+        public async Task GetTenureWithValidIdReturnsOKResponse()
         {
             var tenureResponse = _fixture.Create<TenureResponseObject>();
-            _mockGetByIdUsecase.Setup(x => x.Execute(tenureResponse.Id)).Returns(tenureResponse);
+            _mockGetByIdUsecase.Setup(x => x.Execute(tenureResponse.Id)).ReturnsAsync(tenureResponse);
 
-            var response = _classUnderTest.GetByID(tenureResponse.Id) as OkObjectResult;
-            response.Value.Should().Be(tenureResponse);
-            response.StatusCode.Should().Be(200);
+            var response = await _classUnderTest.GetByID(tenureResponse.Id).ConfigureAwait(false);
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().Be(tenureResponse);
         }
     }
 }
