@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TenureInformationApi.V1.Gateways
 {
-    public class DynamoDbGateway : IExampleGateway
+    public class DynamoDbGateway : ITenureGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
 

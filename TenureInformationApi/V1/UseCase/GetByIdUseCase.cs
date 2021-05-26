@@ -11,8 +11,8 @@ namespace TenureInformationApi.V1.UseCase
 {
     public class GetByIdUseCase : IGetByIdUseCase
     {
-        private IExampleGateway _gateway;
-        public GetByIdUseCase(IExampleGateway gateway)
+        private ITenureGateway _gateway;
+        public GetByIdUseCase(ITenureGateway gateway)
         {
             _gateway = gateway;
         }
