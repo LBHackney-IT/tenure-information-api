@@ -1,24 +1,48 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using Xunit;
 
 namespace TenureInformationApi.Tests
 {
     public class DynamoDbIntegrationTests<TStartup> where TStartup : class
     {
-        protected HttpClient Client { get; private set; }
+        public HttpClient Client { get; private set; }
+        public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
+
         private DynamoDbMockWebApplicationFactory<TStartup> _factory;
-        protected IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
-        protected List<Action> CleanupActions { get; set; }
+        public List<Action> CleanupActions { get; set; } = new List<Action>();
 
         private readonly List<TableDef> _tables = new List<TableDef>
         {
-            // TODO: Populate the list of table(s) and their key property details here, for example:
-            //new TableDef { Name = "example_table", KeyName = "id", KeyType = ScalarAttributeType.N }
+            new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.S }
         };
+
+        public DynamoDbIntegrationTests()
+        {
+            EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
+            EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
+            _factory = new DynamoDbMockWebApplicationFactory<TStartup>(_tables);
+            Client = _factory.CreateClient();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        private bool _disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                if (null != _factory)
+                    _factory.Dispose();
+                _disposed = true;
+            }
+        }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
@@ -26,34 +50,7 @@ namespace TenureInformationApi.Tests
                 Environment.SetEnvironmentVariable(name, defaultValue);
         }
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
-            EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
-            _factory = new DynamoDbMockWebApplicationFactory<TStartup>(_tables);
-        }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            _factory.Dispose();
-        }
-
-        [SetUp]
-        public void BaseSetup()
-        {
-            Client = _factory.CreateClient();
-            CleanupActions = new List<Action>();
-        }
-
-        [TearDown]
-        public void BaseTearDown()
-        {
-            foreach (var act in CleanupActions)
-                act();
-            Client.Dispose();
-        }
     }
 
     public class TableDef
@@ -61,5 +58,13 @@ namespace TenureInformationApi.Tests
         public string Name { get; set; }
         public string KeyName { get; set; }
         public ScalarAttributeType KeyType { get; set; }
+    }
+
+    [CollectionDefinition("DynamoDb collection", DisableParallelization = true)]
+    public class DynamoDbCollection : ICollectionFixture<DynamoDbIntegrationTests<Startup>>
+    {
+        // This class has no code, and is never created. Its purpose is simply
+        // to be the place to apply [CollectionDefinition] and all the
+        // ICollectionFixture<> interfaces.
     }
 }

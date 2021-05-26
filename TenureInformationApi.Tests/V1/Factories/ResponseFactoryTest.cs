@@ -1,19 +1,21 @@
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
-using NUnit.Framework;
+using AutoFixture;
+using FluentAssertions;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Factories
 {
     public class ResponseFactoryTest
     {
-        //TODO: add assertions for all the fields being mapped in `ResponseFactory.ToResponse()`. Also be sure to add test cases for
-        // any edge cases that might exist.
-        [Test]
+        private Fixture _fixture = new Fixture();
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
-            var domain = new Entity();
+            var domain = _fixture.Create<TenureInformation>();
             var response = domain.ToResponse();
-            //TODO: check here that all of the fields have been mapped correctly. i.e. response.fieldOne.Should().Be("one")
+            domain.Should().BeEquivalentTo(response);
+
         }
     }
 }

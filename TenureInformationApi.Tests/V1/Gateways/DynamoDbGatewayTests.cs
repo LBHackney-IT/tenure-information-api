@@ -1,55 +1,87 @@
-using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
-using TenureInformationApi.Tests.V1.Helper;
-using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Gateways;
-using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;
+using System;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
+using Xunit;
+using Amazon.DynamoDBv2.DataModel;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
-    //TODO: Remove this file if DynamoDb gateway not being used
-    //TODO: Rename Tests to match gateway name
-    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-base-api/wiki/Running-the-test-suite.
-    [TestFixture]
-    public class DynamoDbGatewayTests
+    [Collection("DynamoDb collection")]
+    public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IDynamoDBContext> _dynamoDb;
+        private readonly Mock<ILogger<DynamoDbGateway>> _logger;
         private DynamoDbGateway _classUnderTest;
+        private readonly IDynamoDBContext _dynamoDb;
+        private readonly List<Action> _cleanup = new List<Action>();
 
-        [SetUp]
-        public void Setup()
+        public DynamoDbGatewayTests(DynamoDbIntegrationTests<Startup> dbTestFixture)
         {
-            _dynamoDb = new Mock<IDynamoDBContext>();
-            _classUnderTest = new DynamoDbGateway(_dynamoDb.Object);
+            _dynamoDb = dbTestFixture.DynamoDbContext;
+            _logger = new Mock<ILogger<DynamoDbGateway>>();
+            _classUnderTest = new DynamoDbGateway(_dynamoDb, _logger.Object);
         }
 
-        [Test]
-        public void GetEntityByIdReturnsNullIfEntityDoesntExist()
+        public void Dispose()
         {
-            var response = _classUnderTest.GetEntityById(123);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                foreach (var action in _cleanup)
+                    action();
+
+                _disposed = true;
+            }
+        }
+
+        [Fact]
+        public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
+        {
+            var id = Guid.NewGuid();
+            var response = await _classUnderTest.GetEntityById(id).ConfigureAwait(false);
 
             response.Should().BeNull();
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {id}", Times.Once());
+
         }
 
-        [Test]
-        public void GetEntityByIdReturnsTheEntityIfItExists()
+        [Fact]
+        public async Task GetEntityByIdReturnsTheEntityIfItExists()
         {
-            var entity = _fixture.Create<Entity>();
-            var dbEntity = DatabaseEntityHelper.CreateDatabaseEntityFrom(entity);
+            var entity = _fixture.Build<TenureInformation>()
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .Create();
+            await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            _dynamoDb.Setup(x => x.LoadAsync<DatabaseEntity>(entity.Id, default))
-                     .ReturnsAsync(dbEntity);
+            var response = await _classUnderTest.GetEntityById(entity.Id).ConfigureAwait(false);
 
-            var response = _classUnderTest.GetEntityById(entity.Id);
+            response.Should().BeEquivalentTo(entity);
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {entity.Id}", Times.Once());
 
-            _dynamoDb.Verify(x => x.LoadAsync<DatabaseEntity>(entity.Id, default), Times.Once);
+        }
 
-            entity.Id.Should().Be(response.Id);
-            entity.CreatedAt.Should().BeSameDateAs(response.CreatedAt);
+        private async Task InsertDatatoDynamoDB(TenureInformation entity)
+        {
+            await _dynamoDb.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity.ToDatabase()).ConfigureAwait(false));
         }
     }
 }
