@@ -18,7 +18,7 @@ namespace TenureInformationApi.V1.Factories
                 Charges = domain.Charges,
                 EndOfTenureDate = domain.EndOfTenureDate,
                 EvictionDate = domain.EvictionDate,
-                HouseholdMembers = domain.HouseholdMembers,
+                HouseholdMembers = domain.HouseholdMembers.ToList(),
                 InformHousingBenefitsForChanges = domain.InformHousingBenefitsForChanges,
                 IsActive = domain.IsActive,
                 IsMutualExchange = domain.IsMutualExchange,

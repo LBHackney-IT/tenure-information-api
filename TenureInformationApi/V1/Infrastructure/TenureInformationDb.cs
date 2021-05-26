@@ -16,8 +16,8 @@ namespace TenureInformationApi.V1.Infrastructure
         [DynamoDBProperty]
         public string PaymentReference { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<HouseholdMembers>))]
-        public HouseholdMembers HouseholdMembers { get; set; }
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<HouseholdMembers>))]
+        public List<HouseholdMembers> HouseholdMembers { get; set; } = new List<HouseholdMembers>();
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<TenuredAsset>))]
         public TenuredAsset TenuredAsset { get; set; }

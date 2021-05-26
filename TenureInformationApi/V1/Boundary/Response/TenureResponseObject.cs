@@ -8,7 +8,7 @@ namespace TenureInformationApi.V1.Boundary.Response
     {
         public Guid Id { get; set; }
         public string PaymentReference { get; set; }
-        public HouseholdMembers HouseholdMembers { get; set; }
+        public List<HouseholdMembers> HouseholdMembers { get; set; }
         public TenuredAsset TenuredAsset { get; set; }
         public AccountType AccountType { get; set; }
         public Charges Charges { get; set; }

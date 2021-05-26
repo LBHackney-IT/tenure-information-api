@@ -54,7 +54,7 @@ namespace TenureInformationApi.V1.Factories
                 Charges = entity.Charges,
                 EndOfTenureDate = entity.EndOfTenureDate,
                 EvictionDate = entity.EvictionDate,
-                HouseholdMembers = entity.HouseholdMembers,
+                HouseholdMembers = entity.HouseholdMembers.ToList(),
                 InformHousingBenefitsForChanges = entity.InformHousingBenefitsForChanges,
                 IsActive = entity.IsActive,
                 IsMutualExchange = entity.IsMutualExchange,
