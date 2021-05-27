@@ -1,15 +1,15 @@
-using AutoFixture;
-using TenureInformationApi.V1.Gateways;
-using FluentAssertions;
-using System;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
-using Xunit;
 using Amazon.DynamoDBv2.DataModel;
-using System.Collections.Generic;
+using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Gateways;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
@@ -18,7 +18,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<DynamoDbGateway>> _logger;
-        private DynamoDbGateway _classUnderTest;
+        private readonly DynamoDbGateway _classUnderTest;
         private readonly IDynamoDBContext _dynamoDb;
         private readonly List<Action> _cleanup = new List<Action>();
 
