@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
-using TenureInformationApi.V1.Infrastructure;
+using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TenureInformationApi.V1.Controllers
 {
@@ -18,7 +18,7 @@ namespace TenureInformationApi.V1.Controllers
         public string GetCorrelationId()
         {
             StringValues correlationId;
-            HttpContext.Request.Headers.TryGetValue(Constants.CorrelationId, out correlationId);
+            HttpContext.Request.Headers.TryGetValue(HeaderConstants.CorrelationId, out correlationId);
 
             if (!correlationId.Any())
                 throw new KeyNotFoundException("Request is missing a correlationId");
