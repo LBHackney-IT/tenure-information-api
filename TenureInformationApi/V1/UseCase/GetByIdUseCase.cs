@@ -1,23 +1,31 @@
+using Hackney.Core.Logging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase
 {
-    //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetClaimantByIdUseCase
     public class GetByIdUseCase : IGetByIdUseCase
     {
-        private IExampleGateway _gateway;
-        public GetByIdUseCase(IExampleGateway gateway)
+        private ITenureGateway _gateway;
+
+        public GetByIdUseCase(ITenureGateway gateway)
         {
             _gateway = gateway;
         }
 
-        //TODO: rename id to the name of the identifier that will be used for this API, the type may also need to change
-        public ResponseObject Execute(int id)
+        [LogCall]
+        public async Task<TenureResponseObject> Execute(Guid id)
         {
-            return _gateway.GetEntityById(id).ToResponse();
+            var tenure = await _gateway.GetEntityById(id).ConfigureAwait(false);
+
+            return tenure.ToResponse();
         }
     }
 }
