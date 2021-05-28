@@ -12,8 +12,7 @@ namespace TenureInformationApi.Tests
         public HttpClient Client { get; private set; }
         public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
 
-        private DynamoDbMockWebApplicationFactory<TStartup> _factory;
-        public List<Action> CleanupActions { get; set; } = new List<Action>();
+        private readonly DynamoDbMockWebApplicationFactory<TStartup> _factory;
 
         private readonly List<TableDef> _tables = new List<TableDef>
         {

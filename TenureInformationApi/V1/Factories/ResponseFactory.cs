@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
 {
@@ -43,6 +42,7 @@ namespace TenureInformationApi.V1.Factories
 
         public static List<TenureResponseObject> ToResponse(this IEnumerable<TenureInformation> domainList)
         {
+            if (null == domainList) return new List<TenureResponseObject>();
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
     }

@@ -1,19 +1,20 @@
-using System.Collections.Generic;
-using TenureInformationApi.V1.Controllers;
 using FluentAssertions;
+using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
+using TenureInformationApi.V1.Controllers;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Controllers
 {
     public class BaseControllerTests
     {
-        private BaseController _sut;
-        private ControllerContext _controllerContext;
-        private HttpContext _stubHttpContext;
+        private readonly BaseController _sut;
+        private readonly ControllerContext _controllerContext;
+        private readonly HttpContext _stubHttpContext;
 
         public BaseControllerTests()
         {
@@ -37,7 +38,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         public void GetCorrelationShouldReturnCorrelationIdWhenExists()
         {
             // Arrange
-            _stubHttpContext.Request.Headers.Add(Constants.CorrelationId, "123");
+            _stubHttpContext.Request.Headers.Add(HeaderConstants.CorrelationId, "123");
 
             // Act
             var result = _sut.GetCorrelationId();

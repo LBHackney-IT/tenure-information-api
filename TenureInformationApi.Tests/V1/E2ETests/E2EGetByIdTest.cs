@@ -1,13 +1,14 @@
 using AutoFixture;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Infrastructure;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.E2ETests
@@ -18,6 +19,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         private readonly Fixture _fixture = new Fixture();
         public TenureInformationDb Tenure { get; private set; }
         private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly List<Action> _cleanupActions = new List<Action>();
 
         public E2EGetByIdTest(DynamoDbIntegrationTests<Startup> dbFixture)
         {
@@ -51,7 +53,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         private async Task SetupTestData(TenureInformation entity)
         {
             await _dbFixture.DynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-            _dbFixture.CleanupActions.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
+            _cleanupActions.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
         }
 
         public void Dispose()
@@ -65,6 +67,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         {
             if (disposing && !_disposed)
             {
+                foreach (var action in _cleanupActions)
+                    action();
+
                 _disposed = true;
             }
         }
