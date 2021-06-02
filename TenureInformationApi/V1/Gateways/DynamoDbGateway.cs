@@ -1,12 +1,11 @@
 using Amazon.DynamoDBv2.DataModel;
+using Hackney.Core.Logging;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
-using System.Collections.Generic;
-using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Hackney.Core.Logging;
 
 namespace TenureInformationApi.V1.Gateways
 {
@@ -23,10 +22,10 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<TenureInformation> GetEntityById(Guid id)
+        public async Task<TenureInformation> GetEntityById(GetByIdRequest query)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {id}");
-            var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(id).ConfigureAwait(false);
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
+            var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             return result?.ToDomain();
         }
     }

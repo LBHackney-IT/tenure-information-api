@@ -6,6 +6,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
@@ -47,15 +48,19 @@ namespace TenureInformationApi.Tests.V1.Gateways
             }
         }
 
+        private GetByIdRequest ConstructRequest(Guid? id = null)
+        {
+            return new GetByIdRequest() { Id = id ?? Guid.NewGuid() };
+        }
+
         [Fact]
         public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
-            var id = Guid.NewGuid();
-            var response = await _classUnderTest.GetEntityById(id).ConfigureAwait(false);
+            var request = ConstructRequest();
+            var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeNull();
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {id}", Times.Once());
-
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         [Fact]
@@ -71,11 +76,11 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .Create();
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            var response = await _classUnderTest.GetEntityById(entity.Id).ConfigureAwait(false);
+            var request = ConstructRequest(entity.Id);
+            var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeEquivalentTo(entity);
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {entity.Id}", Times.Once());
-
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

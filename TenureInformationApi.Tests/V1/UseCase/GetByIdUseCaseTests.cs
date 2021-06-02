@@ -1,22 +1,23 @@
-using TenureInformationApi.V1.Gateways;
-using TenureInformationApi.V1.UseCase;
+using AutoFixture;
+using FluentAssertions;
 using Moq;
 using System;
-using TenureInformationApi.V1.Domain;
-using FluentAssertions;
-using AutoFixture;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Boundary.Response;
-using Xunit;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.UseCase;
+using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
     public class GetByIdUseCaseTests
     {
-        private Mock<ITenureGateway> _mockGateway;
-        private GetByIdUseCase _classUnderTest;
+        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         public GetByIdUseCaseTests()
         {
@@ -24,34 +25,41 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 
+        private GetByIdRequest ConstructRequest(Guid? id = null)
+        {
+            return new GetByIdRequest() { Id = id ?? Guid.NewGuid() };
+        }
+
         [Fact]
         public async Task GetByIdUsecaseShouldBeNull()
         {
-            var id = Guid.NewGuid();
-            _mockGateway.Setup(x => x.GetEntityById(id)).ReturnsAsync((TenureInformation) null);
+            var request = ConstructRequest();
+            _mockGateway.Setup(x => x.GetEntityById(request)).ReturnsAsync((TenureInformation) null);
 
-            var response = await _classUnderTest.Execute(id).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(request).ConfigureAwait(false);
             response.Should().BeNull();
         }
+
         [Fact]
         public async Task GetByIdUsecaseShouldReturnOkResponse()
         {
             var tenure = _fixture.Create<TenureInformation>();
-            _mockGateway.Setup(x => x.GetEntityById(tenure.Id)).ReturnsAsync(tenure);
+            var request = ConstructRequest(tenure.Id);
+            _mockGateway.Setup(x => x.GetEntityById(request)).ReturnsAsync(tenure);
 
 
-            var response = await _classUnderTest.Execute(tenure.Id).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(request).ConfigureAwait(false);
             response.Should().BeEquivalentTo(tenure.ToResponse());
         }
+
         [Fact]
         public void GetByIdThrowsException()
         {
-            var id = Guid.NewGuid();
+            var request = ConstructRequest();
             var exception = new ApplicationException("Test Exception");
-            _mockGateway.Setup(x => x.GetEntityById(id)).ThrowsAsync(exception);
-            Func<Task<TenureResponseObject>> throwException = async () => await _classUnderTest.Execute(id).ConfigureAwait(false);
+            _mockGateway.Setup(x => x.GetEntityById(request)).ThrowsAsync(exception);
+            Func<Task<TenureResponseObject>> throwException = async () => await _classUnderTest.Execute(request).ConfigureAwait(false);
             throwException.Should().Throw<ApplicationException>().WithMessage("Test Exception");
-
         }
     }
 }
