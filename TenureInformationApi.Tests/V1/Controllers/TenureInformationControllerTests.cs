@@ -1,21 +1,22 @@
+using AutoFixture;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System;
+using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Controllers;
 using TenureInformationApi.V1.UseCase.Interfaces;
-using Moq;
-using FluentAssertions;
-using TenureInformationApi.V1.Boundary.Response;
-using Microsoft.AspNetCore.Mvc;
-using AutoFixture;
 using Xunit;
-using System.Threading.Tasks;
 
 namespace TenureInformationApi.Tests.V1.Controllers
 {
     [Collection("LogCall collection")]
     public class TenureInformationControllerTests
     {
-        private TenureInformationController _classUnderTest;
-        private Mock<IGetByIdUseCase> _mockGetByIdUsecase;
+        private readonly TenureInformationController _classUnderTest;
+        private readonly Mock<IGetByIdUseCase> _mockGetByIdUsecase;
         private readonly Fixture _fixture = new Fixture();
 
         public TenureInformationControllerTests()
@@ -24,24 +25,30 @@ namespace TenureInformationApi.Tests.V1.Controllers
             _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object);
         }
 
+        private GetByIdRequest ConstructRequest(Guid? id = null)
+        {
+            return new GetByIdRequest() { Id = id ?? Guid.NewGuid() };
+        }
+
         [Fact]
         public async Task GetTenureWithNoIdReturnsNotFound()
         {
-            var id = Guid.NewGuid();
-            _mockGetByIdUsecase.Setup(x => x.Execute(id)).ReturnsAsync((TenureResponseObject) null);
+            var request = ConstructRequest();
+            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync((TenureResponseObject) null);
 
-            var response = await _classUnderTest.GetByID(id).ConfigureAwait(false);
+            var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
-            (response as NotFoundObjectResult).Value.Should().Be(id);
+            (response as NotFoundObjectResult).Value.Should().Be(request.Id);
         }
 
         [Fact]
         public async Task GetTenureWithValidIdReturnsOKResponse()
         {
             var tenureResponse = _fixture.Create<TenureResponseObject>();
-            _mockGetByIdUsecase.Setup(x => x.Execute(tenureResponse.Id)).ReturnsAsync(tenureResponse);
+            var request = ConstructRequest(tenureResponse.Id);
+            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync(tenureResponse);
 
-            var response = await _classUnderTest.GetByID(tenureResponse.Id).ConfigureAwait(false);
+            var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().Be(tenureResponse);
         }
