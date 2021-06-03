@@ -154,7 +154,6 @@ namespace TenureInformationApi
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
