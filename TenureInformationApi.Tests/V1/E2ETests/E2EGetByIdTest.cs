@@ -85,6 +85,15 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         }
 
         [Fact]
+        public async Task GetEntityByIdInvalidIdReturns400()
+        {
+            var uri = new Uri($"api/v1/tenures/somerubbish666", UriKind.Relative);
+            var response = await _dbFixture.Client.GetAsync(uri).ConfigureAwait(false);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
         public async Task GetTenureByIdFoundReturnsResponse()
         {
             var entity = ConstructTestEntity();
