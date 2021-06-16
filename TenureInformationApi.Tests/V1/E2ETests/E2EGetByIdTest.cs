@@ -31,7 +31,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        private TenureInformation ConstructTestEntity()
+        private TenureInformation ConstructTestEntity(bool nullTenuredAssetType = false)
         {
             var entity = _fixture.Build<TenureInformation>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow)
@@ -40,8 +40,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests
                                  .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
-
                                  .Create();
+
+            if (nullTenuredAssetType)
+                entity.TenuredAsset.Type = null;
+
             return entity;
         }
         /// <summary>
@@ -93,10 +96,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
-        [Fact]
-        public async Task GetTenureByIdFoundReturnsResponse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetTenureByIdFoundReturnsResponse(bool nullTenuredAssetType)
         {
-            var entity = ConstructTestEntity();
+            var entity = ConstructTestEntity(nullTenuredAssetType);
             await SetupTestData(entity).ConfigureAwait(false);
 
             var uri = new Uri($"api/v1/tenures/{entity.Id}", UriKind.Relative);
