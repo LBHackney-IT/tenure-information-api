@@ -63,8 +63,10 @@ namespace TenureInformationApi.Tests.V1.Gateways
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
-        [Fact]
-        public async Task GetEntityByIdReturnsTheEntityIfItExists()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetEntityByIdReturnsTheEntityIfItExists(bool nullTenuredAssetType)
         {
             var entity = _fixture.Build<TenureInformation>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow)
@@ -74,6 +76,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Create();
+            if (nullTenuredAssetType)
+                entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
             var request = ConstructRequest(entity.Id);
