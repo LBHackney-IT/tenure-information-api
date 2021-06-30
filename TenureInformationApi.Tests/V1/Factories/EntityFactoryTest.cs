@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
@@ -25,6 +26,8 @@ namespace TenureInformationApi.Tests.V1.Factories
         public void CanMapADomainEntityToADatabaseObject()
         {
             var entity = _fixture.Create<TenureInformation>();
+            entity.EndOfTenureDate = DateTime.UtcNow;
+
             var databaseEntity = entity.ToDatabase();
 
             entity.Should().BeEquivalentTo(databaseEntity);
