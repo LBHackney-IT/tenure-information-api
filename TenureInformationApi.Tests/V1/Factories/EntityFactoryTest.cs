@@ -16,6 +16,8 @@ namespace TenureInformationApi.Tests.V1.Factories
         public void CanMapADatabaseEntityToADomainObject()
         {
             var databaseEntity = _fixture.Create<TenureInformationDb>();
+            databaseEntity.EndOfTenureDate = DateTime.UtcNow;
+
             var entity = databaseEntity.ToDomain();
 
             databaseEntity.Should().BeEquivalentTo(entity);
