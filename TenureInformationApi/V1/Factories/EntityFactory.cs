@@ -23,7 +23,6 @@ namespace TenureInformationApi.V1.Factories
                 EvictionDate = databaseEntity.EvictionDate,
                 HouseholdMembers = databaseEntity.HouseholdMembers,
                 InformHousingBenefitsForChanges = databaseEntity.InformHousingBenefitsForChanges,
-                IsActive = databaseEntity.IsActive,
                 IsMutualExchange = databaseEntity.IsMutualExchange,
                 IsSublet = databaseEntity.IsSublet,
                 IsTenanted = databaseEntity.IsTenanted,

@@ -13,7 +13,7 @@ namespace TenureInformationApi.V1.Boundary.Response
         public AccountType AccountType { get; set; }
         public Charges Charges { get; set; }
         public DateTime StartOfTenureDate { get; set; }
-        public DateTime EndOfTenureDate { get; set; }
+        public DateTime? EndOfTenureDate { get; set; }
         public TenureType TenureType { get; set; }
         public bool IsActive { get; set; }
         public bool IsTenanted { get; set; }
