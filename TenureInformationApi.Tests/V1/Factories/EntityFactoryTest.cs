@@ -20,7 +20,7 @@ namespace TenureInformationApi.Tests.V1.Factories
 
             var entity = databaseEntity.ToDomain();
 
-            databaseEntity.Should().BeEquivalentTo(entity);
+            databaseEntity.Should().BeEquivalentTo(entity, config => config.Excluding(x => x.IsActive));
         }
 
 

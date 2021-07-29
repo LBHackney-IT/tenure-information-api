@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Amazon.DynamoDBv2.DataModel;
+using System.Text.Json.Serialization;
 
 
 namespace TenureInformationApi.V1.Domain
@@ -17,11 +17,8 @@ namespace TenureInformationApi.V1.Domain
         public DateTime? EndOfTenureDate { get; set; }
         public TenureType TenureType { get; set; }
 
-        [DynamoDBIgnore]
-        public bool IsActive =>
-            EndOfTenureDate == null ||
-            EndOfTenureDate.Value == DateTime.Parse("1900-01-01") ||
-                                                    DateTime.UtcNow <= EndOfTenureDate;
+        [JsonIgnore]
+        public bool IsActive => TenureHelpers.IsTenureActive(EndOfTenureDate);
 
         public bool IsTenanted { get; set; }
         public Terminated Terminated { get; set; }
