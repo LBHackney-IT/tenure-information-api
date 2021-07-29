@@ -39,7 +39,6 @@ namespace TenureInformationApi.V1.Factories
 
         public static TenureInformationDb ToDatabase(this TenureInformation entity)
         {
-
             return new TenureInformationDb
             {
                 Id = entity.Id,
@@ -55,7 +54,6 @@ namespace TenureInformationApi.V1.Factories
                 EvictionDate = entity.EvictionDate,
                 HouseholdMembers = entity.HouseholdMembers.ToList(),
                 InformHousingBenefitsForChanges = entity.InformHousingBenefitsForChanges,
-                IsActive = entity.IsActive,
                 IsMutualExchange = entity.IsMutualExchange,
                 IsSublet = entity.IsSublet,
                 IsTenanted = entity.IsTenanted,
@@ -67,7 +65,6 @@ namespace TenureInformationApi.V1.Factories
                 RentCostCentre = entity.RentCostCentre,
                 StartOfTenureDate = entity.StartOfTenureDate,
                 SubletEndDate = entity.SubletEndDate
-
             };
         }
     }

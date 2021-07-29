@@ -26,7 +26,6 @@ namespace TenureInformationApi.Tests.V1.Helper
                 EvictionDate = entity.EvictionDate,
                 HouseholdMembers = entity.HouseholdMembers.ToList(),
                 InformHousingBenefitsForChanges = entity.InformHousingBenefitsForChanges,
-                IsActive = entity.IsActive,
                 IsMutualExchange = entity.IsMutualExchange,
                 IsSublet = entity.IsSublet,
                 IsTenanted = entity.IsTenanted,
