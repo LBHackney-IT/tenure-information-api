@@ -1,5 +1,6 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FluentValidation.AspNetCore;
+using Hackney.Core.DI;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
@@ -133,6 +134,7 @@ namespace TenureInformationApi
 
             services.ConfigureDynamoDB();
             services.AddLogCallAspect();
+            services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
         }
