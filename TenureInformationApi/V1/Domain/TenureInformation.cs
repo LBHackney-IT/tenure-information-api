@@ -23,7 +23,6 @@ namespace TenureInformationApi.V1.Domain
         public Terminated Terminated { get; set; }
         public DateTime SuccessionDate { get; set; }
         public AgreementType AgreementType { get; set; }
-        public IEnumerable<string> SubsidiaryAccountsReferences { get; set; }
         public DateTime EvictionDate { get; set; }
         public DateTime PotentialEndDate { get; set; }
         public IEnumerable<Notices> Notices { get; set; }

@@ -46,9 +46,6 @@ namespace TenureInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<AgreementType>))]
         public AgreementType AgreementType { get; set; }
 
-        [DynamoDBProperty]
-        public List<string> SubsidiaryAccountsReferences { get; set; } = new List<string>();
-
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime EvictionDate { get; set; }
 

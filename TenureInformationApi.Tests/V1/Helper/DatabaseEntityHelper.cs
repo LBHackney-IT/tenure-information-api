@@ -34,7 +34,6 @@ namespace TenureInformationApi.Tests.V1.Helper
                 PotentialEndDate = entity.PotentialEndDate,
                 StartOfTenureDate = entity.StartOfTenureDate,
                 SubletEndDate = entity.SubletEndDate,
-                SubsidiaryAccountsReferences = entity.SubsidiaryAccountsReferences.ToList(),
                 SuccessionDate = entity.SuccessionDate,
                 TenuredAsset = entity.TenuredAsset,
                 TenureType = entity.TenureType,
