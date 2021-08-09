@@ -10,12 +10,6 @@ namespace TenureInformationApi.V1.Domain
 
         public string BillingFrequency { get; set; }
 
-        public int PaymentReference { get; set; }
-
-        public string RentGroupCode { get; set; }
-
-        public string RentGroupDescription { get; set; }
-
         public float ServiceCharge { get; set; }
 
         public float OtherCharges { get; set; }
