@@ -13,7 +13,6 @@ namespace TenureInformationApi.V1.Factories
             return new TenureResponseObject
             {
                 Id = domain.Id,
-                AccountType = domain.AccountType,
                 Charges = domain.Charges,
                 EndOfTenureDate = domain.EndOfTenureDate,
                 EvictionDate = domain.EvictionDate,
@@ -29,7 +28,6 @@ namespace TenureInformationApi.V1.Factories
                 PotentialEndDate = domain.PotentialEndDate,
                 StartOfTenureDate = domain.StartOfTenureDate,
                 SubletEndDate = domain.SubletEndDate,
-                SubsidiaryAccountsReferences = domain.SubsidiaryAccountsReferences.ToList(),
                 SuccessionDate = domain.SuccessionDate,
                 TenuredAsset = domain.TenuredAsset,
                 TenureType = domain.TenureType,

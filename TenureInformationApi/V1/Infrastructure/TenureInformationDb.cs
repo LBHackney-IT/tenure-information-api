@@ -22,9 +22,6 @@ namespace TenureInformationApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<TenuredAsset>))]
         public TenuredAsset TenuredAsset { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<AccountType>))]
-        public AccountType AccountType { get; set; }
-
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Charges>))]
         public Charges Charges { get; set; }
 
@@ -52,9 +49,6 @@ namespace TenureInformationApi.V1.Infrastructure
         [DynamoDBProperty]
         public List<string> SubsidiaryAccountsReferences { get; set; } = new List<string>();
 
-        [DynamoDBProperty]
-        public string MasterAccountTenureReference { get; set; }
-
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime EvictionDate { get; set; }
 
@@ -66,9 +60,6 @@ namespace TenureInformationApi.V1.Infrastructure
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<LegacyReference>))]
         public List<LegacyReference> LegacyReferences { get; set; } = new List<LegacyReference>();
-
-        [DynamoDBProperty]
-        public string RentCostCentre { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
         public bool IsMutualExchange { get; set; }

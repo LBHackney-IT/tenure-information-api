@@ -10,7 +10,6 @@ namespace TenureInformationApi.V1.Boundary.Response
         public string PaymentReference { get; set; }
         public List<HouseholdMembers> HouseholdMembers { get; set; }
         public TenuredAsset TenuredAsset { get; set; }
-        public AccountType AccountType { get; set; }
         public Charges Charges { get; set; }
         public DateTime StartOfTenureDate { get; set; }
         public DateTime? EndOfTenureDate { get; set; }
@@ -25,7 +24,6 @@ namespace TenureInformationApi.V1.Boundary.Response
         public bool InformHousingBenefitsForChanges { get; set; }
         public bool IsSublet { get; set; }
         public DateTime SubletEndDate { get; set; }
-        public List<string> SubsidiaryAccountsReferences { get; set; }
         public List<Notices> Notices { get; set; }
         public List<LegacyReference> LegacyReferences { get; set; }
         public AgreementType AgreementType { get; set; }
