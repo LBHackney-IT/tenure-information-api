@@ -7,7 +7,7 @@ namespace TenureInformationApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        public static TenureResponseObject ToResponse(this TenureInformation domain)
+        public static TenureResponseObject ToResponse(TenureInformation domain)
         {
             if (domain == null) return null;
             return new TenureResponseObject
@@ -36,10 +36,6 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        public static List<TenureResponseObject> ToResponse(this IEnumerable<TenureInformation> domainList)
-        {
-            if (null == domainList) return new List<TenureResponseObject>();
-            return domainList.Select(domain => domain.ToResponse()).ToList();
-        }
+        
     }
 }
