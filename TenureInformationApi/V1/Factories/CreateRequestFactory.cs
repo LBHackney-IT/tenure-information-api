@@ -39,7 +39,7 @@ namespace TenureInformationApi.V1.Factories
         }
         private static List<T> GetListOrEmpty<T>(IEnumerable<T> enumerable)
         {
-           return enumerable == null ? new List<T>() : enumerable.ToList();
+            return enumerable == null ? new List<T>() : enumerable.ToList();
         }
     }
 }

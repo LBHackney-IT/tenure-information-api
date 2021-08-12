@@ -36,6 +36,6 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        
+
     }
 }
