@@ -1,9 +1,9 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FluentValidation.AspNetCore;
-using Hackney.Core.DI;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
+using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
