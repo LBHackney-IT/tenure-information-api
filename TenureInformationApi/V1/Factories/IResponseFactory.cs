@@ -10,5 +10,7 @@ namespace TenureInformationApi.V1.Factories
     public interface IResponseFactory
     {
         TenureResponseObject ToResponse(TenureInformation domain);
+
+        List<TenureResponseObject> ToResponse(IEnumerable<TenureInformation> domainList);
     }
 }

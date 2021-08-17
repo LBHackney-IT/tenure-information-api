@@ -17,12 +17,14 @@ namespace TenureInformationApi.Tests.V1.Controllers
     {
         private readonly TenureInformationController _classUnderTest;
         private readonly Mock<IGetByIdUseCase> _mockGetByIdUsecase;
+        private readonly Mock<IPostNewTenureUseCase> _mockPostTenureUseCase;
         private readonly Fixture _fixture = new Fixture();
 
         public TenureInformationControllerTests()
         {
             _mockGetByIdUsecase = new Mock<IGetByIdUseCase>();
-            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object);
+            _mockPostTenureUseCase = new Mock<IPostNewTenureUseCase>();
+            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object, _mockPostTenureUseCase.Object);
         }
 
         private GetByIdRequest ConstructRequest(Guid? id = null)
@@ -51,6 +53,38 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().Be(tenureResponse);
+        }
+
+        [Fact]
+        public async Task PostNewTenureIdAsyncFoundReturnsResponse()
+        {
+            // Arrange
+            var tenureResponse = _fixture.Create<TenureResponseObject>();
+            _mockPostTenureUseCase.Setup(x => x.ExecuteAsync(It.IsAny<CreateTenureRequestObject>()))
+                .ReturnsAsync(tenureResponse);
+
+            // Act
+            var response = await _classUnderTest.PostNewTenure(new CreateTenureRequestObject()).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(CreatedResult));
+            (response as CreatedResult).Value.Should().Be(tenureResponse);
+        }
+
+        [Fact]
+        public void PostNewTenureIdAsyncExceptionIsThrown()
+        {
+            // Arrange
+            var exception = new ApplicationException("Test exception");
+            _mockPostTenureUseCase.Setup(x => x.ExecuteAsync(It.IsAny<CreateTenureRequestObject>()))
+                                 .ThrowsAsync(exception);
+
+            // Act
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(new CreateTenureRequestObject())
+                .ConfigureAwait(false);
+
+            // Assert
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
     }
 }

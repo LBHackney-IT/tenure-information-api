@@ -11,10 +11,14 @@ namespace TenureInformationApi.V1.UseCase
     public class GetByIdUseCase : IGetByIdUseCase
     {
         private readonly ITenureGateway _gateway;
+        private readonly IResponseFactory _responseFactory;
 
-        public GetByIdUseCase(ITenureGateway gateway)
+
+
+        public GetByIdUseCase(ITenureGateway gateway, IResponseFactory responseFactory)
         {
             _gateway = gateway;
+            _responseFactory = responseFactory;
         }
 
         [LogCall]
@@ -22,7 +26,7 @@ namespace TenureInformationApi.V1.UseCase
         {
             var tenure = await _gateway.GetEntityById(query).ConfigureAwait(false);
 
-            return tenure.ToResponse();
+            return _responseFactory.ToResponse(tenure);
         }
     }
 }
