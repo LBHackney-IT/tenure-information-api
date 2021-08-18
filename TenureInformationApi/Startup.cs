@@ -150,8 +150,6 @@ namespace TenureInformationApi
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
 
-            services.AddScoped<IResponseFactory, ResponseFactory>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

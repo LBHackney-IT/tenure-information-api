@@ -18,15 +18,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
     public class PostTenureUseCaseTests
     {
         private readonly Mock<ITenureGateway> _mockGateway;
-        private readonly ResponseFactory _responseFactory;
         private readonly PostNewTenureUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
         public PostTenureUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
-            _responseFactory = new ResponseFactory();
-            _classUnderTest = new PostNewTenureUseCase(_mockGateway.Object, _responseFactory);
+            _classUnderTest = new PostNewTenureUseCase(_mockGateway.Object);
         }
         [Fact]
         public async Task CreateTenureByIdAsyncFoundReturnsResponse()
@@ -43,7 +41,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 .ConfigureAwait(false);
 
             // Assert
-            response.Should().BeEquivalentTo(_responseFactory.ToResponse(tenure));
+            response.Should().BeEquivalentTo(tenure.ToResponse());
         }
 
         [Fact]

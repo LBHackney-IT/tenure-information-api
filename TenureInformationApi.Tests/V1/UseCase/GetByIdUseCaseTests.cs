@@ -20,13 +20,11 @@ namespace TenureInformationApi.Tests.V1.UseCase
         private readonly Mock<ITenureGateway> _mockGateway;
         private readonly GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
-        private readonly Mock<IResponseFactory> _mockResponseFactory;
         public GetByIdUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
 
-            _mockResponseFactory = new Mock<IResponseFactory>();
-            _classUnderTest = new GetByIdUseCase(_mockGateway.Object, _mockResponseFactory.Object);
+            _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 
         private GetByIdRequest ConstructRequest(Guid? id = null)
@@ -53,7 +51,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
 
             var response = await _classUnderTest.Execute(request).ConfigureAwait(false);
-            response.Should().BeEquivalentTo(_mockResponseFactory.Object.ToResponse(tenure));
+            response.Should().BeEquivalentTo(tenure.ToResponse());
         }
 
         [Fact]

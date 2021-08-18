@@ -38,7 +38,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             apiTenure.Id.Should().NotBeEmpty();
 
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(apiTenure.Id).ConfigureAwait(false);
-            apiTenure.Should().BeEquivalentTo(new ResponseFactory().ToResponse(dbRecord.ToDomain()));
+            var domain = dbRecord.ToDomain();
+            apiTenure.Should().BeEquivalentTo(domain.ToResponse());
 
             await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(dbRecord.Id).ConfigureAwait(false);
         }

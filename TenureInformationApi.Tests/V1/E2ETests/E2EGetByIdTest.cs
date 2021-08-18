@@ -21,12 +21,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests
         public TenureInformationDb Tenure { get; private set; }
         private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
         private readonly List<Action> _cleanupActions = new List<Action>();
-        private readonly ResponseFactory _responseFactory;
 
         public E2EGetByIdTest(DynamoDbIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _responseFactory = new ResponseFactory();
         }
 
         /// <summary>
@@ -115,7 +113,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var apiEntity = JsonConvert.DeserializeObject<TenureResponseObject>(responseContent);
 
-            apiEntity.Should().BeEquivalentTo(_responseFactory.ToResponse(entity));
+            apiEntity.Should().BeEquivalentTo(entity.ToResponse());
         }
     }
 }
