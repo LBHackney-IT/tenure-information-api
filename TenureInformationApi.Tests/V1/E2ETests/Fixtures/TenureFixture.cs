@@ -42,7 +42,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         public void GivenNewTenureRequest()
         {
             var tenureRequest = _fixture.Build<CreateTenureRequestObject>()
-                                        .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                        .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddDays(1))
                                         .With(x => x.StartOfTenureDate, DateTime.UtcNow)
                                         .With(x => x.SuccessionDate, DateTime.UtcNow)
                                         .With(x => x.PotentialEndDate, DateTime.UtcNow)
@@ -52,5 +52,21 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
             CreateTenureRequestObject = tenureRequest;
         }
+
+        public void GivenNewTenureRequestWithValidationErrors()
+        {
+            var tenureRequest = _fixture.Build<CreateTenureRequestObject>()
+                                        .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                        .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddDays(1))
+                                        .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                        .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                        .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                        .With(x => x.EvictionDate, DateTime.UtcNow)
+                                        .Create();
+
+            CreateTenureRequestObject = tenureRequest;
+        }
+
+
     }
 }

@@ -16,7 +16,6 @@ namespace TenureInformationApi.V1.Boundary.Requests
         public DateTime StartOfTenureDate { get; set; }
         public DateTime? EndOfTenureDate { get; set; }
         public TenureType TenureType { get; set; }
-        public bool IsActive { get; set; }
         public bool IsTenanted { get; set; }
         public Terminated Terminated { get; set; }
         public DateTime SuccessionDate { get; set; }

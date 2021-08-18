@@ -1,12 +1,15 @@
 using FluentAssertions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
@@ -19,7 +22,13 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
     {
         public PostTenureSteps(HttpClient httpClient) : base(httpClient)
         { }
-
+        private static void ShouldHaveErrorFor(JEnumerable<JToken> errors, string propertyName, string errorCode = null)
+        {
+            var error = errors.FirstOrDefault(x => (x.Path.Split('.').Last().Trim('\'', ']')) == propertyName) as JProperty;
+            error.Should().NotBeNull();
+            if (!string.IsNullOrEmpty(errorCode))
+                error.Value.ToString().Should().Contain(errorCode);
+        }
         public async Task WhenCreateTenureApiIsCalled(CreateTenureRequestObject requestObject)
         {
             var uri = new Uri($"api/v1/tenures", UriKind.Relative);
@@ -42,6 +51,22 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             apiTenure.Should().BeEquivalentTo(domain.ToResponse());
 
             await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(dbRecord.Id).ConfigureAwait(false);
+        }
+
+        public async Task ThenTheValidationErrorsAreReturned()
+        {
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            JObject jo = JObject.Parse(responseContent);
+            var errors = jo["errors"].Children();
+
+            ShouldHaveErrorFor(errors, "EndOfTenureDate");
+
+        }
+
+        public void ThenBadRequestIsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         public void ThenNotFoundIsReturned()

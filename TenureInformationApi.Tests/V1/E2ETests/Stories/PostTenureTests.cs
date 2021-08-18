@@ -53,5 +53,16 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(_tenureFixture))
                 .BDDfy();
         }
+
+        [Fact]
+        public void ServiceReturnsBadRequestWhenTheyAreValidationErrors()
+        {
+            this.Given(g => _tenureFixture.GivenNewTenureRequestWithValidationErrors())
+                .When(w => _steps.WhenCreateTenureApiIsCalled(_tenureFixture.CreateTenureRequestObject))
+                .Then(t => _steps.ThenBadRequestIsReturned())
+                .And(t => _steps.ThenTheValidationErrorsAreReturned())
+                .BDDfy();
+
+        }
     }
 }
