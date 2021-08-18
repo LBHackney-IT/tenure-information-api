@@ -50,7 +50,7 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
         public void PaymentReferenceShouldNotErrorWithNoValue(string value)
         {
             var model = new CreateTenureRequestObject() { PaymentReference = value };
-            var result =_classUnderTest.TestValidate(model);
+            var result = _classUnderTest.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.PaymentReference);
 
         }

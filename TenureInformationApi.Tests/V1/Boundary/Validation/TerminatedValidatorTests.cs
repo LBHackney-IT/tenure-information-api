@@ -41,6 +41,6 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
                 .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
-        
+
     }
 }

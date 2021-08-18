@@ -19,14 +19,14 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
         }
         private const string StringWithTags = "Some string with <tag> in it.";
 
-        
+
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         public void CodeShouldNotErrorWithNoValue(string value)
         {
-            var model = new AgreementType() { Code = value};
+            var model = new AgreementType() { Code = value };
             var result = _classUnderTest.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.Code);
 
