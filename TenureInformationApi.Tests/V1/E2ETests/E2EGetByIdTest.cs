@@ -13,15 +13,15 @@ using Xunit;
 
 namespace TenureInformationApi.Tests.V1.E2ETests
 {
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class E2EGetByIdTest : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
         public TenureInformationDb Tenure { get; private set; }
-        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly AwsIntegrationTests<Startup> _dbFixture;
         private readonly List<Action> _cleanupActions = new List<Action>();
 
-        public E2EGetByIdTest(DynamoDbIntegrationTests<Startup> dbFixture)
+        public E2EGetByIdTest(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
         }

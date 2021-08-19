@@ -19,6 +19,8 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
+    environment:
+      NEW_TENURE_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/tenure_created/arn}
     events:
       - http:
           path: /{proxy+}
