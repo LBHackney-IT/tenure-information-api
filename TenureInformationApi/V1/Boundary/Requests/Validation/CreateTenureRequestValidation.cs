@@ -28,15 +28,6 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
             RuleFor(x => x.TenuredAsset).SetValidator(new TenuredAssetValidator());
             RuleFor(x => x.TenureType).SetValidator(new TenureTypeValidator());
             RuleFor(x => x.Terminated).SetValidator(new TerminatedValidator());
-
-
-
-
-
-
-
-
-
         }
     }
 }
