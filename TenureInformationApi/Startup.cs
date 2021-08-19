@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
+using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Hackney.Core.Middleware.CorrelationId;
@@ -27,6 +28,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TenureInformationApi.Tests.V1.Gateways;
+using TenureInformationApi.V1.Domain.Configuration;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
@@ -129,26 +132,35 @@ namespace TenureInformationApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
+                services.Configure<AwsConfiguration>(options => Configuration.GetSection("AWS").Bind(options));
+
             });
 
             services.ConfigureLambdaLogging(Configuration);
 
-            services.ConfigureDynamoDB();
+            services.ConfigureAws();
             services.AddLogCallAspect();
             services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
+            services.AddSingleton<IConfiguration>(Configuration);
+
         }
 
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
+            services.AddScoped<ISnsGateway, TenureSnsGateway>();
+            services.AddScoped<ISnsFactory, TenureSnsFactory>();
+            services.AddScoped<ITokenFactory, TokenFactory>();
+            services.AddScoped<IHttpContextWrapper, HttpContextWrapper>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
+
 
         }
 

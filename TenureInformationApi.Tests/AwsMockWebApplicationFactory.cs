@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests
 {

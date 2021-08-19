@@ -1,3 +1,4 @@
+using Hackney.Core.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IPostNewTenureUseCase
     {
-        Task<TenureResponseObject> ExecuteAsync(CreateTenureRequestObject createTenureRequestObject);
+        Task<TenureResponseObject> ExecuteAsync(CreateTenureRequestObject createTenureRequestObject, Token token);
     }
 }

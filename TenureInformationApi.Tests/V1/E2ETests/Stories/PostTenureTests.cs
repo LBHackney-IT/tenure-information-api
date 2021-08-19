@@ -13,17 +13,17 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
        AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
        IWant = "the ability to capture a new tenure",
        SoThat = "I can create a new tenure in the system with all the relevant information")]
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class PostTenureTests : IDisposable
     {
-        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly AwsIntegrationTests<Startup> _dbFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly PostTenureSteps _steps;
 
-        public PostTenureTests(DynamoDbIntegrationTests<Startup> dbFixture)
+        public PostTenureTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext);
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
             _steps = new PostTenureSteps(_dbFixture.Client);
         }
 
