@@ -10,6 +10,7 @@ using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Infrastructure;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
@@ -85,6 +86,31 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             response.Should().BeEquivalentTo(entity);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
+        }
+
+        [Fact]
+        public async Task PostNewTenureSuccessfulSaves()
+        {
+            // Arrange
+            var entityRequest = _fixture.Build<CreateTenureRequestObject>()
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .Create();
+
+            // Act
+            _ = await _classUnderTest.PostNewTenureAsync(entityRequest).ConfigureAwait(false);
+
+            // Assert
+            var dbEntity = await _dynamoDb.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
+
+            dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase());
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
+
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

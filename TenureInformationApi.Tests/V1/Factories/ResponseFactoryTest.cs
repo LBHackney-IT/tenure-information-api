@@ -1,5 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using System.Collections.Generic;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;

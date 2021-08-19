@@ -1,5 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

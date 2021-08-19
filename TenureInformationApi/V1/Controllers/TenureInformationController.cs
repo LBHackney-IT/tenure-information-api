@@ -2,6 +2,8 @@ using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -16,9 +18,11 @@ namespace TenureInformationApi.V1.Controllers
     public class TenureInformationController : BaseController
     {
         private readonly IGetByIdUseCase _getByIdUseCase;
-        public TenureInformationController(IGetByIdUseCase getByIdUseCase)
+        private readonly IPostNewTenureUseCase _postNewTenureUseCase;
+        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase)
         {
             _getByIdUseCase = getByIdUseCase;
+            _postNewTenureUseCase = postNewTenureUseCase;
         }
 
         /// <summary>
@@ -39,6 +43,16 @@ namespace TenureInformationApi.V1.Controllers
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
             return Ok(result);
+        }
+
+        [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPost]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> PostNewTenure([FromBody] CreateTenureRequestObject createTenureRequestObject)
+        {
+            var tenure = await _postNewTenureUseCase.ExecuteAsync(createTenureRequestObject).ConfigureAwait(false);
+            return Created(new Uri($"api/v1/tenures/{tenure.Id}", UriKind.Relative), tenure);
         }
     }
 }
