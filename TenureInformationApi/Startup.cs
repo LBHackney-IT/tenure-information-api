@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
@@ -147,6 +148,8 @@ namespace TenureInformationApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

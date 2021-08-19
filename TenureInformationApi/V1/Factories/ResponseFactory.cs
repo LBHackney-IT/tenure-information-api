@@ -39,7 +39,9 @@ namespace TenureInformationApi.V1.Factories
         public static List<TenureResponseObject> ToResponse(this IEnumerable<TenureInformation> domainList)
         {
             if (null == domainList) return new List<TenureResponseObject>();
-            return domainList.Select(domain => domain.ToResponse()).ToList();
+            return domainList.Select(domain => ToResponse(domain)).ToList();
         }
+
+
     }
 }
