@@ -29,7 +29,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TenureInformationApi.V1.Domain.Configuration;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
@@ -132,7 +131,6 @@ namespace TenureInformationApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
-                services.Configure<AwsConfiguration>(options => Configuration.GetSection("AWS").Bind(options));
 
             });
 
