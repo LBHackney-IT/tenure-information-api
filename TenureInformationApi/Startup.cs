@@ -9,6 +9,7 @@ using Hackney.Core.Logging;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
+using Hackney.Core.Sns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -28,7 +29,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TenureInformationApi.Tests.V1.Gateways;
 using TenureInformationApi.V1.Domain.Configuration;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
@@ -138,29 +138,39 @@ namespace TenureInformationApi
 
             services.ConfigureLambdaLogging(Configuration);
 
-            services.ConfigureAws();
+            services.ConfigureDynamoDB();
+            services.ConfigureSns();
             services.AddLogCallAspect();
             services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
             services.AddSingleton<IConfiguration>(Configuration);
 
+            services.AddScoped<ISnsFactory, TenureSnsFactory>();
+
+            ConfigureHackneyCoreDI(services);
+
+
         }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
+        }
+
 
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
-            services.AddScoped<ISnsGateway, TenureSnsGateway>();
-            services.AddScoped<ISnsFactory, TenureSnsFactory>();
-            services.AddScoped<ITokenFactory, TokenFactory>();
-            services.AddScoped<IHttpContextWrapper, HttpContextWrapper>();
+            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
-
 
         }
 

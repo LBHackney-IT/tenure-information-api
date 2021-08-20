@@ -20,7 +20,7 @@ functions:
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:
-      NEW_TENURE_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/tenure_created/arn}
+      TENURE_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/tenure/arn}
     events:
       - http:
           path: /{proxy+}

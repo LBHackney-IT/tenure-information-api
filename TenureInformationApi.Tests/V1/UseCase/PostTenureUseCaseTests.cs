@@ -1,6 +1,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using Moq;
 using Newtonsoft.Json;
 using System;
@@ -32,8 +33,6 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new TenureSnsFactory();
             _classUnderTest = new PostNewTenureUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);
-
-            _tenureSnsGateway.Setup(x => x.Publish(It.IsAny<TenureSns>()));
 
         }
         [Fact]

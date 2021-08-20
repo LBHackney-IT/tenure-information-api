@@ -66,11 +66,11 @@ namespace TenureInformationApi.Tests
 
             var response = SimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
             {
-                Name = "tenurecreated",
+                Name = "tenure",
                 Attributes = snsAttrs
             }).Result;
 
-            Environment.SetEnvironmentVariable("NEW_TENURE_SNS_ARN", response.TopicArn);
+            Environment.SetEnvironmentVariable("TENURE_SNS_ARN", response.TopicArn);
         }
 
     }

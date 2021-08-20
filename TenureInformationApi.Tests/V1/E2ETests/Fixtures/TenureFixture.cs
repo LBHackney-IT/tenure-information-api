@@ -56,7 +56,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
                                         .Create();
             CreateSnsTopic();
-
             CreateTenureRequestObject = tenureRequest;
 
         }
@@ -84,11 +83,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
             var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
             {
-                Name = "tenurecreated",
+                Name = "tenure",
                 Attributes = snsAttrs
             }).Result;
 
-            Environment.SetEnvironmentVariable("NEW_TENURE_SNS_ARN", response.TopicArn);
+            Environment.SetEnvironmentVariable("TENURE_SNS_ARN", response.TopicArn);
         }
 
 

@@ -34,26 +34,13 @@ namespace TenureInformationApi.Tests
                 .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
-                var url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
-                var snsUrl = Environment.GetEnvironmentVariable("Localstack_SnsServiceUrl");
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
-                {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
-                    return new AmazonDynamoDBClient(clientConfig);
-                });
-                services.AddSingleton<IAmazonSimpleNotificationService>(sp =>
-                {
-                    var clientConfig = new AmazonSimpleNotificationServiceConfig { ServiceURL = snsUrl };
-                    return new AmazonSimpleNotificationServiceClient(clientConfig);
-                });
-
-                services.ConfigureAws();
+                services.ConfigureDynamoDB();
+                services.ConfigureSns();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
                 SimpleNotificationService = serviceProvider.GetRequiredService<IAmazonSimpleNotificationService>();
-
 
                 EnsureTablesExist(DynamoDb, _tables);
             });

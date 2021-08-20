@@ -1,9 +1,9 @@
 using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TenureInformationApi.Tests.V1.Gateways;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Factories;
@@ -30,7 +30,9 @@ namespace TenureInformationApi.V1.UseCase
             var tenure = await _tenureGateway.PostNewTenureAsync(createTenureRequestObject).ConfigureAwait(false);
 
             var tenureSnsMessage = _snsFactory.Create(tenure, token);
-            await _snsGateway.Publish(tenureSnsMessage).ConfigureAwait(false);
+            var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
+
+            await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
 
             return tenure.ToResponse();
         }

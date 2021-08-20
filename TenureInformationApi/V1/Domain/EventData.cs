@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 
 namespace TenureInformationApi.V1.Domain
 {
-    public class User
+    public class EventData
     {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string Email { get; set; }
+        public DataItem OldData { get; set; }
+        public DataItem NewData { get; set; }
     }
+
 }

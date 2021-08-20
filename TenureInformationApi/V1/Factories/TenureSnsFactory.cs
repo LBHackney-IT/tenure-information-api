@@ -21,13 +21,7 @@ namespace TenureInformationApi.V1.Factories
                 EventType = Constants.EVENTTYPE,
                 Version = Constants.V1_VERSION,
                 SourceDomain = Constants.SOURCE_DOMAIN,
-                SourceSystem = Constants.SOURCE_SYSTEM,
-                User = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Name = token.Name,
-                    Email = token.Email
-                }
+                SourceSystem = Constants.SOURCE_SYSTEM
             };
         }
     }

@@ -37,16 +37,15 @@ terraform {
   }
 }
 
-resource "aws_sns_topic" "tenure_created" {
-  name                        = "tenurecreated.fifo"
+resource "aws_sns_topic" "tenure" {
+  name                        = "tenure.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
   kms_master_key_id = "alias/aws/sns"
 }
 
-resource "aws_ssm_parameter" "new_tenure_sns_arn" {
-  name  = "/sns-topic/tenure_created/arn"
-  name  = "/sns-topic/production/tenure_created/arn"
+resource "aws_ssm_parameter" "tenure_sns_arn" {
+  name  = "/sns-topic/production/tenure/arn"
   type  = "String"
-  value = aws_sns_topic.tenure_created.arn
+  value = aws_sns_topic.tenure.arn
 }
