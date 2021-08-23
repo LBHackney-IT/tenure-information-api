@@ -1,9 +1,6 @@
 using Hackney.Core.JWT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Domain.Sns;
 
 namespace TenureInformationApi.V1.Factories
 {

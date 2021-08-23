@@ -1,9 +1,7 @@
 using Hackney.Core.JWT;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
@@ -25,7 +23,8 @@ namespace TenureInformationApi.V1.Factories
                 EventData = new EventData
                 {
                     NewData = tenure
-                }
+                },
+                User = new User { Name = token.Name, Email = token.Email }
             };
         }
     }
