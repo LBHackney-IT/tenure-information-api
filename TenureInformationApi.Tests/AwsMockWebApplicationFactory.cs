@@ -1,24 +1,29 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using Amazon.SimpleNotificationService;
 using Hackney.Core.DynamoDb;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
+using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests
 {
-    public class DynamoDbMockWebApplicationFactory<TStartup>
+    public class AwsMockWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly List<TableDef> _tables;
 
         public IAmazonDynamoDB DynamoDb { get; private set; }
         public IDynamoDBContext DynamoDbContext { get; private set; }
+        public IAmazonSimpleNotificationService SimpleNotificationService { get; private set; }
 
-        public DynamoDbMockWebApplicationFactory(List<TableDef> tables)
+
+        public AwsMockWebApplicationFactory(List<TableDef> tables)
         {
             _tables = tables;
         }
@@ -30,10 +35,12 @@ namespace TenureInformationApi.Tests
             builder.ConfigureServices(services =>
             {
                 services.ConfigureDynamoDB();
+                services.ConfigureSns();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
+                SimpleNotificationService = serviceProvider.GetRequiredService<IAmazonSimpleNotificationService>();
 
                 EnsureTablesExist(DynamoDb, _tables);
             });

@@ -1,4 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
 using System;
 using System.Collections.Generic;
@@ -14,10 +16,14 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
+        private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+
         public TenureInformationDb Tenure { get; private set; }
-        public TenureFixture(IDynamoDBContext context)
+        public TenureFixture(IDynamoDBContext context, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             _dbContext = context;
+            _amazonSimpleNotificationService = amazonSimpleNotificationService;
+
         }
 
         public void Dispose()
@@ -49,8 +55,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
                                         .Create();
-
+            CreateSnsTopic();
             CreateTenureRequestObject = tenureRequest;
+
         }
 
         public void GivenNewTenureRequestWithValidationErrors()
@@ -63,8 +70,24 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
                                         .Create();
+            CreateSnsTopic();
 
             CreateTenureRequestObject = tenureRequest;
+        }
+
+        private void CreateSnsTopic()
+        {
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
+
+            var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
+            {
+                Name = "tenure",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("TENURE_SNS_ARN", response.TopicArn);
         }
 
 
