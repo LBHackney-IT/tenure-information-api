@@ -56,14 +56,12 @@ namespace TenureInformationApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+
             services
                 .AddMvc()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()))
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddFluentValidation();
 
             services.AddApiVersioning(o =>
             {

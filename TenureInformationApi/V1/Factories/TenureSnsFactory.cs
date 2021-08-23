@@ -21,7 +21,11 @@ namespace TenureInformationApi.V1.Factories
                 EventType = Constants.EVENTTYPE,
                 Version = Constants.V1_VERSION,
                 SourceDomain = Constants.SOURCE_DOMAIN,
-                SourceSystem = Constants.SOURCE_SYSTEM
+                SourceSystem = Constants.SOURCE_SYSTEM,
+                EventData = new EventData
+                {
+                    NewData = tenure
+                }
             };
         }
     }

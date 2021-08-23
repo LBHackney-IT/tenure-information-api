@@ -55,7 +55,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
         public async Task ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(TenureFixture tenureFixture)
         {
-            //_lastResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
             var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             var apiTenure = JsonSerializer.Deserialize<TenureResponseObject>(responseContent, CreateJsonOptions());
