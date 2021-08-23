@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace TenureInformationApi.V1.Domain
+namespace TenureInformationApi.V1.Domain.Sns
 {
     public class TenureSns
     {
@@ -25,5 +22,6 @@ namespace TenureInformationApi.V1.Domain
 
         public EventData EventData { get; set; }
 
+        public User User { get; set; }
     }
 }
