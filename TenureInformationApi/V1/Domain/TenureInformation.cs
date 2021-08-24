@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-
 namespace TenureInformationApi.V1.Domain
 {
     public class TenureInformation
@@ -21,15 +20,15 @@ namespace TenureInformationApi.V1.Domain
 
         public bool IsTenanted { get; set; }
         public Terminated Terminated { get; set; }
-        public DateTime SuccessionDate { get; set; }
+        public DateTime? SuccessionDate { get; set; }
         public AgreementType AgreementType { get; set; }
-        public DateTime EvictionDate { get; set; }
-        public DateTime PotentialEndDate { get; set; }
+        public DateTime? EvictionDate { get; set; }
+        public DateTime? PotentialEndDate { get; set; }
         public IEnumerable<Notices> Notices { get; set; }
         public IEnumerable<LegacyReference> LegacyReferences { get; set; }
         public bool IsMutualExchange { get; set; }
         public bool InformHousingBenefitsForChanges { get; set; }
         public bool IsSublet { get; set; }
-        public DateTime SubletEndDate { get; set; }
+        public DateTime? SubletEndDate { get; set; }
     }
 }

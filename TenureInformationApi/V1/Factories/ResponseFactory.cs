@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
 {
@@ -16,14 +17,14 @@ namespace TenureInformationApi.V1.Factories
                 Charges = domain.Charges,
                 EndOfTenureDate = domain.EndOfTenureDate,
                 EvictionDate = domain.EvictionDate,
-                HouseholdMembers = domain.HouseholdMembers.ToList(),
+                HouseholdMembers = domain.HouseholdMembers.ToListOrEmpty(),
                 InformHousingBenefitsForChanges = domain.InformHousingBenefitsForChanges,
                 IsActive = domain.IsActive,
                 IsMutualExchange = domain.IsMutualExchange,
                 IsSublet = domain.IsSublet,
                 IsTenanted = domain.IsTenanted,
-                LegacyReferences = domain.LegacyReferences.ToList(),
-                Notices = domain.Notices.ToList(),
+                LegacyReferences = domain.LegacyReferences.ToListOrEmpty(),
+                Notices = domain.Notices.ToListOrEmpty(),
                 PaymentReference = domain.PaymentReference,
                 PotentialEndDate = domain.PotentialEndDate,
                 StartOfTenureDate = domain.StartOfTenureDate,
