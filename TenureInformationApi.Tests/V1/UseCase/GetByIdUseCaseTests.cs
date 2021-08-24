@@ -2,6 +2,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -22,6 +23,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
         public GetByIdUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
+
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 

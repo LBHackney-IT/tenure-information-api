@@ -36,3 +36,17 @@ terraform {
     key     = "services/tenure-information-api/state"
   }
 }
+
+resource "aws_sns_topic" "tenure" {
+  name                        = "tenure.fifo"
+  fifo_topic                  = true
+  content_based_deduplication = true
+  kms_master_key_id = "alias/aws/sns"
+}
+
+resource "aws_ssm_parameter" "tenure_sns_arn" {
+  name  = "/sns-topic/tenure_created/arn"
+  name  = "/sns-topic/staging/tenure/arn"
+  type  = "String"
+  value = aws_sns_topic.tenure.arn
+}

@@ -7,5 +7,7 @@ namespace TenureInformationApi.V1.Gateways
     public interface ITenureGateway
     {
         Task<TenureInformation> GetEntityById(GetByIdRequest query);
+
+        Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject);
     }
 }

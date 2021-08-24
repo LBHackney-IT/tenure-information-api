@@ -28,5 +28,18 @@ namespace TenureInformationApi.V1.Gateways
             var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             return result?.ToDomain();
         }
+
+        [LogCall]
+
+        public async Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync");
+            var tenureDbEntity = createTenureRequestObject.ToDatabase();
+
+            await _dynamoDbContext.SaveAsync(tenureDbEntity).ConfigureAwait(false);
+
+            return tenureDbEntity.ToDomain();
+
+        }
     }
 }

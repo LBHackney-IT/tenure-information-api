@@ -3,11 +3,13 @@ using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
+using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
+using Hackney.Core.Sns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
@@ -53,14 +56,12 @@ namespace TenureInformationApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+
             services
                 .AddMvc()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()))
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddFluentValidation();
 
             services.AddApiVersioning(o =>
             {
@@ -128,25 +129,45 @@ namespace TenureInformationApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
+
             });
 
             services.ConfigureLambdaLogging(Configuration);
 
             services.ConfigureDynamoDB();
+            services.ConfigureSns();
             services.AddLogCallAspect();
             services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            services.AddScoped<ISnsFactory, TenureSnsFactory>();
+
+            ConfigureHackneyCoreDI(services);
+
+
         }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
+        }
+
 
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
+            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

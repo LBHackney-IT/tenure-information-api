@@ -41,16 +41,16 @@ namespace TenureInformationApi.V1.Infrastructure
         public Terminated Terminated { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime SuccessionDate { get; set; }
+        public DateTime? SuccessionDate { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<AgreementType>))]
         public AgreementType AgreementType { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime EvictionDate { get; set; }
+        public DateTime? EvictionDate { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime PotentialEndDate { get; set; }
+        public DateTime? PotentialEndDate { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<Notices>))]
         public List<Notices> Notices { get; set; } = new List<Notices>();
@@ -68,6 +68,6 @@ namespace TenureInformationApi.V1.Infrastructure
         public bool IsSublet { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime SubletEndDate { get; set; }
+        public DateTime? SubletEndDate { get; set; }
     }
 }

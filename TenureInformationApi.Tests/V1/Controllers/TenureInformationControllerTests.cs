@@ -1,5 +1,8 @@
 using AutoFixture;
 using FluentAssertions;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -17,12 +20,23 @@ namespace TenureInformationApi.Tests.V1.Controllers
     {
         private readonly TenureInformationController _classUnderTest;
         private readonly Mock<IGetByIdUseCase> _mockGetByIdUsecase;
+        private readonly Mock<IPostNewTenureUseCase> _mockPostTenureUseCase;
+        private readonly Mock<ITokenFactory> _mockTokenFactory;
+        private readonly Mock<IHttpContextWrapper> _mockContextWrapper;
+        private readonly Mock<HttpRequest> _mockHttpRequest;
         private readonly Fixture _fixture = new Fixture();
 
         public TenureInformationControllerTests()
         {
             _mockGetByIdUsecase = new Mock<IGetByIdUseCase>();
-            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object);
+            _mockPostTenureUseCase = new Mock<IPostNewTenureUseCase>();
+            _mockTokenFactory = new Mock<ITokenFactory>();
+            _mockContextWrapper = new Mock<IHttpContextWrapper>();
+            _mockHttpRequest = new Mock<HttpRequest>();
+            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object, _mockPostTenureUseCase.Object, _mockTokenFactory.Object,
+                _mockContextWrapper.Object);
+            _mockContextWrapper.Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>())).Returns(new HeaderDictionary());
+
         }
 
         private GetByIdRequest ConstructRequest(Guid? id = null)
@@ -51,6 +65,38 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().Be(tenureResponse);
+        }
+
+        [Fact]
+        public async Task PostNewTenureIdAsyncFoundReturnsResponse()
+        {
+            // Arrange
+            var tenureResponse = _fixture.Create<TenureResponseObject>();
+            _mockPostTenureUseCase.Setup(x => x.ExecuteAsync(It.IsAny<CreateTenureRequestObject>(), It.IsAny<Token>()))
+                .ReturnsAsync(tenureResponse);
+
+            // Act
+            var response = await _classUnderTest.PostNewTenure(new CreateTenureRequestObject()).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(CreatedResult));
+            (response as CreatedResult).Value.Should().Be(tenureResponse);
+        }
+
+        [Fact]
+        public void PostNewTenureIdAsyncExceptionIsThrown()
+        {
+            // Arrange
+            var exception = new ApplicationException("Test exception");
+            _mockPostTenureUseCase.Setup(x => x.ExecuteAsync(It.IsAny<CreateTenureRequestObject>(), It.IsAny<Token>()))
+                                 .ThrowsAsync(exception);
+
+            // Act
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(new CreateTenureRequestObject())
+                .ConfigureAwait(false);
+
+            // Assert
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
     }
 }
