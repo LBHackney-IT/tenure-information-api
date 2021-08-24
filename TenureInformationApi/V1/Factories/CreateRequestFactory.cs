@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Infrastructure;
 
@@ -18,13 +15,13 @@ namespace TenureInformationApi.V1.Factories
                 Charges = createTenureRequestObject.Charges,
                 EndOfTenureDate = createTenureRequestObject.EndOfTenureDate,
                 EvictionDate = createTenureRequestObject.EvictionDate,
-                HouseholdMembers = createTenureRequestObject.HouseholdMembers,
+                HouseholdMembers = createTenureRequestObject.HouseholdMembers.ToListOrEmpty(),
                 InformHousingBenefitsForChanges = createTenureRequestObject.InformHousingBenefitsForChanges,
                 IsMutualExchange = createTenureRequestObject.IsMutualExchange,
                 IsSublet = createTenureRequestObject.IsSublet,
                 IsTenanted = createTenureRequestObject.IsTenanted,
-                LegacyReferences = GetListOrEmpty(createTenureRequestObject.LegacyReferences),
-                Notices = GetListOrEmpty(createTenureRequestObject.Notices),
+                LegacyReferences = createTenureRequestObject.LegacyReferences.ToListOrEmpty(),
+                Notices = createTenureRequestObject.Notices.ToListOrEmpty(),
                 PaymentReference = createTenureRequestObject.PaymentReference,
                 PotentialEndDate = createTenureRequestObject.PotentialEndDate,
                 StartOfTenureDate = createTenureRequestObject.StartOfTenureDate,
@@ -33,13 +30,7 @@ namespace TenureInformationApi.V1.Factories
                 TenuredAsset = createTenureRequestObject.TenuredAsset,
                 TenureType = createTenureRequestObject.TenureType,
                 Terminated = createTenureRequestObject.Terminated
-
             };
-
-        }
-        private static List<T> GetListOrEmpty<T>(IEnumerable<T> enumerable)
-        {
-            return enumerable == null ? new List<T>() : enumerable.ToList();
         }
     }
 }
