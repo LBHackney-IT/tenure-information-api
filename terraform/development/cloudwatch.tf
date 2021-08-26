@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
 
-    dashboard_name = "tenure-information-api-${var.environment_name}-dashboard"
-    dashboard_body = <<EOF
+  dashboard_name = "tenure-information-api-${var.environment_name}-dashboard"
+  dashboard_body = <<EOF
     {
     "widgets": [
         {
