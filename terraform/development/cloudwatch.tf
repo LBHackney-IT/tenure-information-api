@@ -103,7 +103,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                     [ "AWS/Lambda", "Duration", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "region": "eu-west-2",
-                "title": "Tenure API Lambda Duration"
+                "title": "Tenure Information API Lambda Duration"
             }
         },
         {
@@ -120,7 +120,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                 "region": "eu-west-2",
                 "period": 86400,
                 "stat": "Sum",
-                "title": "Tenure API  Lambda Errors"
+                "title": "Tenure Information API  Lambda Errors"
             }
         },
         {
@@ -136,7 +136,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                     [ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "region": "eu-west-2",
-                "title": "Tenure API Lambda ConcurrentExecutions"
+                "title": "Tenure Information API Lambda ConcurrentExecutions"
             }
         },
         {
@@ -153,7 +153,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                 "region": "eu-west-2",
                 "period": 86400,
                 "stat": "Sum",
-                "title": "Tenure API Lambda Invocations"
+                "title": "Tenure Information API Lambda Invocations"
             }
         }
     ]
