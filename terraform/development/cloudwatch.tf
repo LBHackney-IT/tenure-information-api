@@ -12,7 +12,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 3,
             "properties": {
                 "metrics": [
-                    [ "AWS/ApiGateway", "5XXError", "ApiName", "development-tenure-information-api" ]
+                    [ "AWS/ApiGateway", "5XXError", "ApiName", "${var.environment_name}-tenure-information-api" ]
                 ],
                 "view": "singleValue",
                 "region": "eu-west-2",
@@ -31,7 +31,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                 "view": "timeSeries",
                 "stacked": true,
                 "metrics": [
-                    [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "development-tenure-information-api" ],
+                    [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${var.environment_name}-tenure-information-api" ],
                     [ ".", "Latency", ".", "." ]
                 ],
                 "region": "eu-west-2"
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 3,
             "properties": {
                 "metrics": [
-                    [ "AWS/ApiGateway", "4XXError", "ApiName", "development-tenure-information-api" ]
+                    [ "AWS/ApiGateway", "4XXError", "ApiName", "${var.environment_name}-tenure-information-api" ]
                 ],
                 "view": "singleValue",
                 "region": "eu-west-2",
@@ -62,7 +62,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "development-tenure-information-api" ],
+                    [ "AWS/ApiGateway", "Count", "ApiName", "${var.environment_name}-tenure-information-api" ],
                     [ ".", "5XXError", ".", "." ],
                     [ ".", "4XXError", ".", "." ]
                 ],
@@ -81,7 +81,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 3,
             "properties": {
                 "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "development-tenure-information-api" ]
+                    [ "AWS/ApiGateway", "Count", "ApiName", "${var.environment_name}-tenure-information-api" ]
                 ],
                 "view": "singleValue",
                 "region": "eu-west-2",
@@ -100,7 +100,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                 "view": "timeSeries",
                 "stacked": false,
                 "metrics": [
-                    [ "AWS/Lambda", "Duration", "FunctionName", "tenure-information-api-development", "Resource", "tenure-information-api-development" ]
+                    [ "AWS/Lambda", "Duration", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "region": "eu-west-2",
                 "title": "Tenure API Lambda Duration"
@@ -114,7 +114,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 3,
             "properties": {
                 "metrics": [
-                    [ "AWS/Lambda", "Errors", "FunctionName", "tenure-information-api-development", "Resource", "tenure-information-api-development" ]
+                    [ "AWS/Lambda", "Errors", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "view": "singleValue",
                 "region": "eu-west-2",
@@ -133,7 +133,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
                 "view": "timeSeries",
                 "stacked": false,
                 "metrics": [
-                    [ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "tenure-information-api-development", "Resource", "tenure-information-api-development" ]
+                    [ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "region": "eu-west-2",
                 "title": "Tenure API Lambda ConcurrentExecutions"
@@ -147,7 +147,7 @@ resource "aws_cloudwatch_dashboard" "tenure_information_api_cw_dashboard" {
             "height": 3,
             "properties": {
                 "metrics": [
-                    [ "AWS/Lambda", "Invocations", "FunctionName", "tenure-information-api-development", "Resource", "tenure-information-api-development" ]
+                    [ "AWS/Lambda", "Invocations", "FunctionName", "tenure-information-api-${var.environment_name}", "Resource", "tenure-information-api-${var.environment_name}" ]
                 ],
                 "view": "singleValue",
                 "region": "eu-west-2",
