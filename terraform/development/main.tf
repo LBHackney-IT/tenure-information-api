@@ -56,3 +56,9 @@ resource "aws_ssm_parameter" "tenure_sns_arn" {
   type  = "String"
   value = aws_sns_topic.tenure.arn
 }
+
+module "tenure_information_api_cloudwatch_dashboard" {
+    source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/dashboards/api-dashboard"
+    environment_name = var.environment_name
+    api_name         = "tenure-information-api"
+}
