@@ -120,7 +120,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var query = ConstructQuery();
             var request = ConstructUpdateRequest();
             var personResponse = _fixture.Create<TenureResponseObject>();
-            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request))
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>()))
                                     .ReturnsAsync(personResponse);
 
             // Act
@@ -137,7 +137,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var query = ConstructQuery();
             var request = ConstructUpdateRequest();
             var personResponse = _fixture.Create<TenureResponseObject>();
-            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request))
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>()))
                                     .ReturnsAsync((TenureResponseObject) null);
 
             // Act
@@ -155,7 +155,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Arrange
             var query = ConstructQuery();
             var exception = new ApplicationException("Test exception");
-            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureRequestObject>()))
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureRequestObject>(), It.IsAny<Token>()))
                                     .ThrowsAsync(exception);
 
             // Act

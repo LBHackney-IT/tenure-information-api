@@ -30,11 +30,23 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         /// <returns></returns>
         public async Task WhenUpdateTenureApiIsCalled(Guid id, Guid personId, UpdateTenureRequestObject requestObject)
         {
-
+            var token =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
             var uri = new Uri($"api/v1/tenures/{id}/person/{personId}", UriKind.Relative);
-            var content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
 
-            _lastResponse = await _httpClient.PatchAsync(uri, content).ConfigureAwait(false);
+            var message = new HttpRequestMessage(HttpMethod.Patch, uri);
+            message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
+            message.Method = HttpMethod.Patch;
+            message.Headers.Add("Authorization", token);
+
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
+            //var content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
+
+            //_lastResponse = await _httpClient.PatchAsync(uri, content).ConfigureAwait(false);
         }
 
         public async Task ThenTheTenureDetailsAreUpdated(TenureFixture tenureFixture)

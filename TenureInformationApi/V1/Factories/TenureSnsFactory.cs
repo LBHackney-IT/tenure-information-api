@@ -16,10 +16,10 @@ namespace TenureInformationApi.V1.Factories
                 DateTime = DateTime.UtcNow,
                 EntityId = tenure.Id,
                 Id = Guid.NewGuid(),
-                EventType = Constants.EVENTTYPE,
-                Version = Constants.V1_VERSION,
-                SourceDomain = Constants.SOURCE_DOMAIN,
-                SourceSystem = Constants.SOURCE_SYSTEM,
+                EventType = CreateEventConstants.EVENTTYPE,
+                Version = CreateEventConstants.V1_VERSION,
+                SourceDomain = CreateEventConstants.SOURCE_DOMAIN,
+                SourceSystem = CreateEventConstants.SOURCE_SYSTEM,
                 EventData = new EventData
                 {
                     NewData = tenure
@@ -27,5 +27,26 @@ namespace TenureInformationApi.V1.Factories
                 User = new User { Name = token.Name, Email = token.Email }
             };
         }
+
+        public TenureSns Update(TenureInformation tenure, Token token)
+        {
+            return new TenureSns
+            {
+                CorrelationId = Guid.NewGuid(),
+                DateTime = DateTime.UtcNow,
+                EntityId = tenure.Id,
+                Id = Guid.NewGuid(),
+                EventType = UpdateEventConstants.EVENTTYPE,
+                Version = UpdateEventConstants.V1_VERSION,
+                SourceDomain = UpdateEventConstants.SOURCE_DOMAIN,
+                SourceSystem = UpdateEventConstants.SOURCE_SYSTEM,
+                EventData = new EventData
+                {
+                    NewData = tenure
+                },
+                User = new User { Name = token.Name, Email = token.Email }
+            };
+        }
+
     }
 }
