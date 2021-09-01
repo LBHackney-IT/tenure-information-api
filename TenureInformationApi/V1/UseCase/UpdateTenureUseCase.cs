@@ -18,9 +18,9 @@ namespace TenureInformationApi.V1.UseCase
         {
             _tenureGateway = gateway;
         }
-        public async Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequest)
+        public async Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject)
         {
-            var tenure = await _tenureGateway.UpdateTenure(query, updateTenureRequest).ConfigureAwait(false);
+            var tenure = await _tenureGateway.UpdateTenure(query, updateTenureRequestObject).ConfigureAwait(false);
             return tenure.ToResponse();
         }
 

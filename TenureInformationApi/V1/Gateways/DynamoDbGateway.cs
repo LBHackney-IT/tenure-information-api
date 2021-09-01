@@ -44,13 +44,13 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequest)
+        public async Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
             var load = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             if (load == null) return null;
-            updateTenureRequest.Id = query.Id;
-            var dbEntity = updateTenureRequest.ToDatabase();
+            updateTenureRequestObject.Id = query.Id;
+            var dbEntity = updateTenureRequestObject.ToDatabase();
 
             await _dynamoDbContext.SaveAsync(dbEntity, new DynamoDBOperationConfig { IgnoreNullValues = true }).ConfigureAwait(false);
 

@@ -46,9 +46,9 @@ namespace TenureInformationApi.Tests.V1.Controllers
             return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
         }
 
-        private TenureQueryRequest ConstructQuery(Guid? id = null, Guid? personId = null)
+        private TenureQueryRequest ConstructQuery()
         {
-            return new TenureQueryRequest() { Id = id ?? Guid.NewGuid(), PersonId = personId ?? Guid.NewGuid() };
+            return new TenureQueryRequest() { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
         }
 
         private UpdateTenureRequestObject ConstructUpdateRequest()
