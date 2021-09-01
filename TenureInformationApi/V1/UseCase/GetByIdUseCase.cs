@@ -20,7 +20,7 @@ namespace TenureInformationApi.V1.UseCase
         }
 
         [LogCall]
-        public async Task<TenureResponseObject> Execute(GetByIdRequest query)
+        public async Task<TenureResponseObject> Execute(TenureQueryRequest query)
         {
             var tenure = await _gateway.GetEntityById(query).ConfigureAwait(false);
 
