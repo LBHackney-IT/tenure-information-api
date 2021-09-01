@@ -52,7 +52,7 @@ namespace TenureInformationApi.V1.Gateways
             updateTenureRequest.Id = query.Id;
             var dbEntity = updateTenureRequest.ToDatabase();
 
-            await _dynamoDbContext.SaveAsync(dbEntity, new DynamoDBOperationConfig { IgnoreNullValues = true}).ConfigureAwait(false);
+            await _dynamoDbContext.SaveAsync(dbEntity, new DynamoDBOperationConfig { IgnoreNullValues = true }).ConfigureAwait(false);
 
             return dbEntity.ToDomain();
         }

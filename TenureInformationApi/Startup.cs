@@ -161,7 +161,7 @@ namespace TenureInformationApi
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
             services.AddScoped<ISnsGateway, SnsGateway>();
-            
+
         }
 
         private static void RegisterUseCases(IServiceCollection services)

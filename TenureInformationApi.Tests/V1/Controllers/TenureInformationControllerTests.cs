@@ -21,7 +21,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         private readonly TenureInformationController _classUnderTest;
         private readonly Mock<IGetByIdUseCase> _mockGetByIdUsecase;
         private readonly Mock<IPostNewTenureUseCase> _mockPostTenureUseCase;
-        private readonly Mock<IUpdateTenureUseCase> _mockUpdateTenureUseCase; 
+        private readonly Mock<IUpdateTenureUseCase> _mockUpdateTenureUseCase;
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Mock<IHttpContextWrapper> _mockContextWrapper;
         private readonly Mock<HttpRequest> _mockHttpRequest;

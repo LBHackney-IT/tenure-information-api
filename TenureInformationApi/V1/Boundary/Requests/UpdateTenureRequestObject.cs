@@ -8,8 +8,8 @@ namespace TenureInformationApi.V1.Boundary.Requests
 {
     public class UpdateTenureRequestObject
     {
-       public Guid Id { get; set; }
-       public List<HouseholdMembers> HouseholdMembers { get; set; }
+        public Guid Id { get; set; }
+        public List<HouseholdMembers> HouseholdMembers { get; set; }
     }
 
 }

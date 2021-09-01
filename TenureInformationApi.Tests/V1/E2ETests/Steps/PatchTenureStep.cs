@@ -30,10 +30,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         /// <returns></returns>
         public async Task WhenUpdateTenureApiIsCalled(Guid id, Guid personId, UpdateTenureRequestObject requestObject)
         {
-            
+
             var uri = new Uri($"api/v1/tenures/{id}/person/{personId}", UriKind.Relative);
             var content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
-            
+
             _lastResponse = await _httpClient.PatchAsync(uri, content).ConfigureAwait(false);
         }
 

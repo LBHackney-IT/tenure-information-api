@@ -57,7 +57,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private TenureQueryRequest ConstructUpdateQuery(Guid id)
         {
-            return new TenureQueryRequest() { Id = id  };
+            return new TenureQueryRequest() { Id = id };
         }
 
         private UpdateTenureRequestObject ConstructUpdateRequest(Guid id)
