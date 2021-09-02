@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
@@ -22,7 +23,7 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<TenureInformation> GetEntityById(GetByIdRequest query)
+        public async Task<TenureInformation> GetEntityById(TenureQueryRequest query)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
             var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
@@ -40,6 +41,20 @@ namespace TenureInformationApi.V1.Gateways
 
             return tenureDbEntity.ToDomain();
 
+        }
+
+        [LogCall]
+        public async Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
+            var load = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
+            if (load == null) return null;
+            updateTenureRequestObject.Id = query.Id;
+            var dbEntity = updateTenureRequestObject.ToDatabase();
+
+            await _dynamoDbContext.SaveAsync(dbEntity, new DynamoDBOperationConfig { IgnoreNullValues = true }).ConfigureAwait(false);
+
+            return dbEntity.ToDomain();
         }
     }
 }

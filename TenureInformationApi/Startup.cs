@@ -161,12 +161,14 @@ namespace TenureInformationApi
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
             services.AddScoped<ISnsGateway, SnsGateway>();
+
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
+            services.AddScoped<IUpdateTenureUseCase, UpdateTenureUseCase>();
 
         }
 

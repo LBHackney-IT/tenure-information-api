@@ -6,6 +6,6 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IGetByIdUseCase
     {
-        Task<TenureResponseObject> Execute(GetByIdRequest query);
+        Task<TenureResponseObject> Execute(TenureQueryRequest query);
     }
 }

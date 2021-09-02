@@ -11,14 +11,14 @@ namespace TenureInformationApi.V1.Domain
         public IEnumerable<HouseholdMembers> HouseholdMembers { get; set; }
         public TenuredAsset TenuredAsset { get; set; }
         public Charges Charges { get; set; }
-        public DateTime StartOfTenureDate { get; set; }
+        public DateTime? StartOfTenureDate { get; set; }
         public DateTime? EndOfTenureDate { get; set; }
         public TenureType TenureType { get; set; }
 
         [JsonIgnore]
         public bool IsActive => TenureHelpers.IsTenureActive(EndOfTenureDate);
 
-        public bool IsTenanted { get; set; }
+        public bool? IsTenanted { get; set; }
         public Terminated Terminated { get; set; }
         public DateTime? SuccessionDate { get; set; }
         public AgreementType AgreementType { get; set; }
@@ -26,9 +26,9 @@ namespace TenureInformationApi.V1.Domain
         public DateTime? PotentialEndDate { get; set; }
         public IEnumerable<Notices> Notices { get; set; }
         public IEnumerable<LegacyReference> LegacyReferences { get; set; }
-        public bool IsMutualExchange { get; set; }
-        public bool InformHousingBenefitsForChanges { get; set; }
-        public bool IsSublet { get; set; }
+        public bool? IsMutualExchange { get; set; }
+        public bool? InformHousingBenefitsForChanges { get; set; }
+        public bool? IsSublet { get; set; }
         public DateTime? SubletEndDate { get; set; }
     }
 }

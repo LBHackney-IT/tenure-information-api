@@ -21,6 +21,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         private readonly TenureInformationController _classUnderTest;
         private readonly Mock<IGetByIdUseCase> _mockGetByIdUsecase;
         private readonly Mock<IPostNewTenureUseCase> _mockPostTenureUseCase;
+        private readonly Mock<IUpdateTenureUseCase> _mockUpdateTenureUseCase;
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Mock<IHttpContextWrapper> _mockContextWrapper;
         private readonly Mock<HttpRequest> _mockHttpRequest;
@@ -30,18 +31,31 @@ namespace TenureInformationApi.Tests.V1.Controllers
         {
             _mockGetByIdUsecase = new Mock<IGetByIdUseCase>();
             _mockPostTenureUseCase = new Mock<IPostNewTenureUseCase>();
+            _mockUpdateTenureUseCase = new Mock<IUpdateTenureUseCase>();
             _mockTokenFactory = new Mock<ITokenFactory>();
             _mockContextWrapper = new Mock<IHttpContextWrapper>();
             _mockHttpRequest = new Mock<HttpRequest>();
-            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object, _mockPostTenureUseCase.Object, _mockTokenFactory.Object,
+            _classUnderTest = new TenureInformationController(_mockGetByIdUsecase.Object, _mockPostTenureUseCase.Object, _mockUpdateTenureUseCase.Object, _mockTokenFactory.Object,
                 _mockContextWrapper.Object);
             _mockContextWrapper.Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>())).Returns(new HeaderDictionary());
 
         }
 
-        private GetByIdRequest ConstructRequest(Guid? id = null)
+        private TenureQueryRequest ConstructRequest(Guid? id = null)
         {
-            return new GetByIdRequest() { Id = id ?? Guid.NewGuid() };
+            return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
+        }
+
+        private TenureQueryRequest ConstructQuery()
+        {
+            return new TenureQueryRequest() { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
+        }
+
+        private UpdateTenureRequestObject ConstructUpdateRequest()
+        {
+            var request = _fixture.Create<UpdateTenureRequestObject>();
+
+            return request;
         }
 
         [Fact]
@@ -93,6 +107,59 @@ namespace TenureInformationApi.Tests.V1.Controllers
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(new CreateTenureRequestObject())
+                .ConfigureAwait(false);
+
+            // Assert
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task UpdateTenureByIdAsyncFoundReturnsFound()
+        {
+            // Arrange
+            var query = ConstructQuery();
+            var request = ConstructUpdateRequest();
+            var personResponse = _fixture.Create<TenureResponseObject>();
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request))
+                                    .ReturnsAsync(personResponse);
+
+            // Act
+            var response = await _classUnderTest.UpdateTenure(query, request).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(NoContentResult));
+        }
+
+        [Fact]
+        public async Task UpdateTenureByIdAsyncNotFoundReturnsNotFound()
+        {
+            // Arrange
+            var query = ConstructQuery();
+            var request = ConstructUpdateRequest();
+            var personResponse = _fixture.Create<TenureResponseObject>();
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, request))
+                                    .ReturnsAsync((TenureResponseObject) null);
+
+            // Act
+            var response = await _classUnderTest.UpdateTenure(query, request).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.Id);
+
+        }
+
+        [Fact]
+        public void UpdateTenureByIdAsyncExceptionIsThrown()
+        {
+            // Arrange
+            var query = ConstructQuery();
+            var exception = new ApplicationException("Test exception");
+            _mockUpdateTenureUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureRequestObject>()))
+                                    .ThrowsAsync(exception);
+
+            // Act
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.UpdateTenure(query, new UpdateTenureRequestObject())
                 .ConfigureAwait(false);
 
             // Assert

@@ -27,9 +27,9 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 
-        private GetByIdRequest ConstructRequest(Guid? id = null)
+        private TenureQueryRequest ConstructRequest(Guid? id = null)
         {
-            return new GetByIdRequest() { Id = id ?? Guid.NewGuid() };
+            return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
         }
 
         [Fact]
