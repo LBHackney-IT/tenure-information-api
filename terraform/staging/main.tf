@@ -51,7 +51,7 @@ resource "aws_sns_topic" "tenure" {
 }
 
 resource "aws_ssm_parameter" "tenure_sns_arn" {
-  name  = "/sns-topic/tenure_created/arn"
+  name  = "/sns-topic/staging/tenure/arn"
   type  = "String"
   value = aws_sns_topic.tenure.arn
 }

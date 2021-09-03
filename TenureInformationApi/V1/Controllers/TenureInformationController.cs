@@ -75,7 +75,9 @@ namespace TenureInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> UpdateTenure([FromRoute] TenureQueryRequest query, [FromBody] UpdateTenureRequestObject updateTenureRequestObject)
         {
-            var tenure = await _updateTenureUseCase.ExecuteAsync(query, updateTenureRequestObject).ConfigureAwait(false);
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
+            var tenure = await _updateTenureUseCase.ExecuteAsync(query, updateTenureRequestObject, token).ConfigureAwait(false);
             if (tenure == null) return NotFound(query.Id);
 
             return NoContent();

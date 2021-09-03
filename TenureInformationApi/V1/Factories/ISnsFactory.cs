@@ -7,5 +7,7 @@ namespace TenureInformationApi.V1.Factories
     public interface ISnsFactory
     {
         TenureSns Create(TenureInformation tenure, Token token);
+        TenureSns Update(TenureInformation tenure, Token token);
+
     }
 }
