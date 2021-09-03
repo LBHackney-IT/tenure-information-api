@@ -18,7 +18,7 @@ namespace TenureInformationApi.Tests.V1.Boundary.Request.Validation
         [Fact]
         public void RequestShouldErrorWithNullTargetId()
         {
-            var query = new GetByIdRequest();
+            var query = new TenureQueryRequest();
             var result = _sut.TestValidate(query);
             result.ShouldHaveValidationErrorFor(x => x.Id);
         }
@@ -26,7 +26,7 @@ namespace TenureInformationApi.Tests.V1.Boundary.Request.Validation
         [Fact]
         public void RequestShouldErrorWithEmptyTargetId()
         {
-            var query = new GetByIdRequest() { Id = Guid.Empty };
+            var query = new TenureQueryRequest() { Id = Guid.Empty };
             var result = _sut.TestValidate(query);
             result.ShouldHaveValidationErrorFor(x => x.Id);
         }

@@ -26,7 +26,7 @@ namespace TenureInformationApi.V1.Infrastructure
         public Charges Charges { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime StartOfTenureDate { get; set; }
+        public DateTime? StartOfTenureDate { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime? EndOfTenureDate { get; set; }
@@ -35,7 +35,7 @@ namespace TenureInformationApi.V1.Infrastructure
         public TenureType TenureType { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool IsTenanted { get; set; }
+        public bool? IsTenanted { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<Terminated>))]
         public Terminated Terminated { get; set; }
@@ -59,13 +59,13 @@ namespace TenureInformationApi.V1.Infrastructure
         public List<LegacyReference> LegacyReferences { get; set; } = new List<LegacyReference>();
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool IsMutualExchange { get; set; }
+        public bool? IsMutualExchange { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool InformHousingBenefitsForChanges { get; set; }
+        public bool? InformHousingBenefitsForChanges { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
-        public bool IsSublet { get; set; }
+        public bool? IsSublet { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime? SubletEndDate { get; set; }

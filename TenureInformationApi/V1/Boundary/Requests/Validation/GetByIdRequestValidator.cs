@@ -4,7 +4,7 @@ using TenureInformationApi.V1.Boundary.Requests;
 
 namespace TenureInformationApi.V1.Boundary.Request.Validation
 {
-    public class GetByIdRequestValidator : AbstractValidator<GetByIdRequest>
+    public class GetByIdRequestValidator : AbstractValidator<TenureQueryRequest>
     {
         public GetByIdRequestValidator()
         {

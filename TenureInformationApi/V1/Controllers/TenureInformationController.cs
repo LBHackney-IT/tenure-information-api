@@ -21,13 +21,15 @@ namespace TenureInformationApi.V1.Controllers
     {
         private readonly IGetByIdUseCase _getByIdUseCase;
         private readonly IPostNewTenureUseCase _postNewTenureUseCase;
+        private readonly IUpdateTenureUseCase _updateTenureUseCase;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHttpContextWrapper _contextWrapper;
-        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase,
+        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureUseCase updateTenureUseCase,
             ITokenFactory tokenFactory, IHttpContextWrapper contextWrapper)
         {
             _getByIdUseCase = getByIdUseCase;
             _postNewTenureUseCase = postNewTenureUseCase;
+            _updateTenureUseCase = updateTenureUseCase;
             _tokenFactory = tokenFactory;
             _contextWrapper = contextWrapper;
         }
@@ -45,7 +47,7 @@ namespace TenureInformationApi.V1.Controllers
         [HttpGet]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> GetByID([FromRoute] GetByIdRequest query)
+        public async Task<IActionResult> GetByID([FromRoute] TenureQueryRequest query)
         {
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
@@ -62,6 +64,23 @@ namespace TenureInformationApi.V1.Controllers
 
             var tenure = await _postNewTenureUseCase.ExecuteAsync(createTenureRequestObject, token).ConfigureAwait(false);
             return Created(new Uri($"api/v1/tenures/{tenure.Id}", UriKind.Relative), tenure);
+        }
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPatch]
+        [Route("{id}/person/{personid}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> UpdateTenure([FromRoute] TenureQueryRequest query, [FromBody] UpdateTenureRequestObject updateTenureRequestObject)
+        {
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
+            var tenure = await _updateTenureUseCase.ExecuteAsync(query, updateTenureRequestObject, token).ConfigureAwait(false);
+            if (tenure == null) return NotFound(query.Id);
+
+            return NoContent();
         }
     }
 }
