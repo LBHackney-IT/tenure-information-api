@@ -65,7 +65,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var request = _fixture.Build<UpdateTenureRequestObject>()
                 .With(x => x.Id, id)
                 .Create();
-
             return request;
         }
 
