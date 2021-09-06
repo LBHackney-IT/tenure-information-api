@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
@@ -44,17 +45,33 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject)
+        public async Task<TenureInformation> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
-            var load = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
-            if (load == null) return null;
-            updateTenureRequestObject.Id = query.Id;
-            var dbEntity = updateTenureRequestObject.ToDatabase();
+            var tenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
+            if (tenure == null) return null;
 
-            await _dynamoDbContext.SaveAsync(dbEntity, new DynamoDBOperationConfig { IgnoreNullValues = true }).ConfigureAwait(false);
+            var householdMember = tenure.HouseholdMembers.FirstOrDefault(x => x.Id == query.PersonId);
+            if (householdMember is null)
+            {
+                householdMember = new HouseholdMembers();
+                tenure.HouseholdMembers.Add(householdMember);
+            }
 
-            return dbEntity.ToDomain();
+            if (updateTenureRequestObject.DateOfBirth.HasValue)
+                householdMember.DateOfBirth = updateTenureRequestObject.DateOfBirth.Value;
+            householdMember.FullName = updateTenureRequestObject.FullName;
+            householdMember.Id = query.PersonId;
+            if (updateTenureRequestObject.IsResponsible.HasValue)
+                householdMember.IsResponsible = updateTenureRequestObject.IsResponsible.Value;
+            if (updateTenureRequestObject.Type.HasValue)
+                householdMember.Type = updateTenureRequestObject.Type.Value;
+
+            householdMember.PersonTenureType = TenureTypes.GetPersonTenureType(tenure.TenureType, householdMember.IsResponsible);
+
+            await _dynamoDbContext.SaveAsync(tenure).ConfigureAwait(false);
+
+            return tenure.ToDomain();
         }
     }
 }

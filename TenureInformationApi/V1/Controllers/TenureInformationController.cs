@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -21,15 +20,15 @@ namespace TenureInformationApi.V1.Controllers
     {
         private readonly IGetByIdUseCase _getByIdUseCase;
         private readonly IPostNewTenureUseCase _postNewTenureUseCase;
-        private readonly IUpdateTenureUseCase _updateTenureUseCase;
+        private readonly IUpdateTenureForPersonUseCase _updateTenureForPersonUseCase;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHttpContextWrapper _contextWrapper;
-        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureUseCase updateTenureUseCase,
+        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureForPersonUseCase updateTenureForPersonUseCase,
             ITokenFactory tokenFactory, IHttpContextWrapper contextWrapper)
         {
             _getByIdUseCase = getByIdUseCase;
             _postNewTenureUseCase = postNewTenureUseCase;
-            _updateTenureUseCase = updateTenureUseCase;
+            _updateTenureForPersonUseCase = updateTenureForPersonUseCase;
             _tokenFactory = tokenFactory;
             _contextWrapper = contextWrapper;
         }
@@ -73,9 +72,9 @@ namespace TenureInformationApi.V1.Controllers
         [HttpPatch]
         [Route("{id}/person/{personid}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> UpdateTenure([FromRoute] TenureQueryRequest query, [FromBody] UpdateTenureRequestObject updateTenureRequestObject)
+        public async Task<IActionResult> UpdateTenureForPerson([FromRoute] UpdateTenureRequest query, [FromBody] UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
-            var tenure = await _updateTenureUseCase.ExecuteAsync(query, updateTenureRequestObject).ConfigureAwait(false);
+            var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject).ConfigureAwait(false);
             if (tenure == null) return NotFound(query.Id);
 
             return NoContent();

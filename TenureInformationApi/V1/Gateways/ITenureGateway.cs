@@ -10,6 +10,6 @@ namespace TenureInformationApi.V1.Gateways
 
         Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject);
 
-        Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject);
+        Task<TenureInformation> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject);
     }
 }

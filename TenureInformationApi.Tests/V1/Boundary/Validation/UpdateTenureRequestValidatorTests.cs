@@ -1,36 +1,50 @@
 using FluentValidation.TestHelper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using TenureInformationApi.V1.Boundary.Request.Validation;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
 using Xunit;
 
-namespace TenureInformationApi.Tests.V1.Boundary.Validation
+namespace TenureInformationApi.Tests.V1.Boundary.Request.Validation
 {
     public class UpdateTenureRequestValidatorTests
     {
-        public UpdateTenureRequestValidation _classUnderTest;
+        private readonly UpdateTenureRequestValidator _sut;
+
         public UpdateTenureRequestValidatorTests()
         {
-            _classUnderTest = new UpdateTenureRequestValidation();
+            _sut = new UpdateTenureRequestValidator();
         }
 
         [Fact]
-        public void RequestShouldErrorWithNullTargetId()
+        public void RequestShouldErrorWithNullId()
         {
-            var query = new UpdateTenureRequestObject();
-            var result = _classUnderTest.TestValidate(query);
+            var query = new UpdateTenureRequest();
+            var result = _sut.TestValidate(query);
             result.ShouldHaveValidationErrorFor(x => x.Id);
         }
 
         [Fact]
-        public void RequestShouldErrorWithEmptyTargetId()
+        public void RequestShouldErrorWithEmptyId()
         {
-            var query = new UpdateTenureRequestObject() { Id = Guid.Empty };
-            var result = _classUnderTest.TestValidate(query);
+            var query = new UpdateTenureRequest() { Id = Guid.Empty };
+            var result = _sut.TestValidate(query);
             result.ShouldHaveValidationErrorFor(x => x.Id);
+        }
+
+        [Fact]
+        public void RequestShouldErrorWithNullPersonId()
+        {
+            var query = new UpdateTenureRequest();
+            var result = _sut.TestValidate(query);
+            result.ShouldHaveValidationErrorFor(x => x.PersonId);
+        }
+
+        [Fact]
+        public void RequestShouldErrorWithEmptyPersonId()
+        {
+            var query = new UpdateTenureRequest() { PersonId = Guid.Empty };
+            var result = _sut.TestValidate(query);
+            result.ShouldHaveValidationErrorFor(x => x.PersonId);
         }
     }
 }
