@@ -26,13 +26,14 @@ namespace TenureInformationApi.V1.UseCase
         [LogCall]
         public async Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject, Token token)
         {
-            var tenure = await _tenureGateway.UpdateTenureForPerson(query, updateTenureRequestObject).ConfigureAwait(false);
-            if (tenure == null) return null;
-            var tenureSnsMessage = _snsFactory.Update(tenure, token);
+            var updateResult = await _tenureGateway.UpdateTenureForPerson(query, updateTenureRequestObject).ConfigureAwait(false);
+            if (updateResult == null) return null;
+
+            var tenureSnsMessage = _snsFactory.Update(updateResult, token);
             var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
 
             await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
-            return tenure.ToResponse();
+            return updateResult.UpdatedEntity.ToDomain().ToResponse();
         }
     }
 }

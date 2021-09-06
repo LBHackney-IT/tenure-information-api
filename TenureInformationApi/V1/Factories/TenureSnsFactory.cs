@@ -28,13 +28,13 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        public TenureSns Update(TenureInformation tenure, Token token)
+        public TenureSns Update(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
         {
             return new TenureSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
-                EntityId = tenure.Id,
+                EntityId = updateResult.UpdatedEntity.Id,
                 Id = Guid.NewGuid(),
                 EventType = UpdateEventConstants.EVENTTYPE,
                 Version = UpdateEventConstants.V1_VERSION,
@@ -42,7 +42,8 @@ namespace TenureInformationApi.V1.Factories
                 SourceSystem = UpdateEventConstants.SOURCE_SYSTEM,
                 EventData = new EventData
                 {
-                    NewData = tenure
+                    NewData = updateResult.NewValues,
+                    OldData = updateResult.OldValues
                 },
                 User = new User { Name = token.Name, Email = token.Email }
             };

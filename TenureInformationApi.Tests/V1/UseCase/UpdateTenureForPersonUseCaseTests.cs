@@ -10,6 +10,7 @@ using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
 
@@ -43,10 +44,12 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
             return request;
         }
-        private TenureInformation ConstructTenure(Guid? id)
+        private UpdateEntityResult<TenureInformationDb> ConstructUpdateResponse(Guid? id)
         {
-            return _fixture.Build<TenureInformation>()
-                           .With(x => x.Id, id)
+            return _fixture.Build<UpdateEntityResult<TenureInformationDb>>()
+                           .With(x => x.UpdatedEntity, _fixture.Build<TenureInformationDb>()
+                                                               .With(y => y.Id, id ?? Guid.NewGuid())
+                                                               .Create())
                            .Create();
         }
 
@@ -55,13 +58,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             var request = ConstructUpdateRequest();
             var query = ConstructQuery();
-            var updateTenure = ConstructTenure(query.Id);
+            var gatewayResponse = ConstructUpdateResponse(query.Id);
             var token = new Token();
 
 
-            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync(updateTenure);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync(gatewayResponse);
             var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
-            response.Should().BeEquivalentTo(updateTenure.ToResponse());
+            response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());
 
         }
 
@@ -72,7 +75,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var query = ConstructQuery();
             var token = new Token();
 
-            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync((TenureInformation) null);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
             var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
             response.Should().BeNull();
 

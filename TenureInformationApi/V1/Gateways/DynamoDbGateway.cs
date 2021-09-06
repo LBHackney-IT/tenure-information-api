@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
+using Force.DeepCloner;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -45,11 +46,20 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<TenureInformation> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject)
+        public async Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
             var tenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             if (tenure == null) return null;
+
+            var result = new UpdateEntityResult<TenureInformationDb>()
+            {
+                UpdatedEntity = tenure,
+                OldValues = new Dictionary<string, object>
+                {
+                    { "HouseholdMembers", tenure.HouseholdMembers.DeepClone() }
+                }
+            };
 
             var householdMember = tenure.HouseholdMembers.FirstOrDefault(x => x.Id == query.PersonId);
             if (householdMember is null)
@@ -71,7 +81,12 @@ namespace TenureInformationApi.V1.Gateways
 
             await _dynamoDbContext.SaveAsync(tenure).ConfigureAwait(false);
 
-            return tenure.ToDomain();
+            result.NewValues = new Dictionary<string, object>
+            {
+                { "HouseholdMembers", tenure.HouseholdMembers }
+            };
+
+            return result;
         }
     }
 }
