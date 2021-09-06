@@ -1,4 +1,7 @@
+using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Sns;
+using System;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -11,16 +14,24 @@ namespace TenureInformationApi.V1.UseCase
     public class UpdateTenureForPersonUseCase : IUpdateTenureForPersonUseCase
     {
         private readonly ITenureGateway _tenureGateway;
-
-        public UpdateTenureForPersonUseCase(ITenureGateway gateway)
+        private readonly ISnsGateway _snsGateway;
+        private readonly ISnsFactory _snsFactory;
+        public UpdateTenureForPersonUseCase(ITenureGateway gateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _tenureGateway = gateway;
+            _snsGateway = snsGateway;
+            _snsFactory = snsFactory;
         }
 
         [LogCall]
-        public async Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject)
+        public async Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject, Token token)
         {
             var tenure = await _tenureGateway.UpdateTenureForPerson(query, updateTenureRequestObject).ConfigureAwait(false);
+            if (tenure == null) return null;
+            var tenureSnsMessage = _snsFactory.Update(tenure, token);
+            var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
+
+            await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
             return tenure.ToResponse();
         }
     }
