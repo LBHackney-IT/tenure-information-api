@@ -4,51 +4,52 @@ using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class UpdateTenureUseCaseTests
+    public class UpdateTenureForPersonUseCaseTests
     {
         private readonly Mock<ITenureGateway> _mockGateway;
-        private readonly UpdateTenureUseCase _classUnderTest;
+        private readonly UpdateTenureForPersonUseCase _classUnderTest;
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
         private readonly TenureSnsFactory _tenureSnsFactory;
         private readonly Fixture _fixture = new Fixture();
 
-        public UpdateTenureUseCaseTests()
+        public UpdateTenureForPersonUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new TenureSnsFactory();
-            _classUnderTest = new UpdateTenureUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);
+            _classUnderTest = new UpdateTenureForPersonUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);
         }
 
-        private TenureQueryRequest ConstructQuery(Guid? id = null, Guid? personId = null)
+        private UpdateTenureRequest ConstructQuery(Guid? id = null, Guid? personId = null)
         {
-            return new TenureQueryRequest() { Id = id ?? Guid.NewGuid(), PersonId = personId ?? Guid.NewGuid() };
+            return new UpdateTenureRequest() { Id = id ?? Guid.NewGuid(), PersonId = personId ?? Guid.NewGuid() };
         }
 
-        private UpdateTenureRequestObject ConstructUpdateRequest()
+        private UpdateTenureForPersonRequestObject ConstructUpdateRequest()
         {
-            var request = _fixture.Create<UpdateTenureRequestObject>();
+            var request = _fixture.Create<UpdateTenureForPersonRequestObject>();
 
             return request;
         }
-        private TenureInformation ConstructTenure(Guid? id)
+        private UpdateEntityResult<TenureInformationDb> ConstructUpdateResponse(Guid? id)
         {
-            return _fixture.Build<TenureInformation>()
-                           .With(x => x.Id, id)
+            return _fixture.Build<UpdateEntityResult<TenureInformationDb>>()
+                           .With(x => x.UpdatedEntity, _fixture.Build<TenureInformationDb>()
+                                                               .With(y => y.Id, id ?? Guid.NewGuid())
+                                                               .Create())
                            .Create();
         }
 
@@ -57,13 +58,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             var request = ConstructUpdateRequest();
             var query = ConstructQuery();
-            var updateTenure = ConstructTenure(query.Id);
+            var gatewayResponse = ConstructUpdateResponse(query.Id);
             var token = new Token();
 
 
-            _mockGateway.Setup(x => x.UpdateTenure(query, request)).ReturnsAsync(updateTenure);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync(gatewayResponse);
             var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
-            response.Should().BeEquivalentTo(updateTenure.ToResponse());
+            response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());
 
         }
 
@@ -74,8 +75,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var query = ConstructQuery();
             var token = new Token();
 
-
-            _mockGateway.Setup(x => x.UpdateTenure(query, request)).ReturnsAsync((TenureInformation) null);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
             var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
             response.Should().BeNull();
 
@@ -89,7 +89,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var query = ConstructQuery();
             var token = new Token();
             var exception = new ApplicationException("Test exception");
-            _mockGateway.Setup(x => x.UpdateTenure(query, request)).ThrowsAsync(exception);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ThrowsAsync(exception);
 
             // Act
             Func<Task<TenureResponseObject>> func = async () =>
@@ -98,7 +98,5 @@ namespace TenureInformationApi.Tests.V1.UseCase
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
-
-
     }
 }

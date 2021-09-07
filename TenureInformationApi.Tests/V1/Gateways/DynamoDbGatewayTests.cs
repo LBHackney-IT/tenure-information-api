@@ -55,27 +55,25 @@ namespace TenureInformationApi.Tests.V1.Gateways
             return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
         }
 
-        private TenureQueryRequest ConstructUpdateQuery(Guid id)
+        private UpdateTenureRequest ConstructUpdateQuery(Guid id, Guid personId)
         {
-            return new TenureQueryRequest() { Id = id };
+            return new UpdateTenureRequest() { Id = id, PersonId = personId };
         }
 
-        private UpdateTenureRequestObject ConstructUpdateRequest(Guid id)
+        private UpdateTenureForPersonRequestObject ConstructUpdateRequest()
         {
-            var request = _fixture.Build<UpdateTenureRequestObject>()
-                .With(x => x.Id, id)
+            var request = _fixture.Build<UpdateTenureForPersonRequestObject>()
+                .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30))
                 .Create();
-
             return request;
         }
 
-        private UpdateTenureRequestObject ConstructUpdateFullNameRequest(Guid id, IEnumerable<HouseholdMembers> householdMembers)
+        private UpdateTenureForPersonRequestObject ConstructUpdateFullNameRequest()
         {
-            var request = _fixture.Build<UpdateTenureRequestObject>()
-                .With(x => x.Id, id)
-                .With(x => x.HouseholdMembers, householdMembers.ToList())
-                .Create();
-            request.HouseholdMembers.First().FullName = "Update";
+            var request = new UpdateTenureForPersonRequestObject()
+            {
+                FullName = "Update"
+            };
             return request;
         }
 
@@ -156,32 +154,32 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            var query = ConstructUpdateQuery(entity.Id);
-            var request = ConstructUpdateRequest(query.Id);
+            var query = ConstructUpdateQuery(entity.Id, Guid.NewGuid());
+            var request = ConstructUpdateRequest();
 
-            var update = await _classUnderTest.UpdateTenure(query, request).ConfigureAwait(false);
+            var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
 
-            //Updated tenure with new HouseHold Member
-            load.HouseholdMembers.Should().BeEquivalentTo(request.HouseholdMembers);
-            load.Id.Should().Be(entity.Id);
-            load.InformHousingBenefitsForChanges.Should().Be(entity.InformHousingBenefitsForChanges);
-            load.IsMutualExchange.Should().Be(entity.IsMutualExchange);
-            load.IsSublet.Should().Be(entity.IsSublet);
-            load.IsTenanted.Should().Be(entity.IsTenanted);
-            load.LegacyReferences.Should().BeEquivalentTo(entity.LegacyReferences);
-            load.StartOfTenureDate.Should().Be(entity.StartOfTenureDate);
-            load.Notices.Should().BeEquivalentTo(entity.Notices);
-            load.PaymentReference.Should().Be(entity.PaymentReference);
-            load.PotentialEndDate.Should().Be(entity.PotentialEndDate);
-            load.SubletEndDate.Should().Be(entity.SubletEndDate);
-            load.SuccessionDate.Should().Be(entity.SuccessionDate);
-            load.TenuredAsset.Should().BeEquivalentTo(entity.TenuredAsset);
-            load.TenureType.Should().BeEquivalentTo(entity.TenureType);
-            load.Terminated.Should().BeEquivalentTo(entity.Terminated);
+            //Updated tenure with new Household Member
+            result.UpdatedEntity.Should().BeEquivalentTo(load);
+            load.Should().BeEquivalentTo(entity.ToDatabase(), config => config.Excluding(y => y.HouseholdMembers));
 
+            var expected = new HouseholdMembers()
+            {
+                DateOfBirth = request.DateOfBirth.Value,
+                FullName = request.FullName,
+                Id = query.PersonId,
+                IsResponsible = request.IsResponsible.Value,
+                PersonTenureType = TenureTypes.GetPersonTenureType(entity.TenureType, request.IsResponsible.Value),
+                Type = request.Type.Value
+            };
+            load.HouseholdMembers.Should().ContainEquivalentOf(expected);
+            load.HouseholdMembers.Except(load.HouseholdMembers.Where(x => x.Id == query.PersonId)).Should().BeEmpty();
+
+            result.OldValues["HouseholdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
+            result.NewValues["HouseholdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
         }
 
         [Theory]
@@ -201,31 +199,20 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
 
-            var query = ConstructUpdateQuery(entity.Id);
-            var request = ConstructUpdateFullNameRequest(query.Id, entity.HouseholdMembers);
-            var update = await _classUnderTest.UpdateTenure(query, request).ConfigureAwait(false);
+            var query = ConstructUpdateQuery(entity.Id, entity.HouseholdMembers.First().Id);
+            var request = ConstructUpdateFullNameRequest();
+            var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
 
             //Updated tenure with updated HouseHold Member
-            load.HouseholdMembers.Should().BeEquivalentTo(request.HouseholdMembers);
-            load.Id.Should().Be(entity.Id);
-            load.InformHousingBenefitsForChanges.Should().Be(entity.InformHousingBenefitsForChanges);
-            load.IsMutualExchange.Should().Be(entity.IsMutualExchange);
-            load.IsSublet.Should().Be(entity.IsSublet);
-            load.IsTenanted.Should().Be(entity.IsTenanted);
-            load.LegacyReferences.Should().BeEquivalentTo(entity.LegacyReferences);
-            load.StartOfTenureDate.Should().Be(entity.StartOfTenureDate);
-            load.Notices.Should().BeEquivalentTo(entity.Notices);
-            load.PaymentReference.Should().Be(entity.PaymentReference);
-            load.PotentialEndDate.Should().Be(entity.PotentialEndDate);
-            load.SubletEndDate.Should().Be(entity.SubletEndDate);
-            load.SuccessionDate.Should().Be(entity.SuccessionDate);
-            load.TenuredAsset.Should().BeEquivalentTo(entity.TenuredAsset);
-            load.TenureType.Should().BeEquivalentTo(entity.TenureType);
-            load.Terminated.Should().BeEquivalentTo(entity.Terminated);
+            result.UpdatedEntity.Should().BeEquivalentTo(load);
+            load.Should().BeEquivalentTo(entity.ToDatabase(), config => config.Excluding(y => y.HouseholdMembers));
+            load.HouseholdMembers.First(x => x.Id == query.PersonId).FullName.Should().Be(request.FullName);
 
+            result.OldValues["HouseholdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
+            result.NewValues["HouseholdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)
