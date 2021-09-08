@@ -50,9 +50,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         [InlineData(true)]
         public void ServiceUpdateTheRequestedTenureWithNewHousehold(bool nullTenuredAssetType)
         {
-            this.Given(g => _tenureFixture.GivenanUpdateTenureWithNewHouseholdReqeust(nullTenuredAssetType))
+            this.Given(g => _tenureFixture.GivenAnUpdateTenureWithNewHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
-                .Then(t => _steps.ThenTheTenureDetailsAreUpdated(_tenureFixture))
+                .Then(t => _steps.ThenANewHouseholdMemberIsAdded(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .BDDfy();
         }
 
@@ -61,9 +61,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         [InlineData(true)]
         public void ServiceUpdatesTheRequestedUpdateTenureHouseHold(bool nullTenuredAssetType)
         {
-            this.Given(g => _tenureFixture.GivenanUpdateTenureHouseholdRequest(nullTenuredAssetType))
+            this.Given(g => _tenureFixture.GivenAnUpdateTenureHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
-                .Then(t => _steps.ThenTheTenureDetailsAreUpdated(_tenureFixture))
+                .Then(t => _steps.ThenTheHouseholdMemberTenureDetailsAreUpdated(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .BDDfy();
         }
 
@@ -76,17 +76,13 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void ServiceReturnsBadRequestWhenTheyAreValidationErrors(bool nullTenuredAssetType)
+        [Fact]
+        public void ServiceReturnsBadRequestWhenTheyAreValidationErrors()
         {
-            this.Given(g => _tenureFixture.GivenanUpdateTenureRequestWithValidationError(nullTenuredAssetType))
+            this.Given(g => _tenureFixture.GivenAnUpdateTenureRequestWithValidationError())
                 .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }
-
-
     }
 }
