@@ -36,7 +36,8 @@ namespace TenureInformationApi.Tests.V1.Factories
             var list = _fixture.CreateMany<TenureInformation>(10);
             var responseNotes = list.ToResponse();
 
-            responseNotes.Should().BeEquivalentTo(list);
+            responseNotes.Should().BeEquivalentTo(list, config => config.Excluding(x => x.VersionNumber));
+
         }
 
         [Fact]

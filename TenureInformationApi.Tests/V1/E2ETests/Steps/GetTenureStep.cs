@@ -31,7 +31,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             var apiTenure = JsonSerializer.Deserialize<TenureResponseObject>(responseContent, CreateJsonOptions());
 
-            apiTenure.Should().BeEquivalentTo(dbEntity);
+            var eTagHeaders = _lastResponse.Headers.GetValues("ETag");
+            eTagHeaders.Count().Should().Be(1);
+            eTagHeaders.First().Should().Be(dbEntity.VersionNumber.ToString());
+
+            apiTenure.Should().BeEquivalentTo(dbEntity, config => config.Excluding(y => y.VersionNumber));
         }
 
         public void ThenBadRequestIsReturned()
