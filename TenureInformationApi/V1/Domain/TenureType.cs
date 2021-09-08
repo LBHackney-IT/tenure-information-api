@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TenureInformationApi.V1.Domain
 {
@@ -8,4 +10,5 @@ namespace TenureInformationApi.V1.Domain
 
         public string Description { get; set; }
     }
+
 }

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Gateways
 {
@@ -10,6 +11,6 @@ namespace TenureInformationApi.V1.Gateways
 
         Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject);
 
-        Task<TenureInformation> UpdateTenure(TenureQueryRequest query, UpdateTenureRequestObject updateTenureRequestObject);
+        Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject);
     }
 }
