@@ -178,8 +178,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
             load.HouseholdMembers.Should().ContainEquivalentOf(expected);
             load.HouseholdMembers.Except(load.HouseholdMembers.Where(x => x.Id == query.PersonId)).Should().BeEmpty();
 
-            result.OldValues["HouseholdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
-            result.NewValues["HouseholdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
+            result.OldValues["householdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
+            result.NewValues["householdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
         }
 
         [Theory]
@@ -211,8 +211,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
             load.Should().BeEquivalentTo(entity.ToDatabase(), config => config.Excluding(y => y.HouseholdMembers));
             load.HouseholdMembers.First(x => x.Id == query.PersonId).FullName.Should().Be(request.FullName);
 
-            result.OldValues["HouseholdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
-            result.NewValues["HouseholdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
+            result.OldValues["householdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
+            result.NewValues["householdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

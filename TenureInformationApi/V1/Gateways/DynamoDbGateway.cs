@@ -57,7 +57,7 @@ namespace TenureInformationApi.V1.Gateways
                 UpdatedEntity = tenure,
                 OldValues = new Dictionary<string, object>
                 {
-                    { "HouseholdMembers", tenure.HouseholdMembers.DeepClone() }
+                    { "householdMembers", tenure.HouseholdMembers.DeepClone() }
                 }
             };
 
@@ -83,7 +83,7 @@ namespace TenureInformationApi.V1.Gateways
 
             result.NewValues = new Dictionary<string, object>
             {
-                { "HouseholdMembers", tenure.HouseholdMembers }
+                { "householdMembers", tenure.HouseholdMembers }
             };
 
             return result;
