@@ -33,7 +33,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             var eTagHeaders = _lastResponse.Headers.GetValues("ETag");
             eTagHeaders.Count().Should().Be(1);
-            eTagHeaders.First().Should().Be(dbEntity.VersionNumber.ToString());
+            eTagHeaders.First().Should().Be($"\"{dbEntity.VersionNumber}\"");
 
             apiTenure.Should().BeEquivalentTo(dbEntity, config => config.Excluding(y => y.VersionNumber));
         }
