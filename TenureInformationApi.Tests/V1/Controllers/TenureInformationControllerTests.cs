@@ -58,7 +58,6 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 _mockContextWrapper.Object);
             _classUnderTest.ControllerContext = controllerContext;
 
-            _mockContextWrapper.Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>())).Returns(new HeaderDictionary());
 
         }
 

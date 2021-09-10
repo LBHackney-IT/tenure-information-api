@@ -81,10 +81,10 @@ namespace TenureInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> UpdateTenureForPerson([FromRoute] UpdateTenureRequest query, [FromBody] UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
+            var contextHeaders = _contextWrapper.GetContextRequestHeaders(HttpContext);
+            var token = _tokenFactory.Create(contextHeaders);
 
-            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
-
-            string ifMatchString = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch);
             var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
             try
             {

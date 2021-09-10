@@ -53,9 +53,10 @@ namespace TenureInformationApi.V1.Gateways
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
             var tenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             if (tenure == null) return null;
-
             if (ifMatch != tenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, tenure.VersionNumber);
+
+
 
             var result = new UpdateEntityResult<TenureInformationDb>()
             {
