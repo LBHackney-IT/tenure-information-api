@@ -104,7 +104,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
             _classUnderTest.HttpContext.Response.Headers.TryGetValue(HeaderConstants.ETag, out StringValues val).Should().BeTrue();
-            val.First().Should().Be(tenureResponse.VersionNumber.ToString());
+            val.First().Should().Be($"\"{tenureResponse.VersionNumber}\"");
             (response as OkObjectResult).Value.Should().BeEquivalentTo(tenureResponse.ToResponse());
         }
 
