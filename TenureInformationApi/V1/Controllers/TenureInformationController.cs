@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -53,7 +54,7 @@ namespace TenureInformationApi.V1.Controllers
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
 
-            HttpContext.Response.Headers.Add(HeaderConstants.ETag, $"\"{result.VersionNumber.Value}\"");
+            HttpContext.Response.Headers.Add(HeaderConstants.ETag, new EntityTagHeaderValue($"\"{result.VersionNumber.Value}\"", false).ToString());
             return Ok(result.ToResponse());
         }
 
