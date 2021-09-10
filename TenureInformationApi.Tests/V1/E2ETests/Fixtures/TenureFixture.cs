@@ -27,6 +27,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         public Guid PersonId { get; private set; }
 
         public string InvalidTenureId { get; private set; }
+
+        public TenureInformation ExistingTenure { get; private set; }
+
         public TenureFixture(IDynamoDBContext context, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             _dbContext = context;
@@ -64,6 +67,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Create();
+
+            ExistingTenure = entity;
 
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;

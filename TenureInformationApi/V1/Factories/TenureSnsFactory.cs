@@ -48,6 +48,5 @@ namespace TenureInformationApi.V1.Factories
                 User = new User { Name = token.Name, Email = token.Email }
             };
         }
-
     }
 }

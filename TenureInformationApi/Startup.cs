@@ -6,6 +6,7 @@ using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
@@ -129,7 +130,6 @@ namespace TenureInformationApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
-
             });
 
             services.ConfigureLambdaLogging(Configuration);
@@ -138,15 +138,16 @@ namespace TenureInformationApi
             services.ConfigureSns();
             services.AddLogCallAspect();
             services.AddTokenFactory();
+
             RegisterGateways(services);
             RegisterUseCases(services);
+
             services.AddSingleton<IConfiguration>(Configuration);
 
             services.AddScoped<ISnsFactory, TenureSnsFactory>();
+            services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             ConfigureHackneyCoreDI(services);
-
-
         }
 
         private static void ConfigureHackneyCoreDI(IServiceCollection services)
@@ -155,7 +156,6 @@ namespace TenureInformationApi
                 .AddTokenFactory()
                 .AddHttpContextWrapper();
         }
-
 
         private static void RegisterGateways(IServiceCollection services)
         {
@@ -168,7 +168,7 @@ namespace TenureInformationApi
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
             services.AddScoped<IUpdateTenureForPersonUseCase, UpdateTenureForPersonUseCase>();
-
+            services.AddScoped<IEditTenureDetailsUseCase, EditTenureDetailsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -193,6 +193,8 @@ namespace TenureInformationApi
             app.UseLogCall();
 
             app.UseXRay("tenure-information-api");
+
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

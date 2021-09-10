@@ -21,14 +21,16 @@ namespace TenureInformationApi.V1.Controllers
         private readonly IGetByIdUseCase _getByIdUseCase;
         private readonly IPostNewTenureUseCase _postNewTenureUseCase;
         private readonly IUpdateTenureForPersonUseCase _updateTenureForPersonUseCase;
+        private readonly IEditTenureDetailsUseCase _editTenureDetailsUseCase;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHttpContextWrapper _contextWrapper;
-        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureForPersonUseCase updateTenureForPersonUseCase,
+        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureForPersonUseCase updateTenureForPersonUseCase, IEditTenureDetailsUseCase editTenureDetailsUseCase,
             ITokenFactory tokenFactory, IHttpContextWrapper contextWrapper)
         {
             _getByIdUseCase = getByIdUseCase;
             _postNewTenureUseCase = postNewTenureUseCase;
             _updateTenureForPersonUseCase = updateTenureForPersonUseCase;
+            _editTenureDetailsUseCase = editTenureDetailsUseCase;
             _tokenFactory = tokenFactory;
             _contextWrapper = contextWrapper;
         }
@@ -78,6 +80,28 @@ namespace TenureInformationApi.V1.Controllers
 
             var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject, token).ConfigureAwait(false);
             if (tenure == null) return NotFound(query.Id);
+
+            return NoContent();
+        }
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPatch]
+        [Route("{id}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> EditTenureDetails([FromRoute] TenureQueryRequest query, [FromBody] EditTenureDetailsRequestObject editTenureDetailsRequestObject)
+        {
+            // get raw body text (Only the parameters that need to be changed will be sent.
+            // Deserializing the request object makes it imposible to figure out if the requester
+            // wants to set a parameter to null, or to not update that value.
+            // The bodyText is the raw request object that will be used to determine this information).
+            var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+
+            var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText).ConfigureAwait(false);
+
+            if (tenure == null) return NotFound();
 
             return NoContent();
         }

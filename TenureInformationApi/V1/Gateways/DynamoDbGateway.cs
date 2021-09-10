@@ -1,7 +1,9 @@
 using Amazon.DynamoDBv2.DataModel;
 using Force.DeepCloner;
+using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,18 +11,20 @@ using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 
 namespace TenureInformationApi.V1.Gateways
 {
     public class DynamoDbGateway : ITenureGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
+        private readonly IEntityUpdater _updater;
         private readonly ILogger<DynamoDbGateway> _logger;
 
-
-        public DynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<DynamoDbGateway> logger)
+        public DynamoDbGateway(IDynamoDBContext dynamoDbContext, IEntityUpdater updater, ILogger<DynamoDbGateway> logger)
         {
             _logger = logger;
+            _updater = updater;
             _dynamoDbContext = dynamoDbContext;
         }
 
@@ -42,7 +46,6 @@ namespace TenureInformationApi.V1.Gateways
             await _dynamoDbContext.SaveAsync(tenureDbEntity).ConfigureAwait(false);
 
             return tenureDbEntity.ToDomain();
-
         }
 
         [LogCall]
@@ -69,13 +72,22 @@ namespace TenureInformationApi.V1.Gateways
             }
 
             if (updateTenureRequestObject.DateOfBirth.HasValue)
+            {
                 householdMember.DateOfBirth = updateTenureRequestObject.DateOfBirth.Value;
+            }
+
             householdMember.FullName = updateTenureRequestObject.FullName;
             householdMember.Id = query.PersonId;
+
             if (updateTenureRequestObject.IsResponsible.HasValue)
+            {
                 householdMember.IsResponsible = updateTenureRequestObject.IsResponsible.Value;
+            }
+
             if (updateTenureRequestObject.Type.HasValue)
+            {
                 householdMember.Type = updateTenureRequestObject.Type.Value;
+            }
 
             householdMember.PersonTenureType = TenureTypes.GetPersonTenureType(tenure.TenureType, householdMember.IsResponsible);
 
@@ -87,6 +99,23 @@ namespace TenureInformationApi.V1.Gateways
             };
 
             return result;
+        }
+
+        [LogCall]
+        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)
+        {
+            var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
+            if (existingTenure == null) return null;
+
+            var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
+
+            if (response.NewValues.Any())
+            {
+                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.Id}");
+                await _dynamoDbContext.SaveAsync(response.UpdatedEntity).ConfigureAwait(false);
+            }
+
+            return response;
         }
     }
 }

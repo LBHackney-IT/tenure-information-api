@@ -1,6 +1,8 @@
 using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using FluentAssertions;
+using FluentAssertions.Extensions;
+using Hackney.Core.JWT;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -12,6 +14,7 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
@@ -25,11 +28,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
         private readonly IDynamoDBContext _dynamoDb;
         private readonly List<Action> _cleanup = new List<Action>();
 
+        private readonly Mock<IEntityUpdater> _mockUpdater;
+
         public DynamoDbGatewayTests(AwsIntegrationTests<Startup> dbTestFixture)
         {
             _dynamoDb = dbTestFixture.DynamoDbContext;
             _logger = new Mock<ILogger<DynamoDbGateway>>();
-            _classUnderTest = new DynamoDbGateway(_dynamoDb, _logger.Object);
+            _mockUpdater = new Mock<IEntityUpdater>();
+            _classUnderTest = new DynamoDbGateway(_dynamoDb, _mockUpdater.Object, _logger.Object);
         }
 
         public void Dispose()
@@ -219,6 +225,117 @@ namespace TenureInformationApi.Tests.V1.Gateways
         {
             await _dynamoDb.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity.ToDatabase()).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenTenureDoesntExistReturnsNull()
+        {
+            var mockQuery = _fixture.Create<TenureQueryRequest>();
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRawBody = "";
+
+            // call gateway method
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+
+            // assert result = null
+            response.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenNoChangesAreInRequestObjectDatabaseIsntUpdated()
+        {
+            // create mock tenure
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                .Create();
+
+            // insert mock tenure into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            var mockQuery = _fixture.Build<TenureQueryRequest>().With(x => x.Id, mockTenure.Id).Create(); // with tenure id
+            var mockRequestObject = new EditTenureDetailsRequestObject();
+            var mockRawBody = "";
+
+            var updaterResponse = new UpdateEntityResult<TenureInformationDb>(); // with no changes
+
+            // setup updater
+            _mockUpdater
+                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Returns(updaterResponse);
+
+            // call gateway method
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+
+            // assert response is UpdateEntityResult
+            response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
+
+            // load entity from database
+            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+
+            // assert entity wasnt updated (matches inserted data)
+            databaseResponse.StartOfTenureDate.Should().BeCloseTo((DateTime) mockTenure.StartOfTenureDate, 1.Seconds());
+            databaseResponse.EndOfTenureDate.Should().BeCloseTo((DateTime) mockTenure.EndOfTenureDate, 1.Seconds());
+            databaseResponse.TenureType.Code.Should().Be(mockTenure.TenureType.Code);
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenCalledDatabaseIsUpdated()
+        {
+            // create mock tenure
+            var mockTenure = _fixture.Build<TenureInformation>()
+                            .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                            .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                            .Create();
+
+            // insert mock tenure into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            var mockQuery = _fixture.Build<TenureQueryRequest>().With(x => x.Id, mockTenure.Id).Create(); // with tenure id
+            var mockRequestObject = new EditTenureDetailsRequestObject();
+            var mockRawBody = "";
+
+            var updaterResponse = CreateUpdateEntityResultWithChanges(mockTenure);
+
+            // setup updater
+            _mockUpdater
+                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Returns(updaterResponse);
+
+            // call gateway method
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+
+            // assert response is UpdateEntityResult
+            response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
+
+            // load entity from database
+            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+
+            // assert entity was updated (matches mockRequestObject data)
+            databaseResponse.StartOfTenureDate.Should().BeCloseTo((DateTime) updaterResponse.UpdatedEntity.StartOfTenureDate, 2.Seconds());
+            databaseResponse.EndOfTenureDate.Should().BeCloseTo((DateTime) updaterResponse.UpdatedEntity.EndOfTenureDate, 2.Seconds());
+            databaseResponse.TenureType.Code.Should().Be(updaterResponse.UpdatedEntity.TenureType.Code);
+        }
+
+        private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(
+            TenureInformation entityInsertedIntoDatabase)
+        {
+            var updatedEntity = entityInsertedIntoDatabase.ToDatabase();
+
+            updatedEntity.StartOfTenureDate = DateTime.UtcNow + _fixture.Create<TimeSpan>();
+            updatedEntity.EndOfTenureDate = DateTime.UtcNow + _fixture.Create<TimeSpan>();
+            updatedEntity.TenureType = _fixture.Create<TenureType>();
+
+            return new UpdateEntityResult<TenureInformationDb>
+            {
+                UpdatedEntity = updatedEntity,
+                NewValues = new Dictionary<string, object>
+                {
+                     { "StartOfTenureDate", updatedEntity.StartOfTenureDate },
+                     { "EndOfTenureDate", updatedEntity.EndOfTenureDate },
+                     { "TenureType", updatedEntity.TenureType }
+                }
+            };
         }
     }
 }
