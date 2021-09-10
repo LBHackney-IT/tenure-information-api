@@ -1,6 +1,7 @@
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,9 @@ using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
+using HeaderConstants = TenureInformationApi.V1.Infrastructure.HeaderConstants;
 
 namespace TenureInformationApi.V1.Controllers
 {
@@ -78,12 +81,27 @@ namespace TenureInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> UpdateTenureForPerson([FromRoute] UpdateTenureRequest query, [FromBody] UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
+
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject, token).ConfigureAwait(false);
-            if (tenure == null) return NotFound(query.Id);
+            string ifMatchString = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+            var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
+            try
+            {
+                // We use a request object AND the raw request body text because the incoming request will only contain the fields that changed
+                // whereas the request object has all possible updateable fields defined.
+                // The implementation will use the raw body text to identify which fields to update and the request object is specified here so that its
+                // associated validation will be executed by the MVC pipeline before we even get to this point.
+                var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject, token, ifMatch)
+                                                                .ConfigureAwait(false);
+                if (tenure == null) return NotFound(query.Id);
+                return NoContent();
+            }
+            catch (VersionNumberConflictException vncErr)
+            {
+                return Conflict(vncErr.Message);
+            }
 
-            return NoContent();
         }
     }
 }
