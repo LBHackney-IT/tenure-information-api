@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
@@ -85,7 +86,7 @@ namespace TenureInformationApi.V1.Controllers
             var contextHeaders = _contextWrapper.GetContextRequestHeaders(HttpContext);
             var token = _tokenFactory.Create(contextHeaders);
 
-            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch);
+            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch.Trim('\"'));
             var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
             try
             {
