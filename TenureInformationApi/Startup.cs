@@ -1,3 +1,5 @@
+using Amazon;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -59,6 +61,10 @@ namespace TenureInformationApi
 
             services
                 .AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddFluentValidation();
@@ -134,10 +140,12 @@ namespace TenureInformationApi
 
             services.ConfigureLambdaLogging(Configuration);
 
+            AWSXRayRecorder.InitializeInstance(Configuration);
+            AWSXRayRecorder.RegisterLogger(LoggingOptions.SystemDiagnostics);
+
             services.ConfigureDynamoDB();
             services.ConfigureSns();
             services.AddLogCallAspect();
-            services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
             services.AddSingleton<IConfiguration>(Configuration);
@@ -145,8 +153,6 @@ namespace TenureInformationApi
             services.AddScoped<ISnsFactory, TenureSnsFactory>();
 
             ConfigureHackneyCoreDI(services);
-
-
         }
 
         private static void ConfigureHackneyCoreDI(IServiceCollection services)
@@ -160,7 +166,6 @@ namespace TenureInformationApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
-            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -168,7 +173,6 @@ namespace TenureInformationApi
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
             services.AddScoped<IUpdateTenureForPersonUseCase, UpdateTenureForPersonUseCase>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
