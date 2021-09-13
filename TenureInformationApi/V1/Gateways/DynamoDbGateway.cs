@@ -11,7 +11,6 @@ using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
-using TenureInformationApi.V1.Infrastructure.Exceptions;
 
 namespace TenureInformationApi.V1.Gateways
 {

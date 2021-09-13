@@ -14,7 +14,6 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
-using TenureInformationApi.V1.Infrastructure.Exceptions;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
