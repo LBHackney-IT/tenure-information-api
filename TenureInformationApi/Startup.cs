@@ -181,8 +181,8 @@ namespace TenureInformationApi
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod());
-                //.WithExposedHeaders("ETag", "If-Match"));
+                .AllowAnyMethod()
+                .WithExposedHeaders("ETag", "If-Match"));
 
             if (env.IsDevelopment())
             {
@@ -196,8 +196,6 @@ namespace TenureInformationApi
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
-            app.UseLogCall();
-
             app.UseXRay("tenure-information-api");
 
             //Get All ApiVersions,
@@ -226,6 +224,8 @@ namespace TenureInformationApi
                     ResponseWriter = HealthCheckResponseWriter.WriteResponse
                 });
             });
+
+            app.UseLogCall();
         }
     }
 }
