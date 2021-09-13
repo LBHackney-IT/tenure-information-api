@@ -181,8 +181,8 @@ namespace TenureInformationApi
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders("ETag", "If-Match"));
+                .AllowAnyMethod());
+                //.WithExposedHeaders("ETag", "If-Match"));
 
             if (env.IsDevelopment())
             {
