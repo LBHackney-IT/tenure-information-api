@@ -35,7 +35,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             var expectedEtagValue = $"\"{dbEntity.VersionNumber}\"";
             _lastResponse.Headers.ETag.Tag.Should().Be(expectedEtagValue);
-            var eTagHeaders = _lastResponse.Headers.GetValues("ETag");
+            var eTagHeaders = _lastResponse.Headers.GetValues(HeaderConstants.ETag);
             eTagHeaders.Count().Should().Be(1);
             eTagHeaders.First().Should().Be(expectedEtagValue);
         }
