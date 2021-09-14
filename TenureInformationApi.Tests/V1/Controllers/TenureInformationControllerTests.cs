@@ -222,7 +222,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
             // setup usecase to return null
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync((TenureResponseObject) null);
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync((TenureResponseObject) null);
 
             // call controller method
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
@@ -238,7 +238,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
             // setup usecase to return TenureResponseObject
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
 
             // call controller method
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);

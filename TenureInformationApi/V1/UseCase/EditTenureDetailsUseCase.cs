@@ -27,10 +27,19 @@ namespace TenureInformationApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)
+        public async Task<TenureResponseObject> ExecuteAsync(
+            TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token)
         {
             var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody).ConfigureAwait(false);
             if (result == null) return null;
+
+            if (result.NewValues.Any())
+            {
+                var tenureSnsMessage = _snsFactory.PersonAddedToTenure(result, token);
+                var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
+
+                await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
+            }
 
             return result.UpdatedEntity.ToDomain().ToResponse();
         }

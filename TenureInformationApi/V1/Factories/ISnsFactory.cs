@@ -7,8 +7,8 @@ namespace TenureInformationApi.V1.Factories
 {
     public interface ISnsFactory
     {
-        TenureSns Create(TenureInformation tenure, Token token);
-        TenureSns Update(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
-        TenureSns EditTenureDetails(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        TenureSns CreateTenure(TenureInformation tenure, Token token);
+        TenureSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        TenureSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
     }
 }

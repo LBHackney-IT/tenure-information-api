@@ -44,12 +44,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
             var mockRawBody = "";
+            var mockToken = _fixture.Create<Token>();
 
             // setup gateway to return null
             _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
 
             // call usecase method
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
             // assert result is null
             response.Should().BeNull();
@@ -61,6 +62,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
             var mockRawBody = "";
+            var mockToken = _fixture.Create<Token>();
 
             // setup mock gateway to return UpdateEntityResult with no changes
             var gatewayResult = MockUpdateEntityResultWhereNoChangesAreMade();
@@ -70,7 +72,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 .ReturnsAsync(gatewayResult);
 
             // call usecase method
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
             // assert result is TenureResponseObject
             response.Should().BeOfType(typeof(TenureResponseObject));
@@ -85,6 +87,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
             var mockRawBody = "";
+            var mockToken = _fixture.Create<Token>();
 
             // setup mock gateway to return UpdateEntityResult with no changes
             var gatewayResult = MockUpdateEntityResultWhereChangesAreMade();
@@ -94,7 +97,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 .ReturnsAsync(gatewayResult);
 
             // call usecase method
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
             // assert result is TenureResponseObject
             response.Should().BeOfType(typeof(TenureResponseObject));
@@ -105,10 +108,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
         private UpdateEntityResult<TenureInformationDb> MockUpdateEntityResultWhereChangesAreMade()
         {
-
             return new UpdateEntityResult<TenureInformationDb>
             {
-                // empty
+                UpdatedEntity = _fixture.Create<TenureInformationDb>(),
+                NewValues = new Dictionary<string, object>
+                {
+                    { "startOfTenureDate", _fixture.Create<DateTime>() }
+                }
             };
         }
 
@@ -116,10 +122,8 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             return new UpdateEntityResult<TenureInformationDb>
             {
-                NewValues = new Dictionary<string, object>
-                {
-                    { "startOfTenureDate", _fixture.Create<DateTime>() }
-                }
+                UpdatedEntity = _fixture.Create<TenureInformationDb>()
+                // empty
             };
         }
     }
