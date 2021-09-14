@@ -116,7 +116,7 @@ namespace TenureInformationApi.V1.Gateways
             // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
             if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))
             {
-                var results = ValidateTenureStartDateIsLessThanTenureEndDateIfItExistsInTheDatabase((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
+                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
 
                 if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
             }
@@ -151,7 +151,7 @@ namespace TenureInformationApi.V1.Gateways
             return validator.Validate(testObject);
         }
 
-        private static ValidationResult ValidateTenureStartDateIsLessThanTenureEndDateIfItExistsInTheDatabase(DateTime? tenureStartDate, DateTime? tenureEndDate)
+        private static ValidationResult ValidateTenureStartDateIsLessThanCurrentTenureEndDate(DateTime? tenureStartDate, DateTime? tenureEndDate)
         {
             var testObject = new TenureInformation
             {
