@@ -40,13 +40,10 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
             var mockRawBody = "";
 
-            // setup gateway to return null
             _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
 
-            // call usecase method
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
 
-            // assert result is null
             response.Should().BeNull();
         }
 
@@ -64,13 +61,10 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 UpdatedEntity = _fixture.Create<TenureInformationDb>()
             };
 
-            // setup gateway to return null
             _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync(gatewayResponse);
 
-            // call usecase method
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
 
-            // assert response
             response.Should().NotBeNull();
             response.Should().BeOfType(typeof(TenureResponseObject));
 

@@ -16,6 +16,8 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
 using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -71,6 +73,24 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
+        public async Task ThenTheValidationErrorsAreReturned(string errorMessageName)
+        {
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            JObject jo = JObject.Parse(responseContent);
+            var errors = jo["errors"].Children();
+
+            ShouldHaveErrorFor(errors, errorMessageName);
+        }
+
+        private static void ShouldHaveErrorFor(JEnumerable<JToken> errors, string propertyName, string errorCode = null)
+        {
+            var error = errors.FirstOrDefault(x => (x.Path.Split('.').Last().Trim('\'', ']')) == propertyName) as JProperty;
+            error.Should().NotBeNull();
+            if (!string.IsNullOrEmpty(errorCode))
+                error.Value.ToString().Should().Contain(errorCode);
+        }
+
         public async Task TheTenureHasntBeenUpdatedInTheDatabase(TenureFixture tenureFixture)
         {
             var databaseResponse = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.TenureId).ConfigureAwait(false);
@@ -81,7 +101,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.TenureType.Code.Should().Be(tenureFixture.ExistingTenure.TenureType.Code);
         }
 
-        public async Task ThenCustomEditTenureDetailsBadRequestIsReturnedAsync()
+        public async Task ThenCustomEditTenureDetailsBadRequestIsReturned()
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 

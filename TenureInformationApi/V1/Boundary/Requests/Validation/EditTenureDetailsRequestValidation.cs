@@ -10,9 +10,12 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
     {
         public EditTenureDetailsRequestValidation()
         {
-            RuleFor(x => x.EndOfTenureDate)
+            When(tenure => tenure.EndOfTenureDate != null, () =>
+            {
+                RuleFor(x => x.EndOfTenureDate)
                .GreaterThan(x => x.StartOfTenureDate)
                .WithErrorCode(ErrorCodes.TenureEndDate);
+            });
 
             RuleFor(x => x.TenureType).SetValidator(new TenureTypeValidator());
         }

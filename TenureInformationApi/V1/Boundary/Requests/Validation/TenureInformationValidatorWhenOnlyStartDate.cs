@@ -13,7 +13,8 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
             When(tenure => tenure.EndOfTenureDate != null, () =>
             {
                 RuleFor(x => x.StartOfTenureDate)
-                    .LessThan(x => x.EndOfTenureDate);
+                    .LessThan(x => x.EndOfTenureDate)
+                    .WithErrorCode(ErrorCodes.TenureEndDate);
             });
         }
     }

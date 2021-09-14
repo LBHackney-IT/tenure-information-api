@@ -119,7 +119,7 @@ namespace TenureInformationApi.V1.Controllers
 
                 var response = BuildCustomEditTenureBadRequestResponse(e.ValidationResult);
 
-                return BadRequest(response); ;
+                return BadRequest(response);
             }
         }
 
@@ -136,6 +136,7 @@ namespace TenureInformationApi.V1.Controllers
                 {
                     ErrorCode = error.ErrorCode,
                     ErrorMessage = error.ErrorMessage,
+                    CustomState = error.CustomState
                 };
 
                 errorResponse[error.PropertyName].Add(JsonConvert.SerializeObject(errorObject));

@@ -58,6 +58,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenATenureExist(false))
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, invalidRequestObject))
                 .Then(t => _steps.ThenBadRequestIsReturned())
+                .And(t => _steps.ThenTheValidationErrorsAreReturned("EndOfTenureDate"))
+
                 .BDDfy();
         }
 
@@ -74,7 +76,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 
             this.Given(g => _tenureFixture.GivenATenureExistWithNoEndDate(tenureStartDate))
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
-                .Then(t => _steps.ThenCustomEditTenureDetailsBadRequestIsReturnedAsync())
+                .Then(t => _steps.ThenCustomEditTenureDetailsBadRequestIsReturned())
                 .BDDfy();
         }
 
@@ -93,6 +95,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturns204AndUpdatesDatabase()
         {
+            // request with empty body should still return 204 no content.
+            // the request also shouldnt update the database since no changes were sent.
+
             var requestObject = CreateValidRequestObject();
 
             this.Given(g => _tenureFixture.GivenATenureExist(false))
