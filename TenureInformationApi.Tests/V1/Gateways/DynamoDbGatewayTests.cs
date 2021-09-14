@@ -14,6 +14,7 @@ using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
@@ -316,6 +317,163 @@ namespace TenureInformationApi.Tests.V1.Gateways
             databaseResponse.TenureType.Code.Should().Be(updaterResponse.UpdatedEntity.TenureType.Code);
         }
 
+        [Fact]
+        public async Task EditTenureDetailsWhenStartDateIsInRequestButNoEndDateIsInDatabaseNoExceptionIsThrown()
+        {
+            // start date passed, no end date in database -
+
+            // create mock tenure - end date is null
+            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) null).Create();
+
+            // insert into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            // setup updater to return UpdateEntityResponse with only start date
+            SetupUpdaterToOnlyReturnStartOfTenureDate(DateTime.UtcNow);
+
+            // call gateway method
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+            };
+
+
+            // assert no exception is called
+            act.Should().NotThrow<EditTenureInformationValidationException>();
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsGreaterNoExceptionIsThrown()
+        {
+            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureEndDate = tenureStartDate.AddDays(7);
+
+            // start date passed, end date is greater - valid
+
+            // create mock tenure - end date that is greater
+            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate).Create();
+
+            // insert into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            // setup updater to return UpdateEntityResponse with only start date
+            SetupUpdaterToOnlyReturnStartOfTenureDate(tenureStartDate);
+
+
+            // call gateway method
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+            };
+
+            // assert no exception is called
+            act.Should().NotThrow<EditTenureInformationValidationException>();
+
+        }
+
+
+
+        [Fact]
+        public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsLessExceptionIsThrown()
+        {
+            // start date passed, end date is less - throw error
+            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureEndDate = tenureStartDate.AddDays(-7);
+
+            // create mock tenure - end date that is less
+            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate).Create();
+
+            // insert into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            // setup updater to return UpdateEntityResponse with only start date
+            SetupUpdaterToOnlyReturnStartOfTenureDate(tenureStartDate);
+
+            // call gateway method
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+            };
+
+            // assert exception is thrown
+            act.Should().Throw<EditTenureInformationValidationException>();
+
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsLessExceptionIsNotThrown()
+        {
+            // end date passed - start date less
+
+            var tenureEndDate = _fixture.Create<DateTime>();
+            var tenureStartDate = tenureEndDate.AddDays(-7);
+
+            // create mock tenure - start date that is less
+            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate).Create();
+
+            // insert into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            // setup updater to return UpdateEntityResponse with only start date
+            SetupUpdaterToOnlyReturnEndOfTenureDate(tenureEndDate);
+
+            // call gateway method
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+            };
+
+            // assert exception is thrown
+            act.Should().NotThrow<EditTenureInformationValidationException>();
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsGreaterExceptionIsThrown()
+        {
+            // end date passed - start date is later - throw error
+
+            var tenureEndDate = _fixture.Create<DateTime>();
+            var tenureStartDate = tenureEndDate.AddDays(7);
+
+            // create mock tenure - start date that is less
+            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate).Create();
+
+            // insert into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            // setup updater to return UpdateEntityResponse with only start date
+            SetupUpdaterToOnlyReturnEndOfTenureDate(tenureEndDate);
+
+            // call gateway method
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+            };
+
+            // assert exception is thrown
+            act.Should().Throw<EditTenureInformationValidationException>();
+        }
+
         private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(
             TenureInformation entityInsertedIntoDatabase)
         {
@@ -335,6 +493,40 @@ namespace TenureInformationApi.Tests.V1.Gateways
                      { "TenureType", updatedEntity.TenureType }
                 }
             };
+        }
+
+        private void SetupUpdaterToOnlyReturnStartOfTenureDate(DateTime tenureStartDate)
+        {
+            var updaterResponse = new UpdateEntityResult<TenureInformationDb>
+            {
+                NewValues = new Dictionary<string, object>
+                {
+                    { "startOfTenureDate", tenureStartDate }
+                }
+            };
+
+            SetupUpdater(updaterResponse);
+
+        }
+
+        private void SetupUpdaterToOnlyReturnEndOfTenureDate(DateTime tenureEndDate)
+        {
+            var updaterResponse = new UpdateEntityResult<TenureInformationDb>
+            {
+                NewValues = new Dictionary<string, object>
+                {
+                    { "endOfTenureDate", tenureEndDate }
+                }
+            };
+
+            SetupUpdater(updaterResponse);
+        }
+
+        private void SetupUpdater(UpdateEntityResult<TenureInformationDb> updaterResponse)
+        {
+            _mockUpdater
+                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Returns(updaterResponse);
         }
     }
 }

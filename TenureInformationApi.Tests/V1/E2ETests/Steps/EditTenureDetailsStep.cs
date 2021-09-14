@@ -11,8 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
+using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -22,7 +25,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         {
         }
 
-        public async Task WhenEditTenureDetailsApiIsCalled(Guid id, EditTenureDetailsRequestObject requestObject)
+        public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject)
         {
             var token =
                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
@@ -76,6 +79,18 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.StartOfTenureDate.Should().Be(tenureFixture.ExistingTenure.StartOfTenureDate);
             databaseResponse.EndOfTenureDate.Should().Be(tenureFixture.ExistingTenure.EndOfTenureDate);
             databaseResponse.TenureType.Code.Should().Be(tenureFixture.ExistingTenure.TenureType.Code);
+        }
+
+        public async Task ThenCustomEditTenureDetailsBadRequestIsReturnedAsync()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseEntity = JsonSerializer.Deserialize<CustomEditTenureDetailsBadRequestResponse>(responseContent, CreateJsonOptions());
+
+            responseEntity.Should().BeOfType(typeof(CustomEditTenureDetailsBadRequestResponse));
+
+            responseEntity.Errors.Should().HaveCountGreaterThan(0);
         }
 
         public async Task TheTenureHasBeenUpdatedInTheDatabase(TenureFixture tenureFixture, EditTenureDetailsRequestObject requestObject)

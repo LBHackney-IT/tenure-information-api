@@ -62,6 +62,23 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
+        public void ServiceReturnsCustomEditTenureDetailsBadRequestResponse()
+        {
+            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureEndDate = tenureStartDate.AddDays(-7); // end date that is less than start date
+
+            var requestObject = new
+            {
+                EndOfTenureDate = tenureEndDate
+            };
+
+            this.Given(g => _tenureFixture.GivenATenureExistWithNoEndDate(tenureStartDate))
+                .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
+                .Then(t => _steps.ThenCustomEditTenureDetailsBadRequestIsReturnedAsync())
+                .BDDfy();
+        }
+
+        [Fact]
         public void ServiceReturnsNotFoundResponse()
         {
             var randomId = Guid.NewGuid();

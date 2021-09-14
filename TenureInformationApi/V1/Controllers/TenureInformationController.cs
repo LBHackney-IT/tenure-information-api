@@ -1,13 +1,19 @@
+using FluentValidation.AspNetCore;
+using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.Controllers
@@ -99,11 +105,46 @@ namespace TenureInformationApi.V1.Controllers
             // The bodyText is the raw request object that will be used to determine this information).
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
 
-            var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText).ConfigureAwait(false);
+            try
+            {
+                var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText).ConfigureAwait(false);
 
-            if (tenure == null) return NotFound();
+                if (tenure == null) return NotFound();
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (EditTenureInformationValidationException e)
+            {
+                // either only tenureStartDate or tenureEndDate have been updated, but fail validation against items in database             
+
+                var response = BuildCustomEditTenureBadRequestResponse(e.ValidationResult);
+
+                return BadRequest(response); ;
+            }
+        }
+
+        private static CustomEditTenureDetailsBadRequestResponse BuildCustomEditTenureBadRequestResponse(ValidationResult validationResult)
+        {
+            var errorResponse = new Dictionary<string, List<string>>();
+
+            foreach (var error in validationResult.Errors)
+            {
+                // create list at key if it doesnt exist
+                if (!errorResponse.ContainsKey(error.PropertyName)) errorResponse.Add(error.PropertyName, new List<string>());
+
+                var errorObject = new
+                {
+                    ErrorCode = error.ErrorCode,
+                    ErrorMessage = error.ErrorMessage,
+                };
+
+                errorResponse[error.PropertyName].Add(JsonConvert.SerializeObject(errorObject));
+            }
+
+            return new CustomEditTenureDetailsBadRequestResponse
+            {
+                Errors = errorResponse
+            };
         }
     }
 }

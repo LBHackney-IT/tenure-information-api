@@ -1,4 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
+using AutoFixture;
+using FluentValidation.Results;
 using Force.DeepCloner;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
@@ -8,9 +10,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 
 namespace TenureInformationApi.V1.Gateways
 {
@@ -103,10 +107,28 @@ namespace TenureInformationApi.V1.Gateways
         [LogCall]
         public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)
         {
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
+
             var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             if (existingTenure == null) return null;
 
             var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
+
+            // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
+            if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))
+            {
+                var results = ValidateTenureStartDateIsLessThanTenureEndDateIfItExistsInTheDatabase((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
+
+                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
+            }
+
+            // if only tenureEndDate is passed, check that it's later than tenureStartDate
+            if (response.NewValues.ContainsKey("endOfTenureDate") && !response.NewValues.ContainsKey("startOfTenureDate"))
+            {
+                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
+
+                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
+            }
 
             if (response.NewValues.Any())
             {
@@ -115,6 +137,32 @@ namespace TenureInformationApi.V1.Gateways
             }
 
             return response;
+        }
+
+        private static ValidationResult ValidateTenureEndDateIsGreaterThanTenureStartDate(DateTime? tenureEndDate, DateTime? tenureStartDate)
+        {
+            var testObject = new TenureInformation
+            {
+                EndOfTenureDate = tenureEndDate,
+                StartOfTenureDate = tenureStartDate
+            };
+
+            var validator = new TenureInformationValidatorWhenOnlyEndDate();
+
+            return validator.Validate(testObject);
+        }
+
+        private static ValidationResult ValidateTenureStartDateIsLessThanTenureEndDateIfItExistsInTheDatabase(DateTime? tenureStartDate, DateTime? tenureEndDate)
+        {
+            var testObject = new TenureInformation
+            {
+                StartOfTenureDate = tenureStartDate,
+                EndOfTenureDate = tenureEndDate
+            };
+
+            var validator = new TenureInformationValidatorWhenOnlyStartDate();
+
+            return validator.Validate(testObject);
         }
     }
 }

@@ -80,6 +80,25 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         }
 
+        public void GivenATenureExistWithNoEndDate(DateTime tenureStartDate)
+        {
+            var entity = _fixture.Build<TenureInformation>()
+                .With(x => x.EndOfTenureDate, (DateTime?) null)
+                .With(x => x.StartOfTenureDate, tenureStartDate)
+                .With(x => x.SuccessionDate, DateTime.UtcNow)
+                .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                .With(x => x.SubletEndDate, DateTime.UtcNow)
+                .With(x => x.EvictionDate, DateTime.UtcNow)
+                .Create();
+
+            ExistingTenure = entity;
+
+            _dbContext.SaveAsync(entity.ToDatabase()).GetAwaiter().GetResult();
+
+            Tenure = entity.ToDatabase();
+            TenureId = entity.Id;
+        }
+
         public void GivenATenureDoesNotExist()
         {
             TenureId = Guid.NewGuid();
