@@ -59,7 +59,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, invalidRequestObject))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .And(t => _steps.ThenTheValidationErrorsAreReturned("EndOfTenureDate"))
-
                 .BDDfy();
         }
 
@@ -77,6 +76,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenATenureExistWithNoEndDate(tenureStartDate))
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
                 .Then(t => _steps.ThenCustomEditTenureDetailsBadRequestIsReturned())
+                .And(t => _steps.ThenTheValidationErrorsAreReturned("EndOfTenureDate"))
                 .BDDfy();
         }
 
