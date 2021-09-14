@@ -17,10 +17,14 @@ namespace TenureInformationApi.V1.UseCase
     public class EditTenureDetailsUseCase : IEditTenureDetailsUseCase
     {
         private readonly ITenureGateway _tenureGateway;
+        private readonly ISnsGateway _snsGateway;
+        private readonly ISnsFactory _snsFactory;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway)
+        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
+            _snsGateway = snsGateway;
+            _snsFactory = snsFactory;
         }
 
         public async Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)

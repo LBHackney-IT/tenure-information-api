@@ -28,6 +28,11 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
+        public TenureSns EditTenureDetails(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
+        {
+            throw new NotImplementedException();
+        }
+
         public TenureSns Update(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
         {
             return new TenureSns
