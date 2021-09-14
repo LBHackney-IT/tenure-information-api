@@ -1,5 +1,4 @@
 using Amazon.DynamoDBv2.DataModel;
-using AutoFixture;
 using FluentValidation.Results;
 using Force.DeepCloner;
 using Hackney.Core.JWT;
