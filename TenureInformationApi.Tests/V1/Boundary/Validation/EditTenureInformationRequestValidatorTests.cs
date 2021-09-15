@@ -29,7 +29,21 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
 
             var result = _classUnderTest.TestValidate(request);
 
-            result.ShouldNotHaveValidationErrorFor(x => x.EndOfTenureDate);
+            result.ShouldNotHaveAnyValidationErrors();
+        }
+
+        [Fact]
+        public void WhenStartDateIsNullNoError()
+        {
+            var request = new EditTenureDetailsRequestObject()
+            {
+                StartOfTenureDate = null,
+                EndOfTenureDate = DateTime.UtcNow
+            };
+
+            var result = _classUnderTest.TestValidate(request);
+
+            result.ShouldNotHaveAnyValidationErrors();
         }
 
         [Fact]
@@ -43,7 +57,7 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
 
             var result = _classUnderTest.TestValidate(request);
 
-            result.ShouldNotHaveValidationErrorFor(x => x.EndOfTenureDate);
+            result.ShouldNotHaveAnyValidationErrors();
         }
 
         [Fact]
