@@ -1,5 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
+using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Microsoft.AspNetCore.Http;
@@ -8,12 +9,14 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Controllers;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using Xunit;
 
@@ -37,6 +40,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
 
         private readonly TenureInformationController _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
+        private readonly Random _random = new Random();
 
         private const string RequestBodyText = "Some request body text";
 
@@ -224,10 +228,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // setup usecase to return null
             _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync((TenureResponseObject) null);
 
-            // call controller method
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
-            // assert response is 404 not found
             response.Should().BeOfType(typeof(NotFoundResult));
         }
 
@@ -240,11 +242,35 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // setup usecase to return TenureResponseObject
             _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
 
-            // call controller method
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
-            // assert response is 204 no content
             response.Should().BeOfType(typeof(NoContentResult));
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsWhenExceptionIsThrownReturnsCustomEditTenureDetailsBadRequest()
+        {
+            // Arrange
+            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureEndDate = tenureStartDate.AddDays(-7);
+
+            var mockQuery = _fixture.Create<TenureQueryRequest>();
+            var mockRequestObject = new EditTenureDetailsRequestObject { StartOfTenureDate = tenureEndDate };
+
+            var numberOfErrors = _random.Next(2, 5);
+            var mockValidationResult = new ValidationResult(_fixture.CreateMany<ValidationFailure>(numberOfErrors));
+
+            // setup usecase to throw custom exception
+            _mockEditTenureDetailsUseCase
+                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>()))
+                .Throws(new EditTenureInformationValidationException(mockValidationResult));
+
+            // Act
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(BadRequestObjectResult));
+            ((response as BadRequestObjectResult).Value as CustomEditTenureDetailsBadRequestResponse).Errors.Should().HaveCount(numberOfErrors);
         }
     }
 }

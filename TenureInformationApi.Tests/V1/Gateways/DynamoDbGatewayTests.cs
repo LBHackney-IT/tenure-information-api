@@ -320,8 +320,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButNoEndDateIsInDatabaseNoExceptionIsThrown()
         {
-            // start date passed, no end date in database -
-
             // create mock tenure - end date is null
             var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) null).Create();
 
@@ -341,7 +339,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
             };
 
-
             // assert no exception is called
             act.Should().NotThrow<EditTenureInformationValidationException>();
         }
@@ -351,8 +348,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
         {
             var tenureStartDate = _fixture.Create<DateTime>();
             var tenureEndDate = tenureStartDate.AddDays(7);
-
-            // start date passed, end date is greater - valid
 
             // create mock tenure - end date that is greater
             var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate).Create();
@@ -376,10 +371,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // assert no exception is called
             act.Should().NotThrow<EditTenureInformationValidationException>();
-
         }
-
-
 
         [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsLessExceptionIsThrown()
@@ -409,14 +401,11 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // assert exception is thrown
             act.Should().Throw<EditTenureInformationValidationException>();
-
         }
 
         [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsLessExceptionIsNotThrown()
         {
-            // end date passed - start date less
-
             var tenureEndDate = _fixture.Create<DateTime>();
             var tenureStartDate = tenureEndDate.AddDays(-7);
 
@@ -446,8 +435,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsGreaterExceptionIsThrown()
         {
-            // end date passed - start date is later - throw error
-
             var tenureEndDate = _fixture.Create<DateTime>();
             var tenureStartDate = tenureEndDate.AddDays(7);
 
@@ -474,8 +461,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             act.Should().Throw<EditTenureInformationValidationException>();
         }
 
-        private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(
-            TenureInformation entityInsertedIntoDatabase)
+        private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)
         {
             var updatedEntity = entityInsertedIntoDatabase.ToDatabase();
 

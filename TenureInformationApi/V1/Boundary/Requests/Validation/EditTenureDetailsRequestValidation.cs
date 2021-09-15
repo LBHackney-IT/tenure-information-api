@@ -10,9 +10,14 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
     {
         public EditTenureDetailsRequestValidation()
         {
-            RuleFor(x => x.EndOfTenureDate)
+            // both values must be in request
+            // otherwise, validation is called in the gateway method.
+            When(tenure => tenure.EndOfTenureDate != null && tenure.StartOfTenureDate != null, () =>
+            {
+                RuleFor(x => x.EndOfTenureDate)
                .GreaterThan(x => x.StartOfTenureDate)
                .WithErrorCode(ErrorCodes.TenureEndDate);
+            });
 
             RuleFor(x => x.TenureType).SetValidator(new TenureTypeValidator());
         }

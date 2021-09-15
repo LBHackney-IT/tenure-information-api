@@ -16,7 +16,8 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
 
             // the end date must be greater than start date
             RuleFor(x => x.EndOfTenureDate)
-            .GreaterThan(x => x.StartOfTenureDate);
+            .GreaterThan(x => x.StartOfTenureDate)
+            .WithErrorCode(ErrorCodes.TenureEndDate);
         }
     }
 }

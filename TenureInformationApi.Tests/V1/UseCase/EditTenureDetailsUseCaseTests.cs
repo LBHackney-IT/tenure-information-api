@@ -46,14 +46,39 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockRawBody = "";
             var mockToken = _fixture.Create<Token>();
 
-            // setup gateway to return null
             _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
 
             // call usecase method
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
-            // assert result is null
             response.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task EditTenureDetailsUseCaseWhenTenureExistsReturnsTenureResponseObject()
+        {
+            var mockQuery = _fixture.Create<TenureQueryRequest>();
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRawBody = "";
+            var mockToken = _fixture.Create<Token>();
+
+            var mockResponseObject = _fixture.Create<TenureResponseObject>();
+
+            var gatewayResponse = new UpdateEntityResult<TenureInformationDb>
+            {
+                UpdatedEntity = _fixture.Create<TenureInformationDb>()
+            };
+
+            _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync(gatewayResponse);
+
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Should().BeOfType(typeof(TenureResponseObject));
+
+            response.StartOfTenureDate.Should().Be(gatewayResponse.UpdatedEntity.StartOfTenureDate);
+            response.EndOfTenureDate.Should().Be(gatewayResponse.UpdatedEntity.EndOfTenureDate);
+            response.TenureType.Code.Should().Be(gatewayResponse.UpdatedEntity.TenureType.Code);
         }
 
         [Fact]
