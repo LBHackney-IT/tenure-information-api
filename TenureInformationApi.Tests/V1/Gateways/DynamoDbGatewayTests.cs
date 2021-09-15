@@ -83,7 +83,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             return request;
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task GetEntityByIdReturnsNullIfEntityDoesntExist()
         {
             var request = ConstructRequest();
@@ -93,7 +93,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
-        [Theory(Skip = "Test")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task GetEntityByIdReturnsTheEntityIfItExists(bool nullTenuredAssetType)
