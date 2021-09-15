@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 
 namespace TenureInformationApi.V1.Boundary.Response
 {
@@ -27,5 +27,6 @@ namespace TenureInformationApi.V1.Boundary.Response
         public List<Notices> Notices { get; set; }
         public List<LegacyReference> LegacyReferences { get; set; }
         public AgreementType AgreementType { get; set; }
+        public int? VersionNumber { get; set; }
     }
 }

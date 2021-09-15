@@ -1,5 +1,5 @@
 using Hackney.Core.JWT;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Infrastructure;
 

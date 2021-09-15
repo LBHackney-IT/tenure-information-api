@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps

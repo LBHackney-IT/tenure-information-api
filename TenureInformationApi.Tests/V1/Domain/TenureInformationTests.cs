@@ -1,6 +1,6 @@
 using System;
 using FluentAssertions;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Domain

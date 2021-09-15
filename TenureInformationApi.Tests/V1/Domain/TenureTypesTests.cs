@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Domain

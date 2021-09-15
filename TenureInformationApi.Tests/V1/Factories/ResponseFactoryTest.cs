@@ -2,7 +2,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using System.Collections.Generic;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Factories;
 using Xunit;
 

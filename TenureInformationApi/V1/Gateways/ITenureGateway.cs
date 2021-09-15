@@ -1,7 +1,7 @@
 using Hackney.Core.JWT;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Gateways

@@ -1,5 +1,5 @@
 using FluentValidation;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 
 namespace TenureInformationApi.V1.Boundary.Requests.Validation
 {

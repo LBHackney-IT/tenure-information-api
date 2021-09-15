@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 
 namespace TenureInformationApi.V1.Boundary.Requests
 {

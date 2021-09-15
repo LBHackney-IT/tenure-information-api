@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Requests.Validation;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Boundary.Validation

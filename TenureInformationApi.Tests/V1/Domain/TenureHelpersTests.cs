@@ -1,5 +1,5 @@
 using FluentAssertions;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using System;
 using Xunit;
 
