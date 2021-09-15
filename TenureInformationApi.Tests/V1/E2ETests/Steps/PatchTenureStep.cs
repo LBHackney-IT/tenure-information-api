@@ -50,7 +50,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
-            result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.VersionNumber)
+                                                                                 .Excluding(y => y.HouseholdMembers));
 
             var expected = new HouseholdMembers()
             {
@@ -74,7 +75,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.VersionNumber)
+                                                                                 .Excluding(y => y.HouseholdMembers));
             result.HouseholdMembers.First(x => x.Id == personId).FullName.Should().Be(request.FullName);
 
             await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false);
