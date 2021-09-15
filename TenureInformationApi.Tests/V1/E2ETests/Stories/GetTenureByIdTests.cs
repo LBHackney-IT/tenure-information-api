@@ -45,7 +45,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             }
         }
 
-        [Theory(Skip = "Test")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void GetTenureByIdFoundReturnsResponse(bool nullTenuredAssetType)
@@ -56,7 +56,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public void ServiceReturnsNotFoundIfPersonNotExist()
         {
             this.Given(g => _tenureFixture.GivenATenureDoesNotExist())
@@ -65,7 +65,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public void ServiceReturnsBadRequestIfIdInvalid()
         {
             this.Given(g => _tenureFixture.GivenAnInvalidTenureId())

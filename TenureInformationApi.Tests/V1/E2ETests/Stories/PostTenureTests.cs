@@ -45,7 +45,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             }
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public void ServiceReturnsTheRequestedPerson()
         {
             this.Given(g => _tenureFixture.GivenNewTenureRequest())
@@ -54,7 +54,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public void ServiceReturnsBadRequestWhenTheyAreValidationErrors()
         {
             this.Given(g => _tenureFixture.GivenNewTenureRequestWithValidationErrors())
