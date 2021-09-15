@@ -232,7 +232,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenTenureDoesntExistReturnsNull()
         {
             var mockQuery = _fixture.Create<TenureQueryRequest>();
@@ -246,7 +246,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             response.Should().BeNull();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenNoChangesAreInRequestObjectDatabaseIsntUpdated()
         {
             // create mock tenure
@@ -285,7 +285,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             databaseResponse.TenureType.Code.Should().Be(mockTenure.TenureType.Code);
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenCalledDatabaseIsUpdated()
         {
             // create mock tenure
@@ -325,7 +325,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             databaseResponse.TenureType.Code.Should().Be(updaterResponse.UpdatedEntity.TenureType.Code);
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButNoEndDateIsInDatabaseNoExceptionIsThrown()
         {
             // create mock tenure - end date is null
@@ -354,7 +354,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             act.Should().NotThrow<EditTenureInformationValidationException>();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsGreaterNoExceptionIsThrown()
         {
             var tenureStartDate = _fixture.Create<DateTime>();
@@ -387,7 +387,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             act.Should().NotThrow<EditTenureInformationValidationException>();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsLessExceptionIsThrown()
         {
             // start date passed, end date is less - throw error
@@ -420,7 +420,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             act.Should().Throw<EditTenureInformationValidationException>();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsLessExceptionIsNotThrown()
         {
             var tenureEndDate = _fixture.Create<DateTime>();
@@ -452,7 +452,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             act.Should().NotThrow<EditTenureInformationValidationException>();
         }
 
-        [Fact(Skip = "Test")]
+        [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsGreaterExceptionIsThrown()
         {
             var tenureEndDate = _fixture.Create<DateTime>();
