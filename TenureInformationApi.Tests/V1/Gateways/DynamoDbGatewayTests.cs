@@ -143,7 +143,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
 
-        [Theory(Skip = "Test")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task UpdateTenureWithNewHouseHoldMemberSuccessfullyUpdates(bool nullTenuredAssetType)
@@ -168,7 +168,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
 
             //Updated tenure with new Household Member
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
@@ -191,7 +191,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             result.NewValues["householdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
         }
 
-        [Theory(Skip = "Test")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task UpdateExistingHouseHoldMembersInTenureSuccessfullyUpdates(bool nullTenuredAssetType)
@@ -214,7 +214,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
 
             //Updated tenure with updated HouseHold Member
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
