@@ -1,4 +1,3 @@
-using FluentValidation.AspNetCore;
 using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
@@ -11,8 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
@@ -58,7 +57,7 @@ namespace TenureInformationApi.V1.Controllers
         {
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
-            return Ok(result);
+            return Ok(result.ToResponse());
         }
 
         [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status201Created)]

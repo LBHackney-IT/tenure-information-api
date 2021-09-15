@@ -1,14 +1,10 @@
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
@@ -31,7 +27,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             var apiTenure = JsonSerializer.Deserialize<TenureResponseObject>(responseContent, CreateJsonOptions());
 
-            apiTenure.Should().BeEquivalentTo(dbEntity);
+            apiTenure.Should().BeEquivalentTo(dbEntity, config => config.Excluding(y => y.VersionNumber));
         }
 
         public void ThenBadRequestIsReturned()
