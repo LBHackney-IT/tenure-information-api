@@ -1,7 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using System;
 using System.Collections.Generic;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using Hackney.Core.DynamoDb.Converters;
 
 namespace TenureInformationApi.V1.Infrastructure

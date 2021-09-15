@@ -1,6 +1,6 @@
 using System;
 using AutoFixture;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using FluentAssertions;

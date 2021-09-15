@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
+using Hackney.Shared.Tenure;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 
