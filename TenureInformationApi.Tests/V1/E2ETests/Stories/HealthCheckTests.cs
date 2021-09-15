@@ -37,7 +37,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Test")]
         public void ServiceReturnsHealthyStatus()
         {
             this.Given("A running service")
