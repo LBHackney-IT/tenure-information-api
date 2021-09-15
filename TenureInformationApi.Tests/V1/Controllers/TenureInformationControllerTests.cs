@@ -9,14 +9,13 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Controllers;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using Xunit;
@@ -116,7 +115,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         public async Task GetTenureWithNoIdReturnsNotFound()
         {
             var request = ConstructRequest();
-            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync((TenureInformation) null);
+            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync((TenureResponseObject) null);
 
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -126,13 +125,13 @@ namespace TenureInformationApi.Tests.V1.Controllers
         [Fact]
         public async Task GetTenureWithValidIdReturnsOKResponse()
         {
-            var tenureResponse = _fixture.Create<TenureInformation>();
+            var tenureResponse = _fixture.Create<TenureResponseObject>();
             var request = ConstructRequest(tenureResponse.Id);
             _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync(tenureResponse);
 
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
-            (response as OkObjectResult).Value.Should().BeEquivalentTo(tenureResponse.ToResponse());
+            (response as OkObjectResult).Value.Should().Be(tenureResponse);
         }
 
         [Fact]

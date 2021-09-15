@@ -34,9 +34,9 @@ namespace TenureInformationApi.Tests.V1.Factories
         public void CanMapDomainTenureInfoListToAResponsesList()
         {
             var list = _fixture.CreateMany<TenureInformation>(10);
-            var response = list.ToResponse();
+            var responseNotes = list.ToResponse();
 
-            response.Should().BeEquivalentTo(list, config => config.Excluding(x => x.VersionNumber));
+            responseNotes.Should().BeEquivalentTo(list);
         }
 
         [Fact]

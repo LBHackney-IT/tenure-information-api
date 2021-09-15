@@ -118,7 +118,7 @@ namespace TenureInformationApi.V1.Gateways
             {
                 var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
 
-                if (!results.IsValid) throw new EditTenureInformationValidationException(results);
+                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
             }
 
             // if only tenureEndDate is passed, check that it's later than tenureStartDate
@@ -126,7 +126,7 @@ namespace TenureInformationApi.V1.Gateways
             {
                 var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
 
-                if (!results.IsValid) throw new EditTenureInformationValidationException(results);
+                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
             }
 
             if (response.NewValues.Any())

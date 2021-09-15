@@ -30,6 +30,5 @@ namespace TenureInformationApi.V1.Domain
         public bool? InformHousingBenefitsForChanges { get; set; }
         public bool? IsSublet { get; set; }
         public DateTime? SubletEndDate { get; set; }
-        public int? VersionNumber { get; set; }
     }
 }

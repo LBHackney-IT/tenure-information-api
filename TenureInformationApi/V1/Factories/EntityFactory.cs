@@ -1,3 +1,4 @@
+using System.Linq;
 using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
 
@@ -28,8 +29,7 @@ namespace TenureInformationApi.V1.Factories
                 PaymentReference = databaseEntity.PaymentReference,
                 PotentialEndDate = databaseEntity.PotentialEndDate,
                 StartOfTenureDate = databaseEntity.StartOfTenureDate,
-                SubletEndDate = databaseEntity.SubletEndDate,
-                VersionNumber = databaseEntity.VersionNumber
+                SubletEndDate = databaseEntity.SubletEndDate
             };
         }
 
@@ -56,8 +56,7 @@ namespace TenureInformationApi.V1.Factories
                 PaymentReference = entity.PaymentReference,
                 PotentialEndDate = entity.PotentialEndDate,
                 StartOfTenureDate = entity.StartOfTenureDate,
-                SubletEndDate = entity.SubletEndDate,
-                VersionNumber = entity.VersionNumber
+                SubletEndDate = entity.SubletEndDate
             };
         }
     }
