@@ -8,6 +8,6 @@ namespace TenureInformationApi.V1.Boundary.Requests.Validation
     public static class ErrorCodes
     {
         public const string XssCheckFailure = "W42";
-        public const string TenureEndDate = "W26";
+        public const string TenureEndDate = "W29";
     }
 }
