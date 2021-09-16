@@ -29,7 +29,7 @@ namespace TenureInformationApi.V1.UseCase
         {
             var tenure = await _tenureGateway.PostNewTenureAsync(createTenureRequestObject).ConfigureAwait(false);
 
-            var tenureSnsMessage = _snsFactory.Create(tenure, token);
+            var tenureSnsMessage = _snsFactory.CreateTenure(tenure, token);
             var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
 
             await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);

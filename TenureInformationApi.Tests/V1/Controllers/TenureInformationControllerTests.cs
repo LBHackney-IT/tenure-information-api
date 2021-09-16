@@ -235,7 +235,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync((TenureResponseObject) null);
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync((TenureResponseObject) null);
 
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
@@ -248,7 +248,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
 
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
@@ -270,7 +270,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
 
             // setup usecase to throw custom exception
             _mockEditTenureDetailsUseCase
-                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
+                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>()))
                 .Throws(new EditTenureInformationValidationException(mockValidationResult));
 
             // Act

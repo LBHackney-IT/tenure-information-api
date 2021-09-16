@@ -110,9 +110,11 @@ namespace TenureInformationApi.V1.Controllers
             // The bodyText is the raw request object that will be used to determine this information).
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
 
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
             try
             {
-                var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText).ConfigureAwait(false);
+                var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText, token).ConfigureAwait(false);
 
                 if (tenure == null) return NotFound();
 

@@ -17,16 +17,29 @@ namespace TenureInformationApi.V1.UseCase
     public class EditTenureDetailsUseCase : IEditTenureDetailsUseCase
     {
         private readonly ITenureGateway _tenureGateway;
+        private readonly ISnsGateway _snsGateway;
+        private readonly ISnsFactory _snsFactory;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway)
+        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
+            _snsGateway = snsGateway;
+            _snsFactory = snsFactory;
         }
 
-        public async Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)
+        public async Task<TenureResponseObject> ExecuteAsync(
+            TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token)
         {
             var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody).ConfigureAwait(false);
             if (result == null) return null;
+
+            if (result.NewValues.Any())
+            {
+                var tenureSnsMessage = _snsFactory.UpdateTenure(result, token);
+                var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
+
+                await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
+            }
 
             return result.UpdatedEntity.ToDomain().ToResponse();
         }
