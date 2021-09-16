@@ -48,7 +48,6 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
             _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
 
-            // call usecase method
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
             response.Should().BeNull();
@@ -96,7 +95,6 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
                 .ReturnsAsync(gatewayResult);
 
-            // call usecase method
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
             // assert result is TenureResponseObject
