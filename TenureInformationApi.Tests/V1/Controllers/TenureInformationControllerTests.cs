@@ -7,15 +7,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Controllers;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using Xunit;
@@ -63,6 +68,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 _mockEditTenureDetailsUseCase.Object,
                 _mockTokenFactory.Object,
                 _mockContextWrapper.Object);
+            _mockContextWrapper.Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>())).Returns(new HeaderDictionary());
 
             // changes to allow reading of raw request body
 
@@ -115,7 +121,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         public async Task GetTenureWithNoIdReturnsNotFound()
         {
             var request = ConstructRequest();
-            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync((TenureResponseObject) null);
+            _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync((TenureInformation) null);
 
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -125,13 +131,17 @@ namespace TenureInformationApi.Tests.V1.Controllers
         [Fact]
         public async Task GetTenureWithValidIdReturnsOKResponse()
         {
-            var tenureResponse = _fixture.Create<TenureResponseObject>();
+            var tenureResponse = _fixture.Create<TenureInformation>();
             var request = ConstructRequest(tenureResponse.Id);
             _mockGetByIdUsecase.Setup(x => x.Execute(request)).ReturnsAsync(tenureResponse);
 
             var response = await _classUnderTest.GetByID(request).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
-            (response as OkObjectResult).Value.Should().Be(tenureResponse);
+            (response as OkObjectResult).Value.Should().BeEquivalentTo(tenureResponse.ToResponse());
+
+            var expectedEtagValue = $"\"{tenureResponse.VersionNumber}\"";
+            _classUnderTest.HttpContext.Response.Headers.TryGetValue(HeaderConstants.ETag, out StringValues val).Should().BeTrue();
+            val.First().Should().Be(expectedEtagValue);
         }
 
         [Fact]

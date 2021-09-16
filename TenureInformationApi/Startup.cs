@@ -1,3 +1,5 @@
+using Amazon;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -60,6 +62,10 @@ namespace TenureInformationApi
 
             services
                 .AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddFluentValidation();
@@ -134,11 +140,12 @@ namespace TenureInformationApi
 
             services.ConfigureLambdaLogging(Configuration);
 
+            AWSXRayRecorder.InitializeInstance(Configuration);
+            AWSXRayRecorder.RegisterLogger(LoggingOptions.SystemDiagnostics);
+
             services.ConfigureDynamoDB();
             services.ConfigureSns();
             services.AddLogCallAspect();
-            services.AddTokenFactory();
-
             RegisterGateways(services);
             RegisterUseCases(services);
 
@@ -160,7 +167,6 @@ namespace TenureInformationApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
-            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -177,7 +183,9 @@ namespace TenureInformationApi
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod());
+                .AllowAnyMethod()
+                .WithExposedHeaders("ETag", "If-Match"));
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -190,8 +198,6 @@ namespace TenureInformationApi
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
-            app.UseLogCall();
-
             app.UseXRay("tenure-information-api");
 
             app.EnableRequestBodyRewind();
@@ -222,6 +228,8 @@ namespace TenureInformationApi
                     ResponseWriter = HealthCheckResponseWriter.WriteResponse
                 });
             });
+
+            app.UseLogCall();
         }
     }
 }

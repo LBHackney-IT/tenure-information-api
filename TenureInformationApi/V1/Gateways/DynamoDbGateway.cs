@@ -118,7 +118,7 @@ namespace TenureInformationApi.V1.Gateways
             {
                 var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
 
-                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
+                if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
             // if only tenureEndDate is passed, check that it's later than tenureStartDate
@@ -126,13 +126,13 @@ namespace TenureInformationApi.V1.Gateways
             {
                 var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
 
-                if (results.IsValid == false) throw new EditTenureInformationValidationException(results);
+                if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
             if (response.NewValues.Any())
             {
                 _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.Id}");
-                await _dynamoDbContext.SaveAsync(response.UpdatedEntity).ConfigureAwait(false);
+                await _dynamoDbContext.SaveAsync<TenureInformationDb>(response.UpdatedEntity).ConfigureAwait(false);
             }
 
             return response;
