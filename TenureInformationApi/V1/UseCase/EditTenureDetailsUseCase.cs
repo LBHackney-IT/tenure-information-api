@@ -35,7 +35,7 @@ namespace TenureInformationApi.V1.UseCase
 
             if (result.NewValues.Any())
             {
-                var tenureSnsMessage = _snsFactory.PersonAddedToTenure(result, token);
+                var tenureSnsMessage = _snsFactory.UpdateTenure(result, token);
                 var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
 
                 await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);

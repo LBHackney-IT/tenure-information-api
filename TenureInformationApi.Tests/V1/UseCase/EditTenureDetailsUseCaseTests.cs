@@ -27,15 +27,15 @@ namespace TenureInformationApi.Tests.V1.UseCase
         private readonly EditTenureDetailsUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
-        private readonly TenureSnsFactory _tenureSnsFactory;
+        private readonly Mock<ISnsFactory> _tenureSnsFactory;
 
         public EditTenureDetailsUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
-            _tenureSnsFactory = new TenureSnsFactory();
+            _tenureSnsFactory = new Mock<ISnsFactory>();
 
-            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);
+            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
         }
 
         [Fact]
@@ -109,26 +109,32 @@ namespace TenureInformationApi.Tests.V1.UseCase
         [Fact]
         public async Task EditTenureDetailsUseCaseWhenChangesSNSGatewayIsCalled()
         {
+            // Arrange
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
             var mockRawBody = "";
             var mockToken = _fixture.Create<Token>();
 
-            // setup mock gateway to return UpdateEntityResult with no changes
             var gatewayResult = MockUpdateEntityResultWhereChangesAreMade();
 
             _mockGateway
                 .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
                 .ReturnsAsync(gatewayResult);
 
-            // call usecase method
+            var snsEvent = _fixture.Create<TenureSns>();
+
+            _tenureSnsFactory
+                 .Setup(x => x.UpdateTenure(gatewayResult, It.IsAny<Token>()))
+                 .Returns(snsEvent);
+
+            // Act
             var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
 
-            // assert result is TenureResponseObject
+            // Assert
             response.Should().BeOfType(typeof(TenureResponseObject));
 
-            // assert that sns factory wasnt called
-            _tenureSnsGateway.Verify(x => x.Publish(It.IsAny<TenureSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            _tenureSnsFactory.Verify(x => x.UpdateTenure(gatewayResult, It.IsAny<Token>()), Times.Once);
+            _tenureSnsGateway.Verify(x => x.Publish(snsEvent, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
         private UpdateEntityResult<TenureInformationDb> MockUpdateEntityResultWhereChangesAreMade()
