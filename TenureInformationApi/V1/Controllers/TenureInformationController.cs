@@ -62,7 +62,12 @@ namespace TenureInformationApi.V1.Controllers
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
 
-            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{result.VersionNumber.Value}\"").Tag);
+            var eTag = string.Empty;
+            if (result.VersionNumber.HasValue)
+                eTag = result.VersionNumber.ToString();
+
+            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
+
             return Ok(result.ToResponse());
         }
 
