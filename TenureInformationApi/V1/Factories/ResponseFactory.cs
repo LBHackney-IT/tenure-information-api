@@ -34,7 +34,6 @@ namespace TenureInformationApi.V1.Factories
                 TenureType = domain.TenureType,
                 Terminated = domain.Terminated,
                 AgreementType = domain.AgreementType,
-                VersionNumber = domain.VersionNumber
             };
         }
 

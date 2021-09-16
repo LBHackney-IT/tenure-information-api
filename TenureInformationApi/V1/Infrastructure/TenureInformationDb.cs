@@ -69,6 +69,5 @@ namespace TenureInformationApi.V1.Infrastructure
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime? SubletEndDate { get; set; }
-        public int? VersionNumber { get; set; }
     }
 }

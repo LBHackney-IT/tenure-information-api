@@ -30,7 +30,6 @@ namespace TenureInformationApi.V1.Factories
                 PotentialEndDate = databaseEntity.PotentialEndDate,
                 StartOfTenureDate = databaseEntity.StartOfTenureDate,
                 SubletEndDate = databaseEntity.SubletEndDate,
-                VersionNumber = databaseEntity.VersionNumber
             };
         }
 
@@ -58,7 +57,6 @@ namespace TenureInformationApi.V1.Factories
                 PotentialEndDate = entity.PotentialEndDate,
                 StartOfTenureDate = entity.StartOfTenureDate,
                 SubletEndDate = entity.SubletEndDate,
-                VersionNumber = entity.VersionNumber
             };
         }
     }

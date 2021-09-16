@@ -27,6 +27,5 @@ namespace TenureInformationApi.V1.Boundary.Response
         public List<Notices> Notices { get; set; }
         public List<LegacyReference> LegacyReferences { get; set; }
         public AgreementType AgreementType { get; set; }
-        public int? VersionNumber { get; set; }
     }
 }
