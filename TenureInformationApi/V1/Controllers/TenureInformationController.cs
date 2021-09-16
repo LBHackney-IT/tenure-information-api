@@ -9,10 +9,13 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
@@ -58,7 +61,9 @@ namespace TenureInformationApi.V1.Controllers
         {
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
-            return Ok(result);
+
+            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{result.VersionNumber.Value}\"").Tag);
+            return Ok(result.ToResponse());
         }
 
         [ProducesResponseType(typeof(TenureResponseObject), StatusCodes.Status201Created)]

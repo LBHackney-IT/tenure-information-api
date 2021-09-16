@@ -105,6 +105,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
@@ -113,7 +114,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var request = ConstructRequest(entity.Id);
             var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
-            response.Should().BeEquivalentTo(entity);
+            response.Should().BeEquivalentTo(entity, config => config.Excluding(y => y.VersionNumber));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
@@ -136,10 +137,10 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // Assert
             var dbEntity = await _dynamoDb.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
 
-            dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase());
+            dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase(), config => config.Excluding(y => y.VersionNumber));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
 
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(dbEntity).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
 
         [Theory]
@@ -155,22 +156,44 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Without(x => x.HouseholdMembers)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
+
+            var dbEntity = entity.ToDatabase();
 
             var query = ConstructUpdateQuery(entity.Id, Guid.NewGuid());
             var request = ConstructUpdateRequest();
 
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
 
             //Updated tenure with new Household Member
-            result.UpdatedEntity.Should().BeEquivalentTo(load);
-            load.Should().BeEquivalentTo(entity.ToDatabase(), config => config.Excluding(y => y.HouseholdMembers));
+            result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
+
+            load.AgreementType.Should().BeEquivalentTo(dbEntity.AgreementType);
+            load.Charges.Should().BeEquivalentTo(dbEntity.Charges);
+            load.EndOfTenureDate.Should().Be(dbEntity.EndOfTenureDate);
+            load.EvictionDate.Should().Be(dbEntity.EvictionDate);
+            load.Id.Should().Be(dbEntity.Id);
+            load.InformHousingBenefitsForChanges.Should().Be(dbEntity.InformHousingBenefitsForChanges);
+            load.IsMutualExchange.Should().Be(dbEntity.IsMutualExchange);
+            load.IsSublet.Should().Be(dbEntity.IsSublet);
+            load.IsTenanted.Should().Be(dbEntity.IsTenanted);
+            load.LegacyReferences.Should().BeEquivalentTo(dbEntity.LegacyReferences);
+            load.Notices.Should().BeEquivalentTo(dbEntity.Notices);
+            load.PaymentReference.Should().Be(dbEntity.PaymentReference);
+            load.PotentialEndDate.Should().Be(dbEntity.PotentialEndDate);
+            load.StartOfTenureDate.Should().Be(dbEntity.StartOfTenureDate);
+            load.SubletEndDate.Should().Be(dbEntity.SubletEndDate);
+            load.SuccessionDate.Should().Be(dbEntity.SuccessionDate);
+            load.TenuredAsset.Should().BeEquivalentTo(dbEntity.TenuredAsset);
+            load.TenureType.Should().BeEquivalentTo(dbEntity.TenureType);
+            load.Terminated.Should().BeEquivalentTo(dbEntity.Terminated);
 
             var expected = new HouseholdMembers()
             {
@@ -200,21 +223,42 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                  .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
-
+            var dbEntity = entity.ToDatabase();
             var query = ConstructUpdateQuery(entity.Id, entity.HouseholdMembers.First().Id);
             var request = ConstructUpdateFullNameRequest();
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
+
+            result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
+
 
             //Updated tenure with updated HouseHold Member
-            result.UpdatedEntity.Should().BeEquivalentTo(load);
-            load.Should().BeEquivalentTo(entity.ToDatabase(), config => config.Excluding(y => y.HouseholdMembers));
+            load.AgreementType.Should().BeEquivalentTo(dbEntity.AgreementType);
+            load.Charges.Should().BeEquivalentTo(dbEntity.Charges);
+            load.EndOfTenureDate.Should().Be(dbEntity.EndOfTenureDate);
+            load.EvictionDate.Should().Be(dbEntity.EvictionDate);
+            load.Id.Should().Be(dbEntity.Id);
+            load.InformHousingBenefitsForChanges.Should().Be(dbEntity.InformHousingBenefitsForChanges);
+            load.IsMutualExchange.Should().Be(dbEntity.IsMutualExchange);
+            load.IsSublet.Should().Be(dbEntity.IsSublet);
+            load.IsTenanted.Should().Be(dbEntity.IsTenanted);
+            load.LegacyReferences.Should().BeEquivalentTo(dbEntity.LegacyReferences);
+            load.Notices.Should().BeEquivalentTo(dbEntity.Notices);
+            load.PaymentReference.Should().Be(dbEntity.PaymentReference);
+            load.PotentialEndDate.Should().Be(dbEntity.PotentialEndDate);
+            load.StartOfTenureDate.Should().Be(dbEntity.StartOfTenureDate);
+            load.SubletEndDate.Should().Be(dbEntity.SubletEndDate);
+            load.SuccessionDate.Should().Be(dbEntity.SuccessionDate);
+            load.TenuredAsset.Should().BeEquivalentTo(dbEntity.TenuredAsset);
+            load.TenureType.Should().BeEquivalentTo(dbEntity.TenureType);
+            load.Terminated.Should().BeEquivalentTo(dbEntity.Terminated);
             load.HouseholdMembers.First(x => x.Id == query.PersonId).FullName.Should().Be(request.FullName);
 
             result.OldValues["householdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
@@ -223,8 +267,9 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
-            await _dynamoDb.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity.ToDatabase()).ConfigureAwait(false));
+            var entityDb = entity.ToDatabase();
+            await _dynamoDb.SaveAsync<TenureInformationDb>(entityDb).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(entityDb.Id).ConfigureAwait(false));
         }
 
         [Fact]
@@ -248,6 +293,11 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var mockTenure = _fixture.Build<TenureInformation>()
                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                .With(x => x.SuccessionDate, DateTime.UtcNow)
+                .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                .With(x => x.SubletEndDate, DateTime.UtcNow)
+                .With(x => x.EvictionDate, DateTime.UtcNow)
+                .With(x => x.VersionNumber, (int?) null)
                 .Create();
 
             // insert mock tenure into database
@@ -286,10 +336,16 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var mockTenure = _fixture.Build<TenureInformation>()
                             .With(x => x.StartOfTenureDate, DateTime.UtcNow)
                             .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                            .With(x => x.SuccessionDate, DateTime.UtcNow)
+                            .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                            .With(x => x.SubletEndDate, DateTime.UtcNow)
+                            .With(x => x.EvictionDate, DateTime.UtcNow)
+                            .With(x => x.VersionNumber, (int?) null)
                             .Create();
 
             // insert mock tenure into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+            mockTenure.VersionNumber = 0;
 
             var mockQuery = _fixture.Build<TenureQueryRequest>().With(x => x.Id, mockTenure.Id).Create(); // with tenure id
             var mockRequestObject = new EditTenureDetailsRequestObject();
@@ -321,7 +377,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public async Task EditTenureDetailsWhenStartDateIsInRequestButNoEndDateIsInDatabaseNoExceptionIsThrown()
         {
             // create mock tenure - end date is null
-            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) null).Create();
+            var mockTenure = _fixture.Build<TenureInformation>()
+                                     .With(x => x.EndOfTenureDate, (DateTime?) null)
+                                     .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                     .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                     .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                     .With(x => x.EvictionDate, DateTime.UtcNow)
+                                     .With(x => x.VersionNumber, (int?) null)
+                                     .Create();
 
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
@@ -350,7 +413,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var tenureEndDate = tenureStartDate.AddDays(7);
 
             // create mock tenure - end date that is greater
-            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate).Create();
+            var mockTenure = _fixture.Build<TenureInformation>()
+                                     .With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate)
+                                     .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                     .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                     .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                     .With(x => x.EvictionDate, DateTime.UtcNow)
+                                     .With(x => x.VersionNumber, (int?) null)
+                                     .Create();
 
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
@@ -381,7 +451,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var tenureEndDate = tenureStartDate.AddDays(-7);
 
             // create mock tenure - end date that is less
-            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate).Create();
+            var mockTenure = _fixture.Build<TenureInformation>()
+                                     .With(x => x.EndOfTenureDate, (DateTime?) tenureEndDate)
+                                     .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                     .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                     .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                     .With(x => x.EvictionDate, DateTime.UtcNow)
+                                     .With(x => x.VersionNumber, (int?) null)
+                                     .Create();
 
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
@@ -410,7 +487,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var tenureStartDate = tenureEndDate.AddDays(-7);
 
             // create mock tenure - start date that is less
-            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate).Create();
+            var mockTenure = _fixture.Build<TenureInformation>()
+                                     .With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate)
+                                     .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                     .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                     .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                     .With(x => x.EvictionDate, DateTime.UtcNow)
+                                     .With(x => x.VersionNumber, (int?) null)
+                                     .Create();
 
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
@@ -439,7 +523,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var tenureStartDate = tenureEndDate.AddDays(7);
 
             // create mock tenure - start date that is less
-            var mockTenure = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate).Create();
+            var mockTenure = _fixture.Build<TenureInformation>()
+                                     .With(x => x.StartOfTenureDate, (DateTime?) tenureStartDate)
+                                     .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                     .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                     .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                     .With(x => x.EvictionDate, DateTime.UtcNow)
+                                     .With(x => x.VersionNumber, (int?) null)
+                                     .Create();
 
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
