@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TenureInformationApi.V1.Infrastructure
+namespace Hackney.Core.Http
 {
     // TODO - move to common nuget package
 

@@ -1,3 +1,5 @@
+using Amazon;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -6,6 +8,7 @@ using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
@@ -59,6 +62,10 @@ namespace TenureInformationApi
 
             services
                 .AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddFluentValidation();
@@ -129,24 +136,25 @@ namespace TenureInformationApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))
                     c.IncludeXmlComments(xmlPath);
-
             });
 
             services.ConfigureLambdaLogging(Configuration);
 
+            AWSXRayRecorder.InitializeInstance(Configuration);
+            AWSXRayRecorder.RegisterLogger(LoggingOptions.SystemDiagnostics);
+
             services.ConfigureDynamoDB();
             services.ConfigureSns();
             services.AddLogCallAspect();
-            services.AddTokenFactory();
             RegisterGateways(services);
             RegisterUseCases(services);
+
             services.AddSingleton<IConfiguration>(Configuration);
 
             services.AddScoped<ISnsFactory, TenureSnsFactory>();
+            services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             ConfigureHackneyCoreDI(services);
-
-
         }
 
         private static void ConfigureHackneyCoreDI(IServiceCollection services)
@@ -156,11 +164,9 @@ namespace TenureInformationApi
                 .AddHttpContextWrapper();
         }
 
-
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<ITenureGateway, DynamoDbGateway>();
-            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -168,7 +174,7 @@ namespace TenureInformationApi
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
             services.AddScoped<IUpdateTenureForPersonUseCase, UpdateTenureForPersonUseCase>();
-
+            services.AddScoped<IEditTenureDetailsUseCase, EditTenureDetailsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -192,9 +198,9 @@ namespace TenureInformationApi
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
-            app.UseLogCall();
-
             app.UseXRay("tenure-information-api");
+
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
@@ -222,6 +228,8 @@ namespace TenureInformationApi
                     ResponseWriter = HealthCheckResponseWriter.WriteResponse
                 });
             });
+
+            app.UseLogCall();
         }
     }
 }

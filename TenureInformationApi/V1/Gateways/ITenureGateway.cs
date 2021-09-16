@@ -1,3 +1,4 @@
+using Hackney.Core.JWT;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
@@ -13,5 +14,7 @@ namespace TenureInformationApi.V1.Gateways
 
         Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject,
                                                                             int? ifMatch);
+
+        Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody);
     }
 }
