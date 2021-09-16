@@ -134,7 +134,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase(), config => config.Excluding(y => y.VersionNumber));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
 
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(dbEntity).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
 
         [Theory]
@@ -163,8 +163,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
 
             //Updated tenure with new Household Member
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
@@ -227,8 +227,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var request = ConstructUpdateFullNameRequest();
             var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(load).ConfigureAwait(false));
+            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
 
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
 
@@ -262,7 +262,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
             await _dynamoDb.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity.ToDatabase()).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(entity.Id).ConfigureAwait(false));
         }
     }
 }
