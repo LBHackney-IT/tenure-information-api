@@ -145,7 +145,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         }
 
         [Fact]
-        public async Task GetTenureWhenVersionNumberIsNullReturnsETAGOfZeroAsync()
+        public async Task GetTenureWhenVersionNumberIsNullReturnsEmptyETAG()
         {
             // when versionNumber is null, ETAG is set to 0
 
@@ -162,11 +162,9 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var response = await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
 
             // Assert ETAG value is 0, no error thrown
-            var expectedEtagValue = $"\"0\"";
+            var expectedEtagValue = $"\"\"";
             _classUnderTest.HttpContext.Response.Headers.TryGetValue(HeaderConstants.ETag, out StringValues val).Should().BeTrue();
             val.First().Should().Be(expectedEtagValue);
-
-
         }
 
         [Fact]
