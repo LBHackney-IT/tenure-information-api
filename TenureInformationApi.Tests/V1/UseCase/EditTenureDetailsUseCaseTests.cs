@@ -46,9 +46,9 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockRawBody = "";
             var mockToken = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
+            _mockGateway.Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<int?>())).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
 
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken, null).ConfigureAwait(false);
 
             response.Should().BeNull();
         }
@@ -68,9 +68,9 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 UpdatedEntity = _fixture.Create<TenureInformationDb>()
             };
 
-            _mockGateway.Setup(x => x.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody)).ReturnsAsync(gatewayResponse);
+            _mockGateway.Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<int?>())).ReturnsAsync(gatewayResponse);
 
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken, null).ConfigureAwait(false);
 
             response.Should().NotBeNull();
             response.Should().BeOfType(typeof(TenureResponseObject));
@@ -92,10 +92,10 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var gatewayResult = MockUpdateEntityResultWhereNoChangesAreMade();
 
             _mockGateway
-                .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
+                .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<int?>()))
                 .ReturnsAsync(gatewayResult);
 
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken, null).ConfigureAwait(false);
 
             // assert result is TenureResponseObject
             response.Should().BeOfType(typeof(TenureResponseObject));
@@ -116,7 +116,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var gatewayResult = MockUpdateEntityResultWhereChangesAreMade();
 
             _mockGateway
-                .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
+                .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<int?>()))
                 .ReturnsAsync(gatewayResult);
 
             var snsEvent = _fixture.Create<TenureSns>();
@@ -126,7 +126,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                  .Returns(snsEvent);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(mockQuery, mockRequestObject, mockRawBody, mockToken, null).ConfigureAwait(false);
 
             // Assert
             response.Should().BeOfType(typeof(TenureResponseObject));

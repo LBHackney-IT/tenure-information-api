@@ -268,7 +268,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
             var entityDb = entity.ToDatabase();
-            await _dynamoDb.SaveAsync<TenureInformationDb>(entityDb).ConfigureAwait(false);
+            await _dynamoDb.SaveAsync(entityDb).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(entityDb.Id).ConfigureAwait(false));
         }
 
@@ -280,7 +280,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var mockRawBody = "";
 
             // call gateway method
-            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody, null).ConfigureAwait(false);
 
             // assert result = null
             response.Should().BeNull();
@@ -300,6 +300,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 .With(x => x.VersionNumber, (int?) null)
                 .Create();
 
+            var expectedVersionNumber = 0;
+
             // insert mock tenure into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
 
@@ -315,7 +317,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 .Returns(updaterResponse);
 
             // call gateway method
-            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody, expectedVersionNumber).ConfigureAwait(false);
 
             // assert response is UpdateEntityResult
             response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
@@ -359,7 +361,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 .Returns(updaterResponse);
 
             // call gateway method
-            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody).ConfigureAwait(false);
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody, mockTenure.VersionNumber).ConfigureAwait(false);
 
             // assert response is UpdateEntityResult
             response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
@@ -399,7 +401,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, null).ConfigureAwait(false);
             };
 
             // assert no exception is called
@@ -436,7 +438,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, null).ConfigureAwait(false);
             };
 
             // assert no exception is called
@@ -460,6 +462,10 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                      .With(x => x.VersionNumber, (int?) null)
                                      .Create();
 
+
+
+            var expectedVersionNumber = 0;
+
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
 
@@ -473,7 +479,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber).ConfigureAwait(false);
             };
 
             // assert exception is thrown
@@ -509,7 +515,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, null).ConfigureAwait(false);
             };
 
             // assert exception is thrown
@@ -521,6 +527,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
         {
             var tenureEndDate = _fixture.Create<DateTime>();
             var tenureStartDate = tenureEndDate.AddDays(7);
+
+            var expectedVersionNumber = 0;
 
             // create mock tenure - start date that is less
             var mockTenure = _fixture.Build<TenureInformation>()
@@ -535,6 +543,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // insert into database
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
 
+
             // setup updater to return UpdateEntityResponse with only start date
             SetupUpdaterToOnlyReturnEndOfTenureDate(tenureEndDate);
 
@@ -545,11 +554,39 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody).ConfigureAwait(false);
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber).ConfigureAwait(false);
             };
 
             // assert exception is thrown
             act.Should().Throw<EditTenureInformationValidationException>();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(5)]
+        public async Task EditTenureDetailsThrowsExceptionOnVersionConflict(int? ifMatch)
+        {
+            // Arrange
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            //Act
+            var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestBody = "";
+
+            Func<Task> act = async () =>
+            {
+                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, ifMatch).ConfigureAwait(false);
+            };
+
+            // Assert
+            act.Should().Throw<VersionNumberConflictException>()
+               .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
+
         }
 
         private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)

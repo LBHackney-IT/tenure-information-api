@@ -28,9 +28,9 @@ namespace TenureInformationApi.V1.UseCase
         }
 
         public async Task<TenureResponseObject> ExecuteAsync(
-            TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token)
+            TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token, int? ifMatch)
         {
-            var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody).ConfigureAwait(false);
+            var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
             if (result.NewValues.Any())

@@ -107,6 +107,19 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData(5)]
+        public void ServiceReturnsConflictWhenIncorrectVersionNumber(int? versionNumber)
+        {
+            var requestObject = CreateValidRequestObject();
+
+            this.Given(g => _tenureFixture.GivenATenureExist(false))
+                .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject, versionNumber))
+                .Then(t => _steps.ThenConflictIsReturned(versionNumber))
+                .BDDfy();
+        }
+
         private EditTenureDetailsRequestObject CreateValidRequestObject()
         {
             var tenureStartDate = _fixture.Create<DateTime>();
