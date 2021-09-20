@@ -12,6 +12,6 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IEditTenureDetailsUseCase
     {
-        Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token);
+        Task<TenureResponseObject> ExecuteAsync(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token, int? ifMatch);
     }
 }

@@ -29,6 +29,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
         public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject)
         {
+            int? defaultIfMatch = 0;
+            await WhenEditTenureDetailsApiIsCalled(id, requestObject, defaultIfMatch).ConfigureAwait(false);
+        }
+
+        public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject, int? ifMatch)
+        {
             var token =
                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
 
@@ -38,6 +44,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var message = new HttpRequestMessage(HttpMethod.Patch, uri);
             message.Method = HttpMethod.Patch;
             message.Headers.Add("Authorization", token);
+            message.Headers.TryAddWithoutValidation(HeaderConstants.IfMatch, $"\"{ifMatch?.ToString()}\"");
 
             var jsonSettings = new JsonSerializerSettings()
             {
@@ -111,6 +118,15 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             responseEntity.Should().BeOfType(typeof(CustomEditTenureDetailsBadRequestResponse));
 
             responseEntity.Errors.Should().HaveCountGreaterThan(0);
+        }
+
+        public async Task ThenConflictIsReturned(int? versionNumber)
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            var sentVersionNumberString = (versionNumber is null) ? "{null}" : versionNumber.ToString();
+            responseContent.Should().Contain($"The version number supplied ({sentVersionNumberString}) does not match the current value on the entity (0).");
         }
 
         public async Task TheTenureHasBeenUpdatedInTheDatabase(TenureFixture tenureFixture, EditTenureDetailsRequestObject requestObject)
