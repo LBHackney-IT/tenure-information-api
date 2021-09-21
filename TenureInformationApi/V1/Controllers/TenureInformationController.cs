@@ -65,7 +65,12 @@ namespace TenureInformationApi.V1.Controllers
             var result = await _getByIdUseCase.Execute(query).ConfigureAwait(false);
             if (result == null) return NotFound(query.Id);
 
-            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{result.VersionNumber.Value}\"").Tag);
+            var eTag = string.Empty;
+            if (result.VersionNumber.HasValue)
+                eTag = result.VersionNumber.ToString();
+
+            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
+
             return Ok(result.ToResponse());
         }
 
@@ -127,10 +132,13 @@ namespace TenureInformationApi.V1.Controllers
             // wants to set a parameter to null, or to not update that value.
             // The bodyText is the raw request object that will be used to determine this information).
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+            var ifMatch = GetIfMatchFromHeader();
+
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
             try
             {
-                var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText).ConfigureAwait(false);
+                var tenure = await _editTenureDetailsUseCase.ExecuteAsync(query, editTenureDetailsRequestObject, bodyText, token, ifMatch).ConfigureAwait(false);
 
                 if (tenure == null) return NotFound();
 
@@ -143,6 +151,10 @@ namespace TenureInformationApi.V1.Controllers
                 var response = BuildCustomEditTenureBadRequestResponse(e.ValidationResult);
 
                 return BadRequest(response);
+            }
+            catch (VersionNumberConflictException vncErr)
+            {
+                return Conflict(vncErr.Message);
             }
         }
 
@@ -169,6 +181,26 @@ namespace TenureInformationApi.V1.Controllers
             {
                 Errors = errorResponse
             };
+        }
+
+        private int? GetIfMatchFromHeader()
+        {
+            var header = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+
+            if (header == null)
+                return null;
+
+            var eTag = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+
+            if (entityTagHeaderValue == null)
+                return null;
+
+            var version = entityTagHeaderValue.Tag.Replace("\"", string.Empty);
+
+            if (int.TryParse(version, out var numericValue))
+                return numericValue;
+
+            return null;
         }
     }
 }

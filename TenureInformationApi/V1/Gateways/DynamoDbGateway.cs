@@ -109,12 +109,15 @@ namespace TenureInformationApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody)
+        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
 
             var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
             if (existingTenure == null) return null;
+
+            if (ifMatch != existingTenure.VersionNumber)
+                throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
 
             var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
 
@@ -122,7 +125,6 @@ namespace TenureInformationApi.V1.Gateways
             if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))
             {
                 var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
-
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
@@ -130,7 +132,6 @@ namespace TenureInformationApi.V1.Gateways
             if (response.NewValues.ContainsKey("endOfTenureDate") && !response.NewValues.ContainsKey("startOfTenureDate"))
             {
                 var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
-
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 

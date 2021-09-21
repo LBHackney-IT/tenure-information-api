@@ -139,6 +139,29 @@ namespace TenureInformationApi.Tests.V1.Controllers
         }
 
         [Fact]
+        public async Task GetTenureWhenVersionNumberIsNullReturnsEmptyETAG()
+        {
+            // when versionNumber is null, ETAG is set to 0
+
+            // Arrange
+            var mockTenureResponse = _fixture.Build<TenureInformation>()
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            var mockRequest = ConstructRequest(mockTenureResponse.Id);
+
+            _mockGetByIdUsecase.Setup(x => x.Execute(mockRequest)).ReturnsAsync(mockTenureResponse);
+
+            // Act
+            var response = await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
+
+            // Assert ETAG value is 0, no error thrown
+            var expectedEtagValue = $"\"\"";
+            _classUnderTest.HttpContext.Response.Headers.TryGetValue(HeaderConstants.ETag, out StringValues val).Should().BeTrue();
+            val.First().Should().Be(expectedEtagValue);
+        }
+
+        [Fact]
         public async Task PostNewTenureIdAsyncFoundReturnsResponse()
         {
             // Arrange
@@ -251,7 +274,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync((TenureResponseObject) null);
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>())).ReturnsAsync((TenureResponseObject) null);
 
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
@@ -264,7 +287,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var mockQuery = _fixture.Create<TenureQueryRequest>();
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
-            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
+            _mockEditTenureDetailsUseCase.Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>())).ReturnsAsync(_fixture.Create<TenureResponseObject>());
 
             var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
 
@@ -286,7 +309,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
 
             // setup usecase to throw custom exception
             _mockEditTenureDetailsUseCase
-                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>()))
+                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .Throws(new EditTenureInformationValidationException(mockValidationResult));
 
             // Act
@@ -295,6 +318,33 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Assert
             response.Should().BeOfType(typeof(BadRequestObjectResult));
             ((response as BadRequestObjectResult).Value as CustomEditTenureDetailsBadRequestResponse).Errors.Should().HaveCount(numberOfErrors);
+        }
+
+        [Theory]
+        [InlineData(null, 0)]
+        [InlineData(0, 1)]
+        [InlineData(0, null)]
+        [InlineData(2, 1)]
+        public async Task EditTenureDetailsVersionNumberConflictExceptionReturns409(int? expected, int? actual)
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<TenureQueryRequest>();
+            var mockRequestObject = new EditTenureDetailsRequestObject();
+
+            _requestHeaders.Add(HeaderConstants.IfMatch, $"\"{new StringValues(expected?.ToString())}\"");
+
+            var exception = new VersionNumberConflictException(expected, actual);
+
+            _mockEditTenureDetailsUseCase
+                .Setup(x => x.ExecuteAsync(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(ConflictObjectResult));
+            (response as ConflictObjectResult).Value.Should().BeEquivalentTo(exception.Message);
         }
     }
 }
