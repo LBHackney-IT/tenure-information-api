@@ -27,6 +27,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         public Guid PersonId { get; private set; }
 
         public string InvalidTenureId { get; private set; }
+
+        public TenureInformation ExistingTenure { get; private set; }
+
         public TenureFixture(IDynamoDBContext context, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             _dbContext = context;
@@ -56,23 +59,45 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenATenureExist(bool nullTenuredAssetType = false)
         {
-            var entity = _fixture.Build<TenureInformation>()
+            var entity = _fixture.Build<TenureInformationDb>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow)
                                  .With(x => x.StartOfTenureDate, DateTime.UtcNow)
                                  .With(x => x.SuccessionDate, DateTime.UtcNow)
                                  .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                  .With(x => x.SubletEndDate, DateTime.UtcNow)
                                  .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
 
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
 
-            _dbContext.SaveAsync<TenureInformationDb>(entity.ToDatabase()).GetAwaiter().GetResult();
+            _dbContext.SaveAsync<TenureInformationDb>(entity).GetAwaiter().GetResult();
+            entity.VersionNumber = 0;
 
+            ExistingTenure = entity.ToDomain();
+            Tenure = entity;
+            TenureId = entity.Id;
+        }
+
+        public void GivenATenureExistWithNoEndDate(DateTime tenureStartDate)
+        {
+            var entity = _fixture.Build<TenureInformation>()
+                .With(x => x.EndOfTenureDate, (DateTime?) null)
+                .With(x => x.StartOfTenureDate, tenureStartDate)
+                .With(x => x.SuccessionDate, DateTime.UtcNow)
+                .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                .With(x => x.SubletEndDate, DateTime.UtcNow)
+                .With(x => x.EvictionDate, DateTime.UtcNow)
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            _dbContext.SaveAsync(entity.ToDatabase()).GetAwaiter().GetResult();
+            entity.VersionNumber = 0;
+
+            ExistingTenure = entity;
             Tenure = entity.ToDatabase();
             TenureId = entity.Id;
-
         }
 
         public void GivenATenureDoesNotExist()
@@ -126,26 +151,28 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenAnUpdateTenureWithNewHouseholdMemberRequest(bool nullTenuredAssetType = false)
         {
-            var entity = _fixture.Build<TenureInformation>()
+            var entity = _fixture.Build<TenureInformationDb>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddDays(1))
                                  .With(x => x.StartOfTenureDate, DateTime.UtcNow)
-                                        .With(x => x.SuccessionDate, DateTime.UtcNow)
-                                        .With(x => x.PotentialEndDate, DateTime.UtcNow)
-                                        .With(x => x.SubletEndDate, DateTime.UtcNow)
-                                        .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Without(x => x.HouseholdMembers)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
 
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
 
-            _dbContext.SaveAsync<TenureInformationDb>(entity.ToDatabase()).GetAwaiter().GetResult();
+            _dbContext.SaveAsync<TenureInformationDb>(entity).GetAwaiter().GetResult();
+            entity.VersionNumber = 0;
 
             var request = _fixture.Build<UpdateTenureForPersonRequestObject>()
                .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30))
                .Create();
 
-            Tenure = entity.ToDatabase();
+            Tenure = entity;
             TenureId = entity.Id;
             PersonId = Guid.NewGuid();
             UpdateTenureRequestObject = request;
@@ -153,25 +180,27 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenAnUpdateTenureHouseholdMemberRequest(bool nullTenuredAssetType = false)
         {
-            var entity = _fixture.Build<TenureInformation>()
+            var entity = _fixture.Build<TenureInformationDb>()
                                  .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddDays(1))
                                  .With(x => x.StartOfTenureDate, DateTime.UtcNow)
-                                        .With(x => x.SuccessionDate, DateTime.UtcNow)
-                                        .With(x => x.PotentialEndDate, DateTime.UtcNow)
-                                        .With(x => x.SubletEndDate, DateTime.UtcNow)
-                                        .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
+                                 .With(x => x.VersionNumber, (int?) null)
                                  .Create();
 
             if (nullTenuredAssetType)
                 entity.TenuredAsset.Type = null;
 
-            _dbContext.SaveAsync<TenureInformationDb>(entity.ToDatabase()).GetAwaiter().GetResult();
+            _dbContext.SaveAsync<TenureInformationDb>(entity).GetAwaiter().GetResult();
+            entity.VersionNumber = 0;
             var request = new UpdateTenureForPersonRequestObject()
             {
                 FullName = "Update"
             };
 
-            Tenure = entity.ToDatabase();
+            Tenure = entity;
             TenureId = entity.Id;
             PersonId = entity.HouseholdMembers.First().Id;
             UpdateTenureRequestObject = request;
