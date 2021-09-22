@@ -697,7 +697,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // check database
             var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
-            databaseResponse.HouseholdMembers.Should().HaveCount(numberOfHouseholdMembers -1);
+            databaseResponse.HouseholdMembers.Should().HaveCount(numberOfHouseholdMembers - 1);
 
             databaseResponse.HouseholdMembers.Should().NotContain(x => x.Id == personToRemove.Id);
         }

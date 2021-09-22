@@ -166,6 +166,10 @@ namespace TenureInformationApi.V1.Controllers
             }
         }
 
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete]
         [Route("{tenureId}/person/{personId}")]
         [LogCall(LogLevel.Information)]
@@ -176,11 +180,11 @@ namespace TenureInformationApi.V1.Controllers
                 await _deletePersonFromTenureUseCase.Execute(query).ConfigureAwait(false);
                 return NoContent();
             }
-            catch(TenureNotFoundException)
+            catch (TenureNotFoundException)
             {
                 return NotFound(query.TenureId);
             }
-            catch(PersonNotFoundInTenureException)
+            catch (PersonNotFoundInTenureException)
             {
                 return NotFound(query.PersonId);
             }

@@ -108,7 +108,7 @@ namespace TenureInformationApi.V1.Gateways
             return result;
         }
 
-       
+
 
         [LogCall]
         public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)

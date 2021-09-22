@@ -55,6 +55,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
             }
         }
         public CreateTenureRequestObject CreateTenureRequestObject;
+
+        public void GivenNoTenuresExist()
+        {
+
+        }
+
         public UpdateTenureForPersonRequestObject UpdateTenureRequestObject;
 
         public void GivenATenureExist(bool nullTenuredAssetType = false)
@@ -74,6 +80,34 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
             _dbContext.SaveAsync<TenureInformationDb>(entity).GetAwaiter().GetResult();
             entity.VersionNumber = 0;
+
+            ExistingTenure = entity.ToDomain();
+            Tenure = entity;
+            TenureId = entity.Id;
+        }
+
+        public void GivenATenureExistsWithNoHouseholdMembers()
+        {
+            var entity = _fixture.Build<TenureInformationDb>()
+                .With(x => x.HouseholdMembers, new List<HouseholdMembers>())
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
+
+            ExistingTenure = entity.ToDomain();
+            Tenure = entity;
+            TenureId = entity.Id;
+        }
+
+        public void GivenATenureExistsWithManyHouseholdMembers(List<HouseholdMembers> householdMembers)
+        {
+            var entity = _fixture.Build<TenureInformationDb>()
+                          .With(x => x.HouseholdMembers, householdMembers)
+                          .With(x => x.VersionNumber, (int?) null)
+                          .Create();
+
+            _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
 
             ExistingTenure = entity.ToDomain();
             Tenure = entity;
