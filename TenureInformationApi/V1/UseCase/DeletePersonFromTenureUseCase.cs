@@ -17,7 +17,7 @@ namespace TenureInformationApi.V1.UseCase
             _tenureGateway = tenureGateway;
         }
 
-        public async Task Execute(RemovePersonFromTenureQueryRequest query)
+        public async Task Execute(DeletePersonFromTenureQueryRequest query)
         {
             await _tenureGateway.DeletePersonFromTenure(query).ConfigureAwait(false);
         }

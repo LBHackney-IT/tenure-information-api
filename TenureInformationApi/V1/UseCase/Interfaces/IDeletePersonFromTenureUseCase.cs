@@ -8,6 +8,6 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IDeletePersonFromTenureUseCase
     {
-        Task Execute(RemovePersonFromTenureQueryRequest query);
+        Task Execute(DeletePersonFromTenureQueryRequest query);
     }
 }

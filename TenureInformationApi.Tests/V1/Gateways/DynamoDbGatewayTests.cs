@@ -633,7 +633,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public async Task DeletePersonFromTenureWhenTenureDoesntExistThrowsException()
         {
             // Arrange
-            var mockRequest = _fixture.Create<RemovePersonFromTenureQueryRequest>();
+            var mockRequest = _fixture.Create<DeletePersonFromTenureQueryRequest>();
 
             // Act
             Func<Task> func = async () => await _classUnderTest.DeletePersonFromTenure(mockRequest).ConfigureAwait(false);
@@ -653,7 +653,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
 
-            var mockRequest = new RemovePersonFromTenureQueryRequest
+            var mockRequest = new DeletePersonFromTenureQueryRequest
             {
                 TenureId = mockTenure.Id,
                 PersonId = _fixture.Create<Guid>()
@@ -682,7 +682,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
 
-            var mockRequest = new RemovePersonFromTenureQueryRequest
+            var mockRequest = new DeletePersonFromTenureQueryRequest
             {
                 TenureId = mockTenure.Id,
                 PersonId = personToRemove.Id

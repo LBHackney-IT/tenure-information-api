@@ -175,6 +175,7 @@ namespace TenureInformationApi
             services.AddScoped<IPostNewTenureUseCase, PostNewTenureUseCase>();
             services.AddScoped<IUpdateTenureForPersonUseCase, UpdateTenureForPersonUseCase>();
             services.AddScoped<IEditTenureDetailsUseCase, EditTenureDetailsUseCase>();
+            services.AddScoped<IDeletePersonFromTenureUseCase, DeletePersonFromTenureUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

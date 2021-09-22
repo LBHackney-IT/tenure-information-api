@@ -172,7 +172,7 @@ namespace TenureInformationApi.V1.Gateways
             return validator.Validate(testObject);
         }
 
-        public async Task DeletePersonFromTenure(RemovePersonFromTenureQueryRequest query)
+        public async Task DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.TenureId}");
 
