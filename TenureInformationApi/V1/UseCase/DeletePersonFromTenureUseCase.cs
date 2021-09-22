@@ -1,3 +1,4 @@
+using Hackney.Core.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace TenureInformationApi.V1.UseCase
             _tenureGateway = tenureGateway;
         }
 
+        [LogCall]
         public async Task Execute(DeletePersonFromTenureQueryRequest query)
         {
             await _tenureGateway.DeletePersonFromTenure(query).ConfigureAwait(false);
