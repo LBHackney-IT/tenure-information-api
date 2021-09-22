@@ -19,6 +19,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         public readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+        private readonly Random _random = new Random();
 
         public TenureInformationDb Tenure { get; private set; }
 
@@ -100,8 +101,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
             TenureId = entity.Id;
         }
 
-        public void GivenATenureExistsWithManyHouseholdMembers(List<HouseholdMembers> householdMembers)
+        public void GivenATenureExistsWithManyHouseholdMembers()
         {
+            var numberOfHouseholdMembers = _random.Next(2, 5);
+            var householdMembers = _fixture.CreateMany<HouseholdMembers>(numberOfHouseholdMembers).ToList();
+
             var entity = _fixture.Build<TenureInformationDb>()
                           .With(x => x.HouseholdMembers, householdMembers)
                           .With(x => x.VersionNumber, (int?) null)

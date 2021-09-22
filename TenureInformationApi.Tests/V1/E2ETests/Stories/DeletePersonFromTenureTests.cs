@@ -26,7 +26,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         private readonly TenureFixture _tenureFixture;
         private readonly DeleteTenureDetailsStep _steps;
         private readonly Fixture _fixture = new Fixture();
-        private readonly Random _random = new Random();
 
         public DeletePersonFromTenureTests(AwsIntegrationTests<Startup> dbFixture)
         {
@@ -83,19 +82,17 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 
             var query = _fixture.Create<DeletePersonFromTenureQueryRequest>();
 
-            var numberOfHouseholdMembers = _random.Next(2, 5);
-            var householdMembers = _fixture.CreateMany<HouseholdMembers>(numberOfHouseholdMembers).ToList();
 
 
             // tenure and person exist
-            this.Given(g => _tenureFixture.GivenATenureExistsWithManyHouseholdMembers(householdMembers))
+            this.Given(g => _tenureFixture.GivenATenureExistsWithManyHouseholdMembers())
                .When(w => _steps.WhenDeletePersonFromTenureApiIsCalledAsync(new DeletePersonFromTenureQueryRequest
                {
                    TenureId = _tenureFixture.TenureId,
-                   PersonId = householdMembers.First().Id
+                   PersonId = _tenureFixture.Tenure.HouseholdMembers.First().Id
                }))
                .Then(t => _steps.NoContentResponseReturned())
-               .And(a => _steps.PersonRemovedFromTenure(_tenureFixture.TenureId, householdMembers.First().Id, _tenureFixture))
+               .And(a => _steps.PersonRemovedFromTenure(_tenureFixture.TenureId, _tenureFixture.Tenure.HouseholdMembers.First().Id, _tenureFixture))
                .BDDfy();
         }
 
