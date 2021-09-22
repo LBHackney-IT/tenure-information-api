@@ -184,7 +184,7 @@ namespace TenureInformationApi
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .WithExposedHeaders("ETag", "If-Match"));
+                .WithExposedHeaders("ETag", "If-Match", "x-correlation-id"));
 
             if (env.IsDevelopment())
             {
