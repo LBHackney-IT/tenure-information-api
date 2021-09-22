@@ -166,8 +166,9 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             var query = ConstructUpdateQuery(entity.Id, Guid.NewGuid());
             var request = ConstructUpdateRequest();
+            dbEntity.VersionNumber = 0;
 
-            var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
+            var result = await _classUnderTest.UpdateTenureForPerson(query, request, 0).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
@@ -194,6 +195,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             load.TenuredAsset.Should().BeEquivalentTo(dbEntity.TenuredAsset);
             load.TenureType.Should().BeEquivalentTo(dbEntity.TenureType);
             load.Terminated.Should().BeEquivalentTo(dbEntity.Terminated);
+            load.VersionNumber.Should().Be(1);
 
             var expected = new HouseholdMembers()
             {
@@ -229,9 +231,11 @@ namespace TenureInformationApi.Tests.V1.Gateways
                 entity.TenuredAsset.Type = null;
             await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
             var dbEntity = entity.ToDatabase();
+            dbEntity.VersionNumber = 0;
+
             var query = ConstructUpdateQuery(entity.Id, entity.HouseholdMembers.First().Id);
             var request = ConstructUpdateFullNameRequest();
-            var result = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
+            var result = await _classUnderTest.UpdateTenureForPerson(query, request, 0).ConfigureAwait(false);
 
             var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
@@ -260,9 +264,44 @@ namespace TenureInformationApi.Tests.V1.Gateways
             load.TenureType.Should().BeEquivalentTo(dbEntity.TenureType);
             load.Terminated.Should().BeEquivalentTo(dbEntity.Terminated);
             load.HouseholdMembers.First(x => x.Id == query.PersonId).FullName.Should().Be(request.FullName);
+            load.VersionNumber.Should().Be(1);
 
             result.OldValues["householdMembers"].Should().BeEquivalentTo(entity.ToDatabase().HouseholdMembers);
             result.NewValues["householdMembers"].Should().BeEquivalentTo(result.UpdatedEntity.HouseholdMembers);
+        }
+
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData(5, true)]
+        public async Task UpdateTenureForPersonThrowsExceptionOnVersionConflict(int? ifMatch, bool nullTenuredAssetType)
+        {
+            // Arrange
+            var entity = _fixture.Build<TenureInformation>()
+                                            .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                            .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                            .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                            .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                            .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                            .With(x => x.EvictionDate, DateTime.UtcNow)
+                                            .With(x => x.VersionNumber, (int?) null)
+                                            .Create();
+            if (nullTenuredAssetType)
+                entity.TenuredAsset.Type = null;
+
+            var query = ConstructUpdateQuery(entity.Id, entity.HouseholdMembers.First().Id);
+            await InsertDatatoDynamoDB(entity).ConfigureAwait(false);
+            entity.VersionNumber = 0;
+
+            var constructRequest = ConstructUpdateRequest();
+
+            //Act
+            Func<Task<UpdateEntityResult<TenureInformationDb>>> func = async () => await _classUnderTest.UpdateTenureForPerson(query, constructRequest, ifMatch)
+                                                                                                   .ConfigureAwait(false);
+
+            // Assert
+            func.Should().Throw<VersionNumberConflictException>()
+                         .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync to update id {query.Id}", Times.Never());
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

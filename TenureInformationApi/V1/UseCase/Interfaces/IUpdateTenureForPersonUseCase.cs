@@ -7,6 +7,7 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IUpdateTenureForPersonUseCase
     {
-        Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject, Token token);
+        Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject,
+                    Token token, int? ifMatch);
     }
 }

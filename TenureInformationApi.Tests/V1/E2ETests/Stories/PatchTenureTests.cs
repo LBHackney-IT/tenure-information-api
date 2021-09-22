@@ -51,7 +51,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         public void ServiceUpdateTheRequestedTenureWithNewHousehold(bool nullTenuredAssetType)
         {
             this.Given(g => _tenureFixture.GivenAnUpdateTenureWithNewHouseholdMemberRequest(nullTenuredAssetType))
-                .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenANewHouseholdMemberIsAdded(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .BDDfy();
         }
@@ -62,8 +62,18 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         public void ServiceUpdatesTheRequestedUpdateTenureHouseHold(bool nullTenuredAssetType)
         {
             this.Given(g => _tenureFixture.GivenAnUpdateTenureHouseholdMemberRequest(nullTenuredAssetType))
-                .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenTheHouseholdMemberTenureDetailsAreUpdated(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .BDDfy();
+        }
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData(5, true)]
+        public void ServiceReturnsConflictWhenIncorrectVersionNumber(int? versionNumber, bool nullTenuredAssetType)
+        {
+            this.Given(g => _tenureFixture.GivenAnUpdateTenureHouseholdMemberRequest(nullTenuredAssetType))
+                .And(g => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject, versionNumber))
+                .Then(t => _steps.ThenConflictIsReturned(versionNumber))
                 .BDDfy();
         }
 
@@ -71,7 +81,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         public void ServiceReturnsNotFoundIfPersonNotExist()
         {
             this.Given(g => _tenureFixture.GivenAUpdateTenureDoesNotExist())
-                .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenNotFoundIsReturned())
                 .BDDfy();
         }
@@ -80,7 +90,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         public void ServiceReturnsBadRequestWhenTheyAreValidationErrors()
         {
             this.Given(g => _tenureFixture.GivenAnUpdateTenureRequestWithValidationError())
-                .When(w => _steps.WhenUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .BDDfy();
         }

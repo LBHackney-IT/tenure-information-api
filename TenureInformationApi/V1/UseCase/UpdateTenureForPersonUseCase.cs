@@ -24,9 +24,10 @@ namespace TenureInformationApi.V1.UseCase
         }
 
         [LogCall]
-        public async Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject, Token token)
+        public async Task<TenureResponseObject> ExecuteAsync(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject,
+            Token token, int? ifMatch)
         {
-            var updateResult = await _tenureGateway.UpdateTenureForPerson(query, updateTenureRequestObject).ConfigureAwait(false);
+            var updateResult = await _tenureGateway.UpdateTenureForPerson(query, updateTenureRequestObject, ifMatch).ConfigureAwait(false);
             if (updateResult == null) return null;
 
             var tenureSnsMessage = _snsFactory.PersonAddedToTenure(updateResult, token);

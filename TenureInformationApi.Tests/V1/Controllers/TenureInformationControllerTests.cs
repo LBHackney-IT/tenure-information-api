@@ -10,10 +10,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Boundary.Response;
@@ -68,12 +67,9 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 _mockEditTenureDetailsUseCase.Object,
                 _mockTokenFactory.Object,
                 _mockContextWrapper.Object);
-            _mockContextWrapper.Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>())).Returns(new HeaderDictionary());
 
             // changes to allow reading of raw request body
-
             _mockHttpRequest.SetupGet(x => x.Body).Returns(new MemoryStream(Encoding.Default.GetBytes(RequestBodyText)));
-
 
             _requestHeaders = new HeaderDictionary();
             _mockHttpRequest.SetupGet(x => x.Headers).Returns(_requestHeaders);
@@ -85,11 +81,9 @@ namespace TenureInformationApi.Tests.V1.Controllers
             _responseHeaders = new HeaderDictionary();
             _mockHttpResponse.SetupGet(x => x.Headers).Returns(_responseHeaders);
 
-
             var mockHttpContext = new Mock<HttpContext>();
             mockHttpContext.SetupGet(x => x.Request).Returns(_mockHttpRequest.Object);
             mockHttpContext.SetupGet(x => x.Response).Returns(_mockHttpResponse.Object);
-
 
             var controllerContext = new ControllerContext(new ActionContext(mockHttpContext.Object, new RouteData(), new ControllerActionDescriptor()));
             _classUnderTest.ControllerContext = controllerContext;
@@ -206,7 +200,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var query = ConstructUpdateQuery();
             var request = ConstructUpdateRequest();
             var personResponse = _fixture.Create<TenureResponseObject>();
-            _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>()))
+            _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>(), It.IsAny<int?>()))
                                     .ReturnsAsync(personResponse);
 
             // Act
@@ -222,9 +216,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Arrange
             var query = ConstructUpdateQuery();
             var request = ConstructUpdateRequest();
-            _mockUpdateTenureForPersonUseCase
-                .Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>()))
-                .ReturnsAsync((TenureResponseObject) null);
+            _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, request, It.IsAny<Token>(), It.IsAny<int?>()))
+                                    .ReturnsAsync((TenureResponseObject) null);
 
             // Act
             var response = await _classUnderTest.UpdateTenureForPerson(query, request).ConfigureAwait(false);
@@ -240,9 +233,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Arrange
             var query = ConstructUpdateQuery();
             var exception = new ApplicationException("Test exception");
-            _mockUpdateTenureForPersonUseCase
-                .Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureForPersonRequestObject>(), It.IsAny<Token>()))
-                .ThrowsAsync(exception);
+            _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureForPersonRequestObject>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                                    .ThrowsAsync(exception);
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.UpdateTenureForPerson(query, new UpdateTenureForPersonRequestObject())
@@ -250,6 +242,30 @@ namespace TenureInformationApi.Tests.V1.Controllers
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Theory]
+        [InlineData(null, 0)]
+        [InlineData(0, 1)]
+        [InlineData(0, null)]
+        [InlineData(2, 1)]
+        public async Task UpdatePersonByIdAsyncVersionNumberConflictExceptionReturns409(int? expected, int? actual)
+        {
+            // Arrange
+            var query = ConstructUpdateQuery();
+
+            _requestHeaders.Add(HeaderConstants.IfMatch, new StringValues(expected?.ToString()));
+
+            var exception = new VersionNumberConflictException(expected, actual);
+            _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureForPersonRequestObject>(), It.IsAny<Token>(), expected))
+                                    .ThrowsAsync(exception);
+
+            // Act
+            var result = await _classUnderTest.UpdateTenureForPerson(query, new UpdateTenureForPersonRequestObject()).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeOfType(typeof(ConflictObjectResult));
+            (result as ConflictObjectResult).Value.Should().BeEquivalentTo(exception.Message);
         }
 
         [Fact]
