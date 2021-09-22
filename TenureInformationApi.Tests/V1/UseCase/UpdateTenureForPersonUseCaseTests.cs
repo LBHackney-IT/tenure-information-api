@@ -53,8 +53,10 @@ namespace TenureInformationApi.Tests.V1.UseCase
                            .Create();
         }
 
-        [Fact]
-        public async Task UpdateTenureByIdUseCaseReturnsResult()
+        [Theory]
+        [InlineData(null)]
+        [InlineData(3)]
+        public async Task UpdateTenureByIdUseCaseReturnsResult(int? ifMatch)
         {
             var request = ConstructUpdateRequest();
             var query = ConstructQuery();
@@ -62,38 +64,42 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var token = new Token();
 
 
-            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync(gatewayResponse);
-            var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request, ifMatch)).ReturnsAsync(gatewayResponse);
+            var response = await _classUnderTest.ExecuteAsync(query, request, token, ifMatch).ConfigureAwait(false);
             response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());
 
         }
 
-        [Fact]
-        public async Task UpdateTenureByIdUseCaseReturnsNull()
+        [Theory]
+        [InlineData(null)]
+        [InlineData(3)]
+        public async Task UpdateTenureByIdUseCaseReturnsNull(int? ifMatch)
         {
             var request = ConstructUpdateRequest();
             var query = ConstructQuery();
             var token = new Token();
 
-            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
-            var response = await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request, ifMatch)).ReturnsAsync((UpdateEntityResult<TenureInformationDb>) null);
+            var response = await _classUnderTest.ExecuteAsync(query, request, token, ifMatch).ConfigureAwait(false);
             response.Should().BeNull();
 
         }
 
-        [Fact]
-        public void UpdateTenureByIdAsyncExceptionIsThrown()
+        [Theory]
+        [InlineData(null)]
+        [InlineData(3)]
+        public void UpdateTenureByIdAsyncExceptionIsThrown(int? ifMatch)
         {
             // Arrange
             var request = ConstructUpdateRequest();
             var query = ConstructQuery();
             var token = new Token();
             var exception = new ApplicationException("Test exception");
-            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request)).ThrowsAsync(exception);
+            _mockGateway.Setup(x => x.UpdateTenureForPerson(query, request, ifMatch)).ThrowsAsync(exception);
 
             // Act
             Func<Task<TenureResponseObject>> func = async () =>
-                await _classUnderTest.ExecuteAsync(query, request, token).ConfigureAwait(false);
+                await _classUnderTest.ExecuteAsync(query, request, token, ifMatch).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

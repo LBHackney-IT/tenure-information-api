@@ -23,7 +23,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         /// </summary>
         /// <param name="requestObject"></param>
         /// <returns></returns>
-        public async Task WhenUpdateTenureApiIsCalled(Guid id, Guid personId, UpdateTenureForPersonRequestObject requestObject)
+        public async Task<HttpResponseMessage> CallAPI(Guid id, Guid personId, UpdateTenureForPersonRequestObject requestObject, int? ifMatch)
         {
             var token =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
@@ -33,15 +33,25 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Patch;
             message.Headers.Add("Authorization", token);
+            message.Headers.TryAddWithoutValidation(HeaderConstants.IfMatch, ifMatch?.ToString());
+
 
             _httpClient.DefaultRequestHeaders
                 .Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
-            //var content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
+        }
 
-            //_lastResponse = await _httpClient.PatchAsync(uri, content).ConfigureAwait(false);
+        public async Task WhenTheUpdateTenureApiIsCalled(Guid id, Guid personId, UpdateTenureForPersonRequestObject requestObject)
+        {
+            await WhenTheUpdateTenureApiIsCalled(id, personId, requestObject, 0).ConfigureAwait(false);
+        }
+
+        public async Task WhenTheUpdateTenureApiIsCalled(Guid id, Guid personId, UpdateTenureForPersonRequestObject requestObject, int? ifMatch)
+        {
+            _lastResponse = await CallAPI(id, personId, requestObject, ifMatch).ConfigureAwait(false);
+
         }
 
         public async Task ThenANewHouseholdMemberIsAdded(TenureFixture tenureFixture, Guid personId, UpdateTenureForPersonRequestObject request)
@@ -51,6 +61,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
             //result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.VersionNumber.Should().Be(1);
 
             var expected = new HouseholdMembers()
             {
@@ -76,9 +87,19 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
             //result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.VersionNumber.Should().Be(1);
             result.HouseholdMembers.First(x => x.Id == personId).FullName.Should().Be(request.FullName);
 
             await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false);
+        }
+
+        public async Task ThenConflictIsReturned(int? versionNumber)
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            var sentVersionNumberString = (versionNumber is null) ? "{null}" : versionNumber.ToString();
+            responseContent.Should().Contain($"The version number supplied ({sentVersionNumberString}) does not match the current value on the entity (0).");
         }
 
         public void ThenBadRequestIsReturned()

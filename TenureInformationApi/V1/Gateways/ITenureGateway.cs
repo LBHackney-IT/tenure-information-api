@@ -12,7 +12,8 @@ namespace TenureInformationApi.V1.Gateways
 
         Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject);
 
-        Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject);
+        Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject,
+                                                                            int? ifMatch);
 
         Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch);
     }
