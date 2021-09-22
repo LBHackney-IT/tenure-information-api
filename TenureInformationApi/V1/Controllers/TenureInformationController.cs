@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
@@ -94,12 +95,27 @@ namespace TenureInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> UpdateTenureForPerson([FromRoute] UpdateTenureRequest query, [FromBody] UpdateTenureForPersonRequestObject updateTenureRequestObject)
         {
-            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+            var contextHeaders = _contextWrapper.GetContextRequestHeaders(HttpContext);
+            var token = _tokenFactory.Create(contextHeaders);
 
-            var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject, token).ConfigureAwait(false);
-            if (tenure == null) return NotFound(query.Id);
+            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch.Trim('\"'));
+            var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
+            try
+            {
+                // We use a request object AND the raw request body text because the incoming request will only contain the fields that changed
+                // whereas the request object has all possible updateable fields defined.
+                // The implementation will use the raw body text to identify which fields to update and the request object is specified here so that its
+                // associated validation will be executed by the MVC pipeline before we even get to this point.
+                var tenure = await _updateTenureForPersonUseCase.ExecuteAsync(query, updateTenureRequestObject, token, ifMatch)
+                                                                .ConfigureAwait(false);
+                if (tenure == null) return NotFound(query.Id);
+                return NoContent();
+            }
+            catch (VersionNumberConflictException vncErr)
+            {
+                return Conflict(vncErr.Message);
+            }
 
-            return NoContent();
         }
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
