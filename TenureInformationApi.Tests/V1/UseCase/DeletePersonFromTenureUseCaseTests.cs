@@ -21,21 +21,30 @@ using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
-    public class DeletePersonFromTenureTests
+    public class DeletePersonFromTenureUseCaseTests
     {
-        /*
         private readonly Mock<ITenureGateway> _mockGateway;
         private readonly DeletePersonFromTenureUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
-        public DeletePersonFromTenureTests()
+        public DeletePersonFromTenureUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
 
             _classUnderTest = new DeletePersonFromTenureUseCase(_mockGateway.Object);
         }
 
-       // Doesn't need any tests yet
-        */
+        [Fact]
+        public async Task WhenCalledCallsUseCase()
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+
+            // Act
+            await _classUnderTest.Execute(mockQuery).ConfigureAwait(false);
+
+            // Assert
+            _mockGateway.Verify(x => x.DeletePersonFromTenure(mockQuery));
+        }
     }
 }
