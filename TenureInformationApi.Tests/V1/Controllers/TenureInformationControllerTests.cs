@@ -257,7 +257,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Arrange
             var query = ConstructUpdateQuery();
 
-            _requestHeaders.Add(HeaderConstants.IfMatch, new StringValues(expected?.ToString()));
+            _requestHeaders.Add(HeaderConstants.IfMatch, $"\"{expected?.ToString()}\"");
 
             var exception = new VersionNumberConflictException(expected, actual);
             _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureForPersonRequestObject>(), It.IsAny<Token>(), expected))
