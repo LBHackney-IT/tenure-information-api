@@ -97,9 +97,8 @@ namespace TenureInformationApi.V1.Controllers
         {
             var contextHeaders = _contextWrapper.GetContextRequestHeaders(HttpContext);
             var token = _tokenFactory.Create(contextHeaders);
+            var ifMatch = GetIfMatchFromHeader();
 
-            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch.Trim('\"'));
-            var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
             try
             {
                 // We use a request object AND the raw request body text because the incoming request will only contain the fields that changed
