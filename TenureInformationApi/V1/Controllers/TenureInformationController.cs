@@ -34,15 +34,24 @@ namespace TenureInformationApi.V1.Controllers
         private readonly IPostNewTenureUseCase _postNewTenureUseCase;
         private readonly IUpdateTenureForPersonUseCase _updateTenureForPersonUseCase;
         private readonly IEditTenureDetailsUseCase _editTenureDetailsUseCase;
+        private readonly IDeletePersonFromTenureUseCase _deletePersonFromTenureUseCase;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHttpContextWrapper _contextWrapper;
-        public TenureInformationController(IGetByIdUseCase getByIdUseCase, IPostNewTenureUseCase postNewTenureUseCase, IUpdateTenureForPersonUseCase updateTenureForPersonUseCase, IEditTenureDetailsUseCase editTenureDetailsUseCase,
-            ITokenFactory tokenFactory, IHttpContextWrapper contextWrapper)
+        public TenureInformationController(
+            IGetByIdUseCase getByIdUseCase,
+            IPostNewTenureUseCase postNewTenureUseCase,
+            IUpdateTenureForPersonUseCase updateTenureForPersonUseCase,
+            IEditTenureDetailsUseCase editTenureDetailsUseCase,
+            IDeletePersonFromTenureUseCase deletePersonFromTenureUseCase,
+            ITokenFactory tokenFactory,
+            IHttpContextWrapper contextWrapper)
         {
             _getByIdUseCase = getByIdUseCase;
             _postNewTenureUseCase = postNewTenureUseCase;
             _updateTenureForPersonUseCase = updateTenureForPersonUseCase;
             _editTenureDetailsUseCase = editTenureDetailsUseCase;
+            _deletePersonFromTenureUseCase = deletePersonFromTenureUseCase;
+
             _tokenFactory = tokenFactory;
             _contextWrapper = contextWrapper;
         }
@@ -97,9 +106,8 @@ namespace TenureInformationApi.V1.Controllers
         {
             var contextHeaders = _contextWrapper.GetContextRequestHeaders(HttpContext);
             var token = _tokenFactory.Create(contextHeaders);
+            var ifMatch = GetIfMatchFromHeader();
 
-            string ifMatchString = contextHeaders.GetHeaderValue(HeaderConstants.IfMatch.Trim('\"'));
-            var ifMatch = int.TryParse(ifMatchString, out int i) ? i : (int?) null;
             try
             {
                 // We use a request object AND the raw request body text because the incoming request will only contain the fields that changed
@@ -115,7 +123,6 @@ namespace TenureInformationApi.V1.Controllers
             {
                 return Conflict(vncErr.Message);
             }
-
         }
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -155,6 +162,32 @@ namespace TenureInformationApi.V1.Controllers
             catch (VersionNumberConflictException vncErr)
             {
                 return Conflict(vncErr.Message);
+            }
+        }
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpDelete]
+        [Route("{tenureId}/person/{personId}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> DeletePersonFromTenure([FromRoute] DeletePersonFromTenureQueryRequest query)
+        {
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
+            try
+            {
+                await _deletePersonFromTenureUseCase.Execute(query, token).ConfigureAwait(false);
+                return NoContent();
+            }
+            catch (TenureNotFoundException)
+            {
+                return NotFound(query.TenureId);
+            }
+            catch (PersonNotFoundInTenureException)
+            {
+                return NotFound(query.PersonId);
             }
         }
 

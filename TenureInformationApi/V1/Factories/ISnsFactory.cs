@@ -10,5 +10,6 @@ namespace TenureInformationApi.V1.Factories
         TenureSns CreateTenure(TenureInformation tenure, Token token);
         TenureSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
         TenureSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        TenureSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
     }
 }

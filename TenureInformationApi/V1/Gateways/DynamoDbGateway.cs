@@ -108,6 +108,8 @@ namespace TenureInformationApi.V1.Gateways
             return result;
         }
 
+
+
         [LogCall]
         public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)
         {
@@ -168,6 +170,44 @@ namespace TenureInformationApi.V1.Gateways
             var validator = new TenureInformationValidatorWhenOnlyStartDate();
 
             return validator.Validate(testObject);
+        }
+
+        [LogCall]
+        public async Task<UpdateEntityResult<TenureInformationDb>> DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.TenureId}");
+
+            var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.TenureId).ConfigureAwait(false);
+            if (existingTenure == null) throw new TenureNotFoundException();
+
+            // remove person from tenure
+            var initialNumberOfTenures = existingTenure.HouseholdMembers.Count;
+            var filteredHouseholdMembers = existingTenure.HouseholdMembers.Where(x => x.Id != query.PersonId).ToList();
+
+            // if person was removed, the count should be less
+            if (filteredHouseholdMembers.Count == initialNumberOfTenures) throw new PersonNotFoundInTenureException();
+
+            // add changes to UpdateEntityResult
+            var result = new UpdateEntityResult<TenureInformationDb>()
+            {
+                UpdatedEntity = existingTenure,
+                OldValues = new Dictionary<string, object>
+                {
+                    { "householdMembers", existingTenure.HouseholdMembers.DeepClone() }
+                },
+                NewValues = new Dictionary<string, object>
+                {
+                    { "householdMembers", filteredHouseholdMembers }
+                }
+            };
+
+            // save changes to database
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.TenureId}");
+
+            existingTenure.HouseholdMembers = filteredHouseholdMembers;
+            await _dynamoDbContext.SaveAsync(existingTenure).ConfigureAwait(false);
+
+            return result;
         }
     }
 }

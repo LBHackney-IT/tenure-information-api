@@ -33,6 +33,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         private readonly Mock<IPostNewTenureUseCase> _mockPostTenureUseCase;
         private readonly Mock<IUpdateTenureForPersonUseCase> _mockUpdateTenureForPersonUseCase;
         private readonly Mock<IEditTenureDetailsUseCase> _mockEditTenureDetailsUseCase;
+        private readonly Mock<IDeletePersonFromTenureUseCase> _mockDeletePersonFromTenureUseCase;
 
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Mock<IHttpContextWrapper> _mockContextWrapper;
@@ -54,6 +55,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             _mockPostTenureUseCase = new Mock<IPostNewTenureUseCase>();
             _mockUpdateTenureForPersonUseCase = new Mock<IUpdateTenureForPersonUseCase>();
             _mockEditTenureDetailsUseCase = new Mock<IEditTenureDetailsUseCase>();
+            _mockDeletePersonFromTenureUseCase = new Mock<IDeletePersonFromTenureUseCase>();
 
             _mockTokenFactory = new Mock<ITokenFactory>();
             _mockContextWrapper = new Mock<IHttpContextWrapper>();
@@ -65,6 +67,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 _mockPostTenureUseCase.Object,
                 _mockUpdateTenureForPersonUseCase.Object,
                 _mockEditTenureDetailsUseCase.Object,
+                _mockDeletePersonFromTenureUseCase.Object,
                 _mockTokenFactory.Object,
                 _mockContextWrapper.Object);
 
@@ -254,7 +257,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Arrange
             var query = ConstructUpdateQuery();
 
-            _requestHeaders.Add(HeaderConstants.IfMatch, new StringValues(expected?.ToString()));
+            _requestHeaders.Add(HeaderConstants.IfMatch, $"\"{expected?.ToString()}\"");
 
             var exception = new VersionNumberConflictException(expected, actual);
             _mockUpdateTenureForPersonUseCase.Setup(x => x.ExecuteAsync(query, It.IsAny<UpdateTenureForPersonRequestObject>(), It.IsAny<Token>(), expected))
@@ -345,6 +348,59 @@ namespace TenureInformationApi.Tests.V1.Controllers
             // Assert
             response.Should().BeOfType(typeof(ConflictObjectResult));
             (response as ConflictObjectResult).Value.Should().BeEquivalentTo(exception.Message);
+        }
+
+        [Fact]
+        public async Task DeletePersonFromTenureWhenTenureDoesntExistReturnsNotFound()
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+
+            var exception = new TenureNotFoundException();
+
+            _mockDeletePersonFromTenureUseCase
+                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>(), It.IsAny<Token>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var result = await _classUnderTest.DeletePersonFromTenure(mockQuery).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeOfType(typeof(NotFoundObjectResult));
+            (result as NotFoundObjectResult).Value.Should().Be(mockQuery.TenureId);
+        }
+
+        [Fact]
+        public async Task DeletePersonFromTenureWhenPersonDoesntExistInTenureReturnsNotFound()
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+
+            var exception = new PersonNotFoundInTenureException();
+
+            _mockDeletePersonFromTenureUseCase
+                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>(), It.IsAny<Token>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var result = await _classUnderTest.DeletePersonFromTenure(mockQuery).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeOfType(typeof(NotFoundObjectResult));
+            (result as NotFoundObjectResult).Value.Should().Be(mockQuery.PersonId);
+        }
+
+        [Fact]
+        public async Task DeletePersonFromTenureWhenPersonExistsReturnsNoContentResponseAsync()
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+
+            // Act
+            var result = await _classUnderTest.DeletePersonFromTenure(mockQuery).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeOfType(typeof(NoContentResult));
         }
     }
 }

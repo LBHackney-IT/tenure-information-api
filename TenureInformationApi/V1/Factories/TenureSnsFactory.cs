@@ -69,5 +69,26 @@ namespace TenureInformationApi.V1.Factories
                 User = new User { Name = token.Name, Email = token.Email }
             };
         }
+
+        public TenureSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
+        {
+            return new TenureSns
+            {
+                CorrelationId = Guid.NewGuid(),
+                DateTime = DateTime.UtcNow,
+                EntityId = updateResult.UpdatedEntity.Id,
+                Id = Guid.NewGuid(),
+                EventType = PersonRemovedFromTenureConstants.EVENTTYPE,
+                Version = PersonRemovedFromTenureConstants.V1_VERSION,
+                SourceDomain = PersonRemovedFromTenureConstants.SOURCE_DOMAIN,
+                SourceSystem = PersonRemovedFromTenureConstants.SOURCE_SYSTEM,
+                EventData = new EventData
+                {
+                    NewData = updateResult.NewValues,
+                    OldData = updateResult.OldValues
+                },
+                User = new User { Name = token.Name, Email = token.Email }
+            };
+        }
     }
 }
