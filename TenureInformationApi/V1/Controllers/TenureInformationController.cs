@@ -175,9 +175,11 @@ namespace TenureInformationApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> DeletePersonFromTenure([FromRoute] DeletePersonFromTenureQueryRequest query)
         {
+            var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
             try
             {
-                await _deletePersonFromTenureUseCase.Execute(query).ConfigureAwait(false);
+                await _deletePersonFromTenureUseCase.Execute(query, token).ConfigureAwait(false);
                 return NoContent();
             }
             catch (TenureNotFoundException)

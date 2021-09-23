@@ -359,7 +359,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var exception = new TenureNotFoundException();
 
             _mockDeletePersonFromTenureUseCase
-                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>()))
+                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>(), It.IsAny<Token>()))
                 .ThrowsAsync(exception);
 
             // Act
@@ -379,7 +379,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var exception = new PersonNotFoundInTenureException();
 
             _mockDeletePersonFromTenureUseCase
-                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>()))
+                .Setup(x => x.Execute(It.IsAny<DeletePersonFromTenureQueryRequest>(), It.IsAny<Token>()))
                 .ThrowsAsync(exception);
 
             // Act

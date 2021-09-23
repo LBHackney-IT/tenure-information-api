@@ -1,9 +1,12 @@
 using Hackney.Core.Logging;
+using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
+using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
@@ -12,16 +15,26 @@ namespace TenureInformationApi.V1.UseCase
     public class DeletePersonFromTenureUseCase : IDeletePersonFromTenureUseCase
     {
         private readonly ITenureGateway _tenureGateway;
+        private readonly ISnsGateway _snsGateway;
+        private readonly ISnsFactory _snsFactory;
 
-        public DeletePersonFromTenureUseCase(ITenureGateway tenureGateway)
+        public DeletePersonFromTenureUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
+            _snsGateway = snsGateway;
+            _snsFactory = snsFactory;
         }
 
         [LogCall]
-        public async Task Execute(DeletePersonFromTenureQueryRequest query)
+        public async Task Execute(DeletePersonFromTenureQueryRequest query, Token token)
         {
-            await _tenureGateway.DeletePersonFromTenure(query).ConfigureAwait(false);
+            var result = await _tenureGateway.DeletePersonFromTenure(query).ConfigureAwait(false);
+
+            var tenureSnsMessage = _snsFactory.PersonRemovedFromTenure(result, token);
+            var tenureTopicArn = Environment.GetEnvironmentVariable("TENURE_SNS_ARN");
+
+            await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
+
         }
     }
 }
