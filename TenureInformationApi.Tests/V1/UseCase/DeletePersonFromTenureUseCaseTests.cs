@@ -21,6 +21,7 @@ using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
 {
+    [Collection("LogCall collection")]
     public class DeletePersonFromTenureUseCaseTests
     {
         private readonly Mock<ITenureGateway> _mockGateway;
