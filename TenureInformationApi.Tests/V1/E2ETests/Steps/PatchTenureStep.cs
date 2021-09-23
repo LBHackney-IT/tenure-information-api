@@ -33,7 +33,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Patch;
             message.Headers.Add("Authorization", token);
-            message.Headers.TryAddWithoutValidation(HeaderConstants.IfMatch, ifMatch?.ToString());
+            message.Headers.TryAddWithoutValidation(HeaderConstants.IfMatch, $"\"{ifMatch?.ToString()}\"");
 
 
             _httpClient.DefaultRequestHeaders
