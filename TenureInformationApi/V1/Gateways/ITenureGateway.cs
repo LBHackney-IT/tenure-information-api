@@ -17,6 +17,6 @@ namespace TenureInformationApi.V1.Gateways
 
         Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch);
 
-        Task DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query);
+        Task<UpdateEntityResult<TenureInformationDb>> DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query);
     }
 }

@@ -1,3 +1,4 @@
+using Hackney.Core.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace TenureInformationApi.V1.UseCase.Interfaces
 {
     public interface IDeletePersonFromTenureUseCase
     {
-        Task Execute(DeletePersonFromTenureQueryRequest query);
+        Task Execute(DeletePersonFromTenureQueryRequest query, Token token);
     }
 }

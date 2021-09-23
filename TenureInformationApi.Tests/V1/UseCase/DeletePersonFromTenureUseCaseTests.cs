@@ -25,14 +25,19 @@ namespace TenureInformationApi.Tests.V1.UseCase
     public class DeletePersonFromTenureUseCaseTests
     {
         private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ISnsGateway> _tenureSnsGateway;
+        private readonly Mock<ISnsFactory> _tenureSnsFactory;
+
         private readonly DeletePersonFromTenureUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
         public DeletePersonFromTenureUseCaseTests()
         {
             _mockGateway = new Mock<ITenureGateway>();
+            _tenureSnsGateway = new Mock<ISnsGateway>();
+            _tenureSnsFactory = new Mock<ISnsFactory>();
 
-            _classUnderTest = new DeletePersonFromTenureUseCase(_mockGateway.Object);
+            _classUnderTest = new DeletePersonFromTenureUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
         }
 
         [Fact]
@@ -40,12 +45,38 @@ namespace TenureInformationApi.Tests.V1.UseCase
         {
             // Arrange
             var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+            var mockToken = _fixture.Create<Token>();
 
             // Act
-            await _classUnderTest.Execute(mockQuery).ConfigureAwait(false);
+            await _classUnderTest.Execute(mockQuery, mockToken).ConfigureAwait(false);
 
             // Assert
             _mockGateway.Verify(x => x.DeletePersonFromTenure(mockQuery));
+        }
+
+        [Fact]
+        public async Task WhenCalledPublishesEvent()
+        {
+            // Arrange
+            var mockQuery = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+            var mockToken = _fixture.Create<Token>();
+            var gatewayResult = _fixture.Create<UpdateEntityResult<TenureInformationDb>>();
+            var snsEvent = _fixture.Create<TenureSns>();
+
+            _mockGateway
+                .Setup(x => x.DeletePersonFromTenure(It.IsAny<DeletePersonFromTenureQueryRequest>()))
+                .ReturnsAsync(gatewayResult);
+
+            _tenureSnsFactory
+                 .Setup(x => x.PersonRemovedFromTenure(gatewayResult, It.IsAny<Token>()))
+                 .Returns(snsEvent);
+
+            // Act
+            await _classUnderTest.Execute(mockQuery, mockToken).ConfigureAwait(false);
+
+            // Assert
+            _tenureSnsFactory.Verify(x => x.PersonRemovedFromTenure(gatewayResult, It.IsAny<Token>()), Times.Once);
+            _tenureSnsGateway.Verify(x => x.Publish(snsEvent, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
     }
 }

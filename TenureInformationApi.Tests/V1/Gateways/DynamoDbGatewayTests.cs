@@ -702,6 +702,42 @@ namespace TenureInformationApi.Tests.V1.Gateways
             databaseResponse.HouseholdMembers.Should().NotContain(x => x.Id == personToRemove.Id);
         }
 
+        [Fact]
+        public async Task DeletePersonFromTenureWhenCalledReturnsUpdateEntityResult()
+        {
+            // Arrange
+            var numberOfHouseholdMembers = _random.Next(2, 5);
+            var mockHouseholdMembers = _fixture.CreateMany<HouseholdMembers>(numberOfHouseholdMembers);
+
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.HouseholdMembers, mockHouseholdMembers)
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            var personToRemove = mockHouseholdMembers.First();
+
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            var mockRequest = new DeletePersonFromTenureQueryRequest
+            {
+                TenureId = mockTenure.Id,
+                PersonId = personToRemove.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.DeletePersonFromTenure(mockRequest).ConfigureAwait(false);
+
+            // Assert
+
+            // old values should match original values
+            (result.OldValues["householdMembers"] as List<HouseholdMembers>).Should().HaveCount(numberOfHouseholdMembers);
+            // new values should be one less
+            (result.NewValues["householdMembers"] as List<HouseholdMembers>).Should().HaveCount(numberOfHouseholdMembers - 1);
+
+            // should not contain the removed person
+            (result.NewValues["householdMembers"] as List<HouseholdMembers>).Should().NotContain(x => x.Id == personToRemove.Id);
+        }
+
         private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)
         {
             var updatedEntity = entityInsertedIntoDatabase.ToDatabase();

@@ -172,7 +172,8 @@ namespace TenureInformationApi.V1.Gateways
             return validator.Validate(testObject);
         }
 
-        public async Task DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query)
+        [LogCall]
+        public async Task<UpdateEntityResult<TenureInformationDb>> DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.TenureId}");
 
@@ -186,11 +187,27 @@ namespace TenureInformationApi.V1.Gateways
             // if person was removed, the count should be less
             if (filteredHouseholdMembers.Count == initialNumberOfTenures) throw new PersonNotFoundInTenureException();
 
+            // add changes to UpdateEntityResult
+            var result = new UpdateEntityResult<TenureInformationDb>()
+            {
+                UpdatedEntity = existingTenure,
+                OldValues = new Dictionary<string, object>
+                {
+                    { "householdMembers", existingTenure.HouseholdMembers.DeepClone() }
+                },
+                NewValues = new Dictionary<string, object>
+                {
+                    { "householdMembers", filteredHouseholdMembers }
+                }
+            };
+
             // save changes to database
             _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.TenureId}");
 
             existingTenure.HouseholdMembers = filteredHouseholdMembers;
             await _dynamoDbContext.SaveAsync(existingTenure).ConfigureAwait(false);
+
+            return result;
         }
     }
 }
