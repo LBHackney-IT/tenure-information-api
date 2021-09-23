@@ -30,6 +30,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private readonly Mock<IEntityUpdater> _mockUpdater;
 
+        private readonly Random _random = new Random();
+
         public DynamoDbGatewayTests(AwsIntegrationTests<Startup> dbTestFixture)
         {
             _dynamoDb = dbTestFixture.DynamoDbContext;
@@ -625,7 +627,79 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // Assert
             act.Should().Throw<VersionNumberConflictException>()
                .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
+        }
 
+        [Fact]
+        public async Task DeletePersonFromTenureWhenTenureDoesntExistThrowsException()
+        {
+            // Arrange
+            var mockRequest = _fixture.Create<DeletePersonFromTenureQueryRequest>();
+
+            // Act
+            Func<Task> func = async () => await _classUnderTest.DeletePersonFromTenure(mockRequest).ConfigureAwait(false);
+
+            // Assert
+            await func.Should().ThrowAsync<TenureNotFoundException>().ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task DeletePersonFromTenureWhenPersonNotInTenureThrowsException()
+        {
+            // Arrange
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.HouseholdMembers, new List<HouseholdMembers>()) // empty list
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            var mockRequest = new DeletePersonFromTenureQueryRequest
+            {
+                TenureId = mockTenure.Id,
+                PersonId = _fixture.Create<Guid>()
+            };
+
+            // Act
+            Func<Task> func = async () => await _classUnderTest.DeletePersonFromTenure(mockRequest).ConfigureAwait(false);
+
+            // Assert
+            await func.Should().ThrowAsync<PersonNotFoundInTenureException>().ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task DeletePersonFromTenureWhenCalledRemovesPersonFromTenure()
+        {
+            // Arrange
+            var numberOfHouseholdMembers = _random.Next(2, 5);
+            var mockHouseholdMembers = _fixture.CreateMany<HouseholdMembers>(numberOfHouseholdMembers);
+
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.HouseholdMembers, mockHouseholdMembers)
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            var personToRemove = mockHouseholdMembers.First();
+
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+
+            var mockRequest = new DeletePersonFromTenureQueryRequest
+            {
+                TenureId = mockTenure.Id,
+                PersonId = personToRemove.Id
+            };
+
+            // Act
+            Func<Task> func = async () => await _classUnderTest.DeletePersonFromTenure(mockRequest).ConfigureAwait(false);
+
+            // Assert
+            // no exception of any kind thrown
+            await func.Should().NotThrowAsync<Exception>().ConfigureAwait(false);
+
+            // check database
+            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+            databaseResponse.HouseholdMembers.Should().HaveCount(numberOfHouseholdMembers - 1);
+
+            databaseResponse.HouseholdMembers.Should().NotContain(x => x.Id == personToRemove.Id);
         }
 
         private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)

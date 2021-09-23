@@ -19,6 +19,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         public readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+        private readonly Random _random = new Random();
 
         public TenureInformationDb Tenure { get; private set; }
 
@@ -55,6 +56,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
             }
         }
         public CreateTenureRequestObject CreateTenureRequestObject;
+
+        public void GivenNoTenuresExist()
+        {
+
+        }
+
         public UpdateTenureForPersonRequestObject UpdateTenureRequestObject;
 
         public void GivenATenureExist(bool nullTenuredAssetType = false)
@@ -74,6 +81,37 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
             _dbContext.SaveAsync<TenureInformationDb>(entity).GetAwaiter().GetResult();
             entity.VersionNumber = 0;
+
+            ExistingTenure = entity.ToDomain();
+            Tenure = entity;
+            TenureId = entity.Id;
+        }
+
+        public void GivenATenureExistsWithNoHouseholdMembers()
+        {
+            var entity = _fixture.Build<TenureInformationDb>()
+                .With(x => x.HouseholdMembers, new List<HouseholdMembers>())
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
+
+            ExistingTenure = entity.ToDomain();
+            Tenure = entity;
+            TenureId = entity.Id;
+        }
+
+        public void GivenATenureExistsWithManyHouseholdMembers()
+        {
+            var numberOfHouseholdMembers = _random.Next(2, 5);
+            var householdMembers = _fixture.CreateMany<HouseholdMembers>(numberOfHouseholdMembers).ToList();
+
+            var entity = _fixture.Build<TenureInformationDb>()
+                          .With(x => x.HouseholdMembers, householdMembers)
+                          .With(x => x.VersionNumber, (int?) null)
+                          .Create();
+
+            _dbContext.SaveAsync(entity).GetAwaiter().GetResult();
 
             ExistingTenure = entity.ToDomain();
             Tenure = entity;
