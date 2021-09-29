@@ -5,16 +5,19 @@ using Amazon.SimpleNotificationService.Model;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using TenureInformationApi.V1.Domain.Sns;
 using Xunit;
 
 namespace TenureInformationApi.Tests
 {
-    public class AwsIntegrationTests<TStartup> where TStartup : class
+    public class AwsIntegrationTests<TStartup> : IDisposable where TStartup : class
     {
         public HttpClient Client { get; private set; }
         public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
 
         public IAmazonSimpleNotificationService SimpleNotificationService => _factory?.SimpleNotificationService;
+
+        public SnsEventVerifier<TenureSns> SnsVerifer { get; private set; }
 
         private readonly AwsMockWebApplicationFactory<TStartup> _factory;
 
@@ -33,12 +36,12 @@ namespace TenureInformationApi.Tests
             Client = _factory.CreateClient();
 
             CreateSnsTopic();
-
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private bool _disposed;
@@ -46,6 +49,8 @@ namespace TenureInformationApi.Tests
         {
             if (disposing && !_disposed)
             {
+                if (null != SnsVerifer)
+                    SnsVerifer.Dispose();
                 if (null != _factory)
                     _factory.Dispose();
                 _disposed = true;
@@ -71,6 +76,8 @@ namespace TenureInformationApi.Tests
             }).Result;
 
             Environment.SetEnvironmentVariable("TENURE_SNS_ARN", response.TopicArn);
+
+            SnsVerifer = new SnsEventVerifier<TenureSns>(_factory.AmazonSQS, SimpleNotificationService, response.TopicArn);
         }
 
     }

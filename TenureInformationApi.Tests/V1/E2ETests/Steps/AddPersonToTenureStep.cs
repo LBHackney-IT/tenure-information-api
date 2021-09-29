@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,14 +11,17 @@ using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Infrastructure;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 {
-    public class PatchTenureStep : BaseSteps
+    public class AddPersonToTenureStep : BaseSteps
     {
-        public PatchTenureStep(HttpClient httpClient) : base(httpClient)
+        public AddPersonToTenureStep(HttpClient httpClient) : base(httpClient)
         { }
+
         /// <summary>
         /// You can use jwt.io to decode the token - it is the same one we'd use on dev, etc. 
         /// </summary>
@@ -26,7 +30,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         public async Task<HttpResponseMessage> CallAPI(Guid id, Guid personId, UpdateTenureForPersonRequestObject requestObject, int? ifMatch)
         {
             var token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
             var uri = new Uri($"api/v1/tenures/{id}/person/{personId}", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Patch, uri);
@@ -60,7 +64,9 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
-            //result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.Should().BeEquivalentTo(tenureFixture.Tenure,
+                                           c => c.Excluding(y => y.HouseholdMembers)
+                                                 .Excluding(z => z.VersionNumber));
             result.VersionNumber.Should().Be(1);
 
             var expected = new HouseholdMembers()
@@ -77,7 +83,39 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
                                    .Should()
                                    .BeEquivalentTo(tenureFixture.Tenure.HouseholdMembers);
 
-            await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false));
+        }
+
+        public async Task ThenThePersonAddedToTenureEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<TenureSns> snsVerifer)
+        {
+            var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
+
+            Action<TenureSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
+                actual.EntityId.Should().Be(dbRecord.Id);
+
+                VerifyEventData(actual.EventData.OldData, tenureFixture.Tenure.HouseholdMembers);
+                VerifyEventData(actual.EventData.NewData, dbRecord.HouseholdMembers);
+
+                actual.EventType.Should().Be(PersonAddedToTenureConstants.EVENTTYPE);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(PersonAddedToTenureConstants.SOURCE_DOMAIN);
+                actual.SourceSystem.Should().Be(PersonAddedToTenureConstants.SOURCE_SYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(PersonAddedToTenureConstants.V1_VERSION);
+            };
+
+            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+        }
+
+        private void VerifyEventData(object eventDataJsonObj, List<HouseholdMembers> expected)
+        {
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(eventDataJsonObj.ToString(), CreateJsonOptions());
+            var hmData = JsonSerializer.Deserialize<List<HouseholdMembers>>(data["householdMembers"].ToString(), CreateJsonOptions());
+            hmData.Should().BeEquivalentTo(expected);
         }
 
         public async Task ThenTheHouseholdMemberTenureDetailsAreUpdated(TenureFixture tenureFixture, Guid personId, UpdateTenureForPersonRequestObject request)
@@ -86,11 +124,13 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             var result = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
-            //result.Should().BeEquivalentTo(tenureFixture.Tenure, config => config.Excluding(y => y.HouseholdMembers));
+            result.Should().BeEquivalentTo(tenureFixture.Tenure,
+                                           c => c.Excluding(y => y.HouseholdMembers)
+                                                 .Excluding(z => z.VersionNumber));
             result.VersionNumber.Should().Be(1);
             result.HouseholdMembers.First(x => x.Id == personId).FullName.Should().Be(request.FullName);
 
-            await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false));
         }
 
         public async Task ThenConflictIsReturned(int? versionNumber)

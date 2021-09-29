@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
 using TestStack.BDDfy;
@@ -40,6 +37,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 if (null != _tenureFixture)
                     _tenureFixture.Dispose();
+                if (null != _steps)
+                    _steps.Dispose();
 
                 _disposed = true;
             }
