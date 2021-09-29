@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using Hackney.Core.DynamoDb;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests
 {
@@ -21,6 +21,7 @@ namespace TenureInformationApi.Tests
         public IAmazonDynamoDB DynamoDb { get; private set; }
         public IDynamoDBContext DynamoDbContext { get; private set; }
         public IAmazonSimpleNotificationService SimpleNotificationService { get; private set; }
+        public IAmazonSQS AmazonSQS { get; private set; }
 
 
         public AwsMockWebApplicationFactory(List<TableDef> tables)
@@ -41,6 +42,9 @@ namespace TenureInformationApi.Tests
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
                 SimpleNotificationService = serviceProvider.GetRequiredService<IAmazonSimpleNotificationService>();
+
+                var localstackUrl = Environment.GetEnvironmentVariable("Localstack_SnsServiceUrl");
+                AmazonSQS = new AmazonSQSClient(new AmazonSQSConfig() { ServiceURL = localstackUrl });
 
                 EnsureTablesExist(DynamoDb, _tables);
             });

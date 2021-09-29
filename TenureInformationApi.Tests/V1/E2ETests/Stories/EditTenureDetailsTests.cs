@@ -1,8 +1,5 @@
 using AutoFixture;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
 using TenureInformationApi.V1.Boundary.Requests;
@@ -45,6 +42,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 if (null != _tenureFixture)
                     _tenureFixture.Dispose();
+                if (null != _steps)
+                    _steps.Dispose();
 
                 _disposed = true;
             }
@@ -65,7 +64,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturnsCustomEditTenureDetailsBadRequestResponse()
         {
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow.AddYears(-1);
             var tenureEndDate = tenureStartDate.AddDays(-7); // end date that is less than start date
 
             var requestObject = new
@@ -104,6 +103,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
                 .Then(t => _steps.ThenNoContentResponseReturned())
                 .And(a => _steps.TheTenureHasBeenUpdatedInTheDatabase(_tenureFixture, requestObject))
+                .And(t => _steps.ThenTheTenureUpdatedEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
                 .BDDfy();
         }
 
@@ -122,8 +122,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 
         private EditTenureDetailsRequestObject CreateValidRequestObject()
         {
-            var tenureStartDate = _fixture.Create<DateTime>();
-            var tenureEndDate = tenureStartDate.AddDays(7);
+            var tenureStartDate = DateTime.UtcNow.AddYears(-1);
+            var tenureEndDate = tenureStartDate.AddDays(150);
 
             return _fixture.Build<EditTenureDetailsRequestObject>()
                 .With(x => x.StartOfTenureDate, tenureStartDate)
@@ -133,7 +133,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 
         private EditTenureDetailsRequestObject CreateInvalidRequestObject()
         {
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow.AddYears(-1);
             var tenureEndDate = tenureStartDate.AddDays(-7);
 
             return _fixture.Build<EditTenureDetailsRequestObject>()
