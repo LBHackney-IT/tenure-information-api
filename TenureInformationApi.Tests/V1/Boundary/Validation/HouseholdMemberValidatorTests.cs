@@ -1,8 +1,4 @@
 using FluentValidation.TestHelper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Domain;
 using Xunit;

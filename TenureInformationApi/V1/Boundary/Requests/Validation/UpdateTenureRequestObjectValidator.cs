@@ -1,14 +1,11 @@
 using FluentValidation;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TenureInformationApi.V1.Boundary.Requests.Validation
 {
-    public class UpdateTenureRequestValidation : AbstractValidator<UpdateTenureRequestObject>
+    public class UpdateTenureRequestObjectValidator : AbstractValidator<UpdateTenureRequestObject>
     {
-        public UpdateTenureRequestValidation()
+        public UpdateTenureRequestObjectValidator()
         {
             RuleFor(x => x.Id).NotNull()
                              .NotEqual(Guid.Empty);
