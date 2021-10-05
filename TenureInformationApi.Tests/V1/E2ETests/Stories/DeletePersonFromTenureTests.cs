@@ -1,12 +1,9 @@
 using AutoFixture;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
 using TestStack.BDDfy;
 using Xunit;
 
@@ -24,14 +21,14 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         private readonly AwsIntegrationTests<Startup> _dbFixture;
 
         private readonly TenureFixture _tenureFixture;
-        private readonly DeleteTenureDetailsStep _steps;
+        private readonly DeletePersonFromTenureStep _steps;
         private readonly Fixture _fixture = new Fixture();
 
         public DeletePersonFromTenureTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
             _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new DeleteTenureDetailsStep(_dbFixture.Client);
+            _steps = new DeletePersonFromTenureStep(_dbFixture.Client);
         }
 
         public void Dispose()
@@ -47,7 +44,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 if (null != _tenureFixture)
                     _tenureFixture.Dispose();
-
+                if (null != _steps)
+                    _steps.Dispose();
                 _disposed = true;
             }
         }
@@ -79,21 +77,17 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         [Fact]
         public void ServiceReturns204WhenPersonWasRemovedFromTenure()
         {
-
-            var query = _fixture.Create<DeletePersonFromTenureQueryRequest>();
-
-
-
             // tenure and person exist
             this.Given(g => _tenureFixture.GivenATenureExistsWithManyHouseholdMembers())
-               .When(w => _steps.WhenDeletePersonFromTenureApiIsCalledAsync(new DeletePersonFromTenureQueryRequest
-               {
-                   TenureId = _tenureFixture.TenureId,
-                   PersonId = _tenureFixture.Tenure.HouseholdMembers.First().Id
-               }))
-               .Then(t => _steps.NoContentResponseReturned())
-               .And(a => _steps.PersonRemovedFromTenure(_tenureFixture.TenureId, _tenureFixture.Tenure.HouseholdMembers.First().Id, _tenureFixture))
-               .BDDfy();
+                .When(w => _steps.WhenDeletePersonFromTenureApiIsCalledAsync(new DeletePersonFromTenureQueryRequest
+                {
+                    TenureId = _tenureFixture.TenureId,
+                    PersonId = _tenureFixture.Tenure.HouseholdMembers.First().Id
+                }))
+                .Then(t => _steps.NoContentResponseReturned())
+                .And(a => _steps.PersonRemovedFromTenure(_tenureFixture.TenureId, _tenureFixture.Tenure.HouseholdMembers.First().Id, _tenureFixture))
+                .And(t => _steps.ThenThePersonRemovedFromTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .BDDfy();
         }
 
     }

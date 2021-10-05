@@ -10,8 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
+using TenureInformationApi.V1.Domain;
+using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -38,7 +39,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         public async Task WhenCreateTenureApiIsCalled(CreateTenureRequestObject requestObject)
         {
             var token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
             var uri = new Uri($"api/v1/tenures", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
@@ -51,6 +52,35 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
             _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
 
+        }
+
+        public async Task ThenTheTenureCreatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<TenureSns> snsVerifer)
+        {
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var apiTenure = JsonSerializer.Deserialize<TenureResponseObject>(responseContent, CreateJsonOptions());
+            var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(apiTenure.Id).ConfigureAwait(false);
+
+            Action<TenureSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
+                actual.EntityId.Should().Be(dbRecord.Id);
+
+                var expected = dbRecord.ToDomain();
+                var actualNewData = JsonSerializer.Deserialize<TenureInformation>(actual.EventData.NewData.ToString(), CreateJsonOptions());
+                actualNewData.Should().BeEquivalentTo(expected);
+                actual.EventData.OldData.Should().BeNull();
+
+                actual.EventType.Should().Be(CreateTenureEventConstants.EVENTTYPE);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(CreateTenureEventConstants.SOURCE_DOMAIN);
+                actual.SourceSystem.Should().Be(CreateTenureEventConstants.SOURCE_SYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(CreateTenureEventConstants.V1_VERSION);
+            };
+
+            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
         public async Task ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(TenureFixture tenureFixture)
@@ -66,7 +96,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var domain = dbRecord.ToDomain();
             apiTenure.Should().BeEquivalentTo(domain.ToResponse());
 
-            await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(dbRecord.Id).ConfigureAwait(false);
+            _cleanup.Add(async () => await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(dbRecord.Id).ConfigureAwait(false));
         }
 
         public async Task ThenTheValidationErrorsAreReturned()
