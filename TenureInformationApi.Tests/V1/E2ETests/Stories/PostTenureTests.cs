@@ -44,10 +44,13 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             }
         }
 
-        [Fact]
-        public void ServiceReturnsTheRequestedPerson()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("123456")]
+        public void ServiceReturnsTheRequestedPerson(string propRef)
         {
-            this.Given(g => _tenureFixture.GivenNewTenureRequest())
+            this.Given(g => _tenureFixture.GivenNewTenureRequest(propRef))
                 .When(w => _steps.WhenCreateTenureApiIsCalled(_tenureFixture.CreateTenureRequestObject))
                 .Then(t => _steps.ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(_tenureFixture))
                 .Then(t => _steps.ThenTheTenureCreatedEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))

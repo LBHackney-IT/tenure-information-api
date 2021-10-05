@@ -93,6 +93,14 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             apiTenure.Id.Should().NotBeEmpty();
 
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(apiTenure.Id).ConfigureAwait(false);
+            dbRecord.Should().BeEquivalentTo(tenureFixture.CreateTenureRequestObject.ToDatabase(),
+                                             c => c.Excluding(x => x.VersionNumber)
+                                                   .Excluding(x => x.TenuredAsset.PropertyReference));
+
+            var expectedPropRef = string.IsNullOrEmpty(tenureFixture.CreateTenureRequestObject.TenuredAsset.PropertyReference)
+                                        ? "000000" : tenureFixture.CreateTenureRequestObject.TenuredAsset.PropertyReference;
+            dbRecord.TenuredAsset.PropertyReference.Should().Be(expectedPropRef);
+
             var domain = dbRecord.ToDomain();
             apiTenure.Should().BeEquivalentTo(domain.ToResponse());
 
@@ -107,7 +115,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var errors = jo["errors"].Children();
 
             ShouldHaveErrorFor(errors, "EndOfTenureDate");
-
         }
 
         public void ThenBadRequestIsReturned()
