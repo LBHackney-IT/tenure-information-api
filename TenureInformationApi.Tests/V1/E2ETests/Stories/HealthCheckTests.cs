@@ -33,6 +33,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
+                if (null != _steps)
+                    _steps.Dispose();
                 _disposed = true;
             }
         }

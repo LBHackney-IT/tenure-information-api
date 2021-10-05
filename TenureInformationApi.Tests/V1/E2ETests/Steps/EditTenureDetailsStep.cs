@@ -18,11 +18,14 @@ using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using TenureInformationApi.V1.Domain.Sns;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 {
     public class EditTenureDetailsStep : BaseSteps
     {
+        private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
+
         public EditTenureDetailsStep(HttpClient httpClient) : base(httpClient)
         {
         }
@@ -36,8 +39,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject, int? ifMatch)
         {
             var token =
-                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
-
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
 
             // setup request
             var uri = new Uri($"api/v1/tenures/{id}", UriKind.Relative);
@@ -137,6 +139,53 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.StartOfTenureDate.Should().Be(requestObject.StartOfTenureDate);
             databaseResponse.EndOfTenureDate.Should().Be(requestObject.EndOfTenureDate);
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
+        }
+
+        public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<TenureSns> snsVerifer)
+        {
+            var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
+
+            Action<TenureSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
+                actual.EntityId.Should().Be(dbRecord.Id);
+
+                var expectedOldData = new Dictionary<string, object>
+                {
+                    { "startOfTenureDate", tenureFixture.Tenure.StartOfTenureDate?.ToString(DateFormat) },
+                    { "endOfTenureDate", tenureFixture.Tenure.EndOfTenureDate?.ToString(DateFormat) },
+                    { "tenureType", tenureFixture.Tenure.TenureType }
+                };
+                var expectedNewData = new Dictionary<string, object>
+                {
+                    { "startOfTenureDate", dbRecord.StartOfTenureDate?.ToString(DateFormat) },
+                    { "endOfTenureDate", dbRecord.EndOfTenureDate?.ToString(DateFormat) },
+                    { "tenureType", dbRecord.TenureType }
+                };
+                VerifyEventData(actual.EventData.OldData, expectedOldData);
+                VerifyEventData(actual.EventData.NewData, expectedNewData);
+
+                actual.EventType.Should().Be(UpdateTenureConstants.EVENTTYPE);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(UpdateTenureConstants.SOURCE_DOMAIN);
+                actual.SourceSystem.Should().Be(UpdateTenureConstants.SOURCE_SYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(UpdateTenureConstants.V1_VERSION);
+            };
+
+            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+        }
+
+        private void VerifyEventData(object eventDataJsonObj, Dictionary<string, object> expected)
+        {
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(eventDataJsonObj.ToString(), CreateJsonOptions());
+            data["startOfTenureDate"].ToString().Should().Be(expected["startOfTenureDate"].ToString());
+            data["endOfTenureDate"].ToString().Should().Be(expected["endOfTenureDate"].ToString());
+
+            var eventDataTenureType = JsonSerializer.Deserialize<TenureType>(data["tenureType"].ToString(), CreateJsonOptions());
+            eventDataTenureType.Should().BeEquivalentTo(expected["tenureType"]);
         }
     }
 }

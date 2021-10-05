@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
 using TestStack.BDDfy;
@@ -11,20 +8,20 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 {
     [Story(
        AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
-       IWant = "the ability to capture a new tenure",
-       SoThat = "I can create a new tenure in the system with all the relevant information")]
+       IWant = "the ability to add a person to a tenure",
+       SoThat = "I can create a link between a tenure and a person")]
     [Collection("Aws collection")]
-    public class PatchTenureTests : IDisposable
+    public class AddPersonToTenureTests : IDisposable
     {
         private readonly AwsIntegrationTests<Startup> _dbFixture;
         private readonly TenureFixture _tenureFixture;
-        private readonly PatchTenureStep _steps;
+        private readonly AddPersonToTenureStep _steps;
 
-        public PatchTenureTests(AwsIntegrationTests<Startup> dbFixture)
+        public AddPersonToTenureTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
             _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new PatchTenureStep(_dbFixture.Client);
+            _steps = new AddPersonToTenureStep(_dbFixture.Client);
         }
 
         public void Dispose()
@@ -40,6 +37,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 if (null != _tenureFixture)
                     _tenureFixture.Dispose();
+                if (null != _steps)
+                    _steps.Dispose();
 
                 _disposed = true;
             }
@@ -53,6 +52,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenAnUpdateTenureWithNewHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenANewHouseholdMemberIsAdded(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
                 .BDDfy();
         }
 
@@ -64,6 +64,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenAnUpdateTenureHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenTheHouseholdMemberTenureDetailsAreUpdated(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
+                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
                 .BDDfy();
         }
         [Theory]
