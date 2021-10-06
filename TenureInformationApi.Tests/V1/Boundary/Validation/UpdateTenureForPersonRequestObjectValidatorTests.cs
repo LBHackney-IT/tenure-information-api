@@ -18,7 +18,7 @@ namespace TenureInformationApi.Tests.V1.Boundary.Validation
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void RequesthouldNotErrorWithNoValue(string value)
+        public void RequestShouldNotErrorWithNoValue(string value)
         {
             var model = new UpdateTenureForPersonRequestObject() { FullName = value };
             var result = _classUnderTest.TestValidate(model);
