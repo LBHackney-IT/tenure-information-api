@@ -21,7 +21,7 @@ namespace TenureInformationApi.Tests.V1.Factories
             var databaseEntity = request.ToDatabase();
             databaseEntity.LegacyReferences.Should().BeNull();
             databaseEntity.Notices.Should().BeNull();
-            databaseEntity.HouseholdMembers.Should().BeEquivalentTo(nullHMs? null : request.HouseholdMembers);
+            databaseEntity.HouseholdMembers.Should().BeEquivalentTo(nullHMs ? null : request.HouseholdMembers);
         }
     }
 }
