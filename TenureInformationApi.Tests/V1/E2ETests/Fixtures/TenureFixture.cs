@@ -59,7 +59,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenNoTenuresExist()
         {
-
+            // Nothing to do here
         }
 
         public UpdateTenureForPersonRequestObject UpdateTenureRequestObject;
@@ -156,8 +156,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         {
             InvalidTenureId = "1234567";
         }
-
         public void GivenNewTenureRequest()
+        {
+            GivenNewTenureRequest(null);
+        }
+        public void GivenNewTenureRequest(string propRef)
         {
             var tenureRequest = _fixture.Build<CreateTenureRequestObject>()
                                         .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddDays(1))
@@ -166,10 +169,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
+                                        .With(x => x.TenuredAsset, _fixture.Build<TenuredAsset>()
+                                                                           .With(x => x.PropertyReference, propRef)
+                                                                           .Create())
                                         .Create();
             CreateSnsTopic();
             CreateTenureRequestObject = tenureRequest;
-
         }
 
         public void GivenNewTenureRequestWithValidationErrors()

@@ -97,11 +97,6 @@ namespace TenureInformationApi.Tests.V1.Controllers
             return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
         }
 
-        private TenureQueryRequest ConstructQuery()
-        {
-            return new TenureQueryRequest() { Id = Guid.NewGuid() };
-        }
-
         private UpdateTenureRequest ConstructUpdateQuery()
         {
             return new UpdateTenureRequest() { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
@@ -112,6 +107,13 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var request = _fixture.Create<UpdateTenureForPersonRequestObject>();
 
             return request;
+        }
+
+        private CreateTenureRequestObject ConstructPostRequest(string propRef = null)
+        {
+            return _fixture.Build<CreateTenureRequestObject>()
+                                  .With(x => x.TenuredAsset, new TenuredAsset() { PropertyReference = propRef })
+                                  .Create();
         }
 
         [Fact]
@@ -156,7 +158,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             _mockGetByIdUsecase.Setup(x => x.Execute(mockRequest)).ReturnsAsync(mockTenureResponse);
 
             // Act
-            var response = await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
+            await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
 
             // Assert ETAG value is 0, no error thrown
             var expectedEtagValue = $"\"\"";
@@ -164,8 +166,11 @@ namespace TenureInformationApi.Tests.V1.Controllers
             val.First().Should().Be(expectedEtagValue);
         }
 
-        [Fact]
-        public async Task PostNewTenureIdAsyncFoundReturnsResponse()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("123456")]
+        public async Task PostNewTenureIdAsyncFoundReturnsResponse(string propRef)
         {
             // Arrange
             var tenureResponse = _fixture.Create<TenureResponseObject>();
@@ -173,9 +178,14 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 .ReturnsAsync(tenureResponse);
 
             // Act
-            var response = await _classUnderTest.PostNewTenure(new CreateTenureRequestObject()).ConfigureAwait(false);
+            var request = ConstructPostRequest(propRef);
+            var response = await _classUnderTest.PostNewTenure(request).ConfigureAwait(false);
 
             // Assert
+            var expectedPropRef = string.IsNullOrEmpty(propRef) ? "000000" : propRef;
+            _mockPostTenureUseCase.Verify(x => x.ExecuteAsync(It.Is<CreateTenureRequestObject>(y => y.TenuredAsset.PropertyReference == expectedPropRef),
+                                                              It.IsAny<Token>()),
+                                          Times.Once);
             response.Should().BeOfType(typeof(CreatedResult));
             (response as CreatedResult).Value.Should().Be(tenureResponse);
         }
@@ -189,7 +199,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
                                  .ThrowsAsync(exception);
 
             // Act
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(new CreateTenureRequestObject())
+            var request = ConstructPostRequest();
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(request)
                 .ConfigureAwait(false);
 
             // Assert

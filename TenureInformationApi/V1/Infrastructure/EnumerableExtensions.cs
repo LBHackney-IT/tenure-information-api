@@ -9,5 +9,10 @@ namespace TenureInformationApi.V1.Infrastructure
         {
             return enumerable == null ? new List<T>() : enumerable.ToList();
         }
+
+        public static List<T> ToListOrNull<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable == null ? null : enumerable.ToList();
+        }
     }
 }

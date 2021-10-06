@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
@@ -15,15 +10,10 @@ namespace TenureInformationApi.V1.Factories
             return new TenureInformationDb()
             {
                 Id = updateTenureRequestObject.Id,
-                HouseholdMembers = GetListOrNull(updateTenureRequestObject.HouseholdMembers),
+                HouseholdMembers = updateTenureRequestObject.HouseholdMembers.ToListOrNull(),
                 LegacyReferences = null,
                 Notices = null
             };
-        }
-
-        private static List<T> GetListOrNull<T>(IEnumerable<T> enumerable)
-        {
-            return enumerable == null ? null : enumerable.ToList();
         }
     }
 }

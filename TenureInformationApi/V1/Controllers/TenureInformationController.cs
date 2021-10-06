@@ -1,4 +1,3 @@
-using FluentValidation.AspNetCore;
 using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
@@ -10,14 +9,11 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
 using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using HeaderConstants = TenureInformationApi.V1.Infrastructure.HeaderConstants;
@@ -90,6 +86,10 @@ namespace TenureInformationApi.V1.Controllers
         public async Task<IActionResult> PostNewTenure([FromBody] CreateTenureRequestObject createTenureRequestObject)
         {
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
+
+            // TODO - Remove this when the FE is complete
+            if (string.IsNullOrEmpty(createTenureRequestObject.TenuredAsset.PropertyReference))
+                createTenureRequestObject.TenuredAsset.PropertyReference = "000000";
 
             var tenure = await _postNewTenureUseCase.ExecuteAsync(createTenureRequestObject, token).ConfigureAwait(false);
             return Created(new Uri($"api/v1/tenures/{tenure.Id}", UriKind.Relative), tenure);
@@ -223,7 +223,7 @@ namespace TenureInformationApi.V1.Controllers
             if (header == null)
                 return null;
 
-            var eTag = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+            _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
 
             if (entityTagHeaderValue == null)
                 return null;
