@@ -2,14 +2,13 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Tenure.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 {
