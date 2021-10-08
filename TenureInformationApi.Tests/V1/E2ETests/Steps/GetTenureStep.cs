@@ -1,14 +1,12 @@
 using FluentAssertions;
+using Hackney.Shared.Tenure.Boundary.Response;
+using Hackney.Shared.Tenure.Infrastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps

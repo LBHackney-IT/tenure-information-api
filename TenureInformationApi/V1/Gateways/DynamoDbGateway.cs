@@ -1,17 +1,17 @@
 using Amazon.DynamoDBv2.DataModel;
 using FluentValidation.Results;
 using Force.DeepCloner;
-using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Boundary.Requests.Validation;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 

@@ -1,8 +1,8 @@
 using AutoFixture;
+using Hackney.Shared.Tenure.Boundary.Requests;
 using System;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
-using TenureInformationApi.V1.Boundary.Requests;
 using TestStack.BDDfy;
 using Xunit;
 

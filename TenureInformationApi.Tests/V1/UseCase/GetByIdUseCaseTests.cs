@@ -1,13 +1,11 @@
 using AutoFixture;
 using FluentAssertions;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Factories;
 using Moq;
 using System;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
