@@ -13,6 +13,7 @@ using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
 using Hackney.Core.Sns;
+using Hackney.Core.Validation.AspNet;
 using Hackney.Shared.Tenure.Boundary.Requests.Validation;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.AspNetCore.Builder;
