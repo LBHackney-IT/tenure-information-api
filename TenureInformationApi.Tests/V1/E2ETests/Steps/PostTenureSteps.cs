@@ -98,9 +98,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
                                              c => c.Excluding(x => x.VersionNumber)
                                                    .Excluding(x => x.TenuredAsset.PropertyReference));
 
-            var expectedPropRef = string.IsNullOrEmpty(tenureFixture.CreateTenureRequestObject.TenuredAsset.PropertyReference)
-                                        ? "000000" : tenureFixture.CreateTenureRequestObject.TenuredAsset.PropertyReference;
-            dbRecord.TenuredAsset.PropertyReference.Should().Be(expectedPropRef);
+            dbRecord.TenuredAsset.PropertyReference.Should()
+                                                   .Be(tenureFixture.CreateTenureRequestObject.TenuredAsset.PropertyReference);
 
             var domain = dbRecord.ToDomain();
             apiTenure.Should().BeEquivalentTo(domain.ToResponse());
