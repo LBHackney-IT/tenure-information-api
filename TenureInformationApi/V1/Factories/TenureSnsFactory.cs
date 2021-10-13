@@ -1,16 +1,17 @@
 using Hackney.Core.JWT;
+using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using System;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
 {
     public class TenureSnsFactory : ISnsFactory
     {
-        public TenureSns CreateTenure(TenureInformation tenure, Token token)
+        public EntityEventSns CreateTenure(TenureInformation tenure, Token token)
         {
-            return new TenureSns
+            return new EntityEventSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
@@ -28,9 +29,9 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        public TenureSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
+        public EntityEventSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
         {
-            return new TenureSns
+            return new EntityEventSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
@@ -49,9 +50,9 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        public TenureSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
+        public EntityEventSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
         {
-            return new TenureSns
+            return new EntityEventSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
@@ -70,9 +71,9 @@ namespace TenureInformationApi.V1.Factories
             };
         }
 
-        public TenureSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
+        public EntityEventSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token)
         {
-            return new TenureSns
+            return new EntityEventSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,

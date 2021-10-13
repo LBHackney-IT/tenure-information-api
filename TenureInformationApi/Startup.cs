@@ -13,6 +13,9 @@ using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
 using Hackney.Core.Sns;
+using Hackney.Core.Validation.AspNet;
+using Hackney.Shared.Tenure.Boundary.Requests.Validation;
+using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -68,7 +71,7 @@ namespace TenureInformationApi
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddFluentValidation();
+            services.AddFluentValidation(Assembly.GetAssembly(typeof(ChargesValidator)));
 
             services.AddApiVersioning(o =>
             {

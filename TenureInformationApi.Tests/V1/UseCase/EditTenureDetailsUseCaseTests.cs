@@ -2,17 +2,13 @@ using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Boundary.Response;
+using Hackney.Shared.Tenure.Infrastructure;
 using Moq;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using TenureInformationApi.Tests.V1.Gateways;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
@@ -61,8 +57,6 @@ namespace TenureInformationApi.Tests.V1.UseCase
             var mockRawBody = "";
             var mockToken = _fixture.Create<Token>();
 
-            var mockResponseObject = _fixture.Create<TenureResponseObject>();
-
             var gatewayResponse = new UpdateEntityResult<TenureInformationDb>
             {
                 UpdatedEntity = _fixture.Create<TenureInformationDb>()
@@ -101,7 +95,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             response.Should().BeOfType(typeof(TenureResponseObject));
 
             // assert that sns factory wasnt called
-            _tenureSnsGateway.Verify(x => x.Publish(It.IsAny<TenureSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _tenureSnsGateway.Verify(x => x.Publish(It.IsAny<EntityEventSns>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -119,7 +113,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 .Setup(x => x.EditTenureDetails(It.IsAny<TenureQueryRequest>(), It.IsAny<EditTenureDetailsRequestObject>(), It.IsAny<string>(), It.IsAny<int?>()))
                 .ReturnsAsync(gatewayResult);
 
-            var snsEvent = _fixture.Create<TenureSns>();
+            var snsEvent = _fixture.Create<EntityEventSns>();
 
             _tenureSnsFactory
                  .Setup(x => x.UpdateTenure(gatewayResult, It.IsAny<Token>()))

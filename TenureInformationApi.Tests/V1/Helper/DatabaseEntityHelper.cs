@@ -1,7 +1,7 @@
 using AutoFixture;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using System.Linq;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.Helper
 {

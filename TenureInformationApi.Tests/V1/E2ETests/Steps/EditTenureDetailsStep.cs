@@ -1,8 +1,15 @@
 using FluentAssertions;
+using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Boundary.Response;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,15 +17,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Domain;
 using TenureInformationApi.V1.Infrastructure;
-using System.Text.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using TenureInformationApi.V1.Domain.Sns;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 {
@@ -141,11 +141,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
         }
 
-        public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<TenureSns> snsVerifer)
+        public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<EntityEventSns> snsVerifer)
         {
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
-            Action<TenureSns> verifyFunc = (actual) =>
+            Action<EntityEventSns> verifyFunc = (actual) =>
             {
                 actual.CorrelationId.Should().NotBeEmpty();
                 actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
@@ -181,8 +181,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
         private void VerifyEventData(object eventDataJsonObj, Dictionary<string, object> expected)
         {
             var data = JsonSerializer.Deserialize<Dictionary<string, object>>(eventDataJsonObj.ToString(), CreateJsonOptions());
-            data["startOfTenureDate"].ToString().Should().Be(expected["startOfTenureDate"].ToString());
-            data["endOfTenureDate"].ToString().Should().Be(expected["endOfTenureDate"].ToString());
+            DateTime.Parse(data["startOfTenureDate"].ToString()).Should().Be(DateTime.Parse(expected["startOfTenureDate"].ToString()));
+            DateTime.Parse(data["endOfTenureDate"].ToString()).Should().Be(DateTime.Parse(expected["endOfTenureDate"].ToString()));
 
             var eventDataTenureType = JsonSerializer.Deserialize<TenureType>(data["tenureType"].ToString(), CreateJsonOptions());
             eventDataTenureType.Should().BeEquivalentTo(expected["tenureType"]);
