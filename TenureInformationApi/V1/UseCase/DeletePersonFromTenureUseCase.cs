@@ -1,9 +1,9 @@
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Boundary.Requests;
 using System;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.UseCase.Interfaces;

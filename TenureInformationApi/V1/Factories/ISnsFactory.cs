@@ -1,15 +1,16 @@
 using Hackney.Core.JWT;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Domain.Sns;
+using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
 {
     public interface ISnsFactory
     {
-        TenureSns CreateTenure(TenureInformation tenure, Token token);
-        TenureSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
-        TenureSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
-        TenureSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        EntityEventSns CreateTenure(TenureInformation tenure, Token token);
+        EntityEventSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        EntityEventSns UpdateTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
+        EntityEventSns PersonRemovedFromTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);
     }
 }

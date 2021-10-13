@@ -2,10 +2,10 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using Hackney.Core.Sns;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using TenureInformationApi.V1.Domain.Sns;
 using Xunit;
 
 namespace TenureInformationApi.Tests
@@ -17,7 +17,7 @@ namespace TenureInformationApi.Tests
 
         public IAmazonSimpleNotificationService SimpleNotificationService => _factory?.SimpleNotificationService;
 
-        public SnsEventVerifier<TenureSns> SnsVerifer { get; private set; }
+        public SnsEventVerifier<EntityEventSns> SnsVerifer { get; private set; }
 
         private readonly AwsMockWebApplicationFactory<TStartup> _factory;
 
@@ -77,7 +77,7 @@ namespace TenureInformationApi.Tests
 
             Environment.SetEnvironmentVariable("TENURE_SNS_ARN", response.TopicArn);
 
-            SnsVerifer = new SnsEventVerifier<TenureSns>(_factory.AmazonSQS, SimpleNotificationService, response.TopicArn);
+            SnsVerifer = new SnsEventVerifier<EntityEventSns>(_factory.AmazonSQS, SimpleNotificationService, response.TopicArn);
         }
 
     }

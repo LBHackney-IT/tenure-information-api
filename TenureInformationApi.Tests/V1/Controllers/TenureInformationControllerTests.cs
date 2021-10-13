@@ -3,6 +3,10 @@ using FluentAssertions;
 using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Boundary.Response;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -14,11 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Response;
 using TenureInformationApi.V1.Controllers;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
@@ -97,11 +97,6 @@ namespace TenureInformationApi.Tests.V1.Controllers
             return new TenureQueryRequest() { Id = id ?? Guid.NewGuid() };
         }
 
-        private TenureQueryRequest ConstructQuery()
-        {
-            return new TenureQueryRequest() { Id = Guid.NewGuid() };
-        }
-
         private UpdateTenureRequest ConstructUpdateQuery()
         {
             return new UpdateTenureRequest() { Id = Guid.NewGuid(), PersonId = Guid.NewGuid() };
@@ -112,6 +107,12 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var request = _fixture.Create<UpdateTenureForPersonRequestObject>();
 
             return request;
+        }
+
+        private CreateTenureRequestObject ConstructPostRequest()
+        {
+            return _fixture.Build<CreateTenureRequestObject>()
+                           .Create();
         }
 
         [Fact]
@@ -156,7 +157,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             _mockGetByIdUsecase.Setup(x => x.Execute(mockRequest)).ReturnsAsync(mockTenureResponse);
 
             // Act
-            var response = await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
+            await _classUnderTest.GetByID(mockRequest).ConfigureAwait(false);
 
             // Assert ETAG value is 0, no error thrown
             var expectedEtagValue = $"\"\"";
@@ -173,7 +174,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 .ReturnsAsync(tenureResponse);
 
             // Act
-            var response = await _classUnderTest.PostNewTenure(new CreateTenureRequestObject()).ConfigureAwait(false);
+            var request = ConstructPostRequest();
+            var response = await _classUnderTest.PostNewTenure(request).ConfigureAwait(false);
 
             // Assert
             response.Should().BeOfType(typeof(CreatedResult));
@@ -189,7 +191,8 @@ namespace TenureInformationApi.Tests.V1.Controllers
                                  .ThrowsAsync(exception);
 
             // Act
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(new CreateTenureRequestObject())
+            var request = ConstructPostRequest();
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.PostNewTenure(request)
                 .ConfigureAwait(false);
 
             // Assert

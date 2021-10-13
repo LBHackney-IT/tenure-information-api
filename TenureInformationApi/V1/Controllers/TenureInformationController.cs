@@ -1,23 +1,19 @@
-using FluentValidation.AspNetCore;
 using FluentValidation.Results;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Hackney.Core.Middleware;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Boundary.Response;
+using Hackney.Shared.Tenure.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Boundary.Requests.Validation;
-using TenureInformationApi.V1.Boundary.Response;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using HeaderConstants = TenureInformationApi.V1.Infrastructure.HeaderConstants;
@@ -223,7 +219,7 @@ namespace TenureInformationApi.V1.Controllers
             if (header == null)
                 return null;
 
-            var eTag = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+            _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
 
             if (entityTagHeaderValue == null)
                 return null;

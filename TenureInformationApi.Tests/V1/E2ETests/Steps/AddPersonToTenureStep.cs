@@ -1,4 +1,8 @@
 using FluentAssertions;
+using Hackney.Core.Sns;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,9 +13,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Domain.Sns;
 using TenureInformationApi.V1.Infrastructure;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -86,11 +87,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             _cleanup.Add(async () => await tenureFixture._dbContext.DeleteAsync<TenureInformationDb>(result.Id).ConfigureAwait(false));
         }
 
-        public async Task ThenThePersonAddedToTenureEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<TenureSns> snsVerifer)
+        public async Task ThenThePersonAddedToTenureEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<EntityEventSns> snsVerifer)
         {
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
-            Action<TenureSns> verifyFunc = (actual) =>
+            Action<EntityEventSns> verifyFunc = (actual) =>
             {
                 actual.CorrelationId.Should().NotBeEmpty();
                 actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);

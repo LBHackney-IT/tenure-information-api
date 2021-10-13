@@ -1,9 +1,6 @@
 using Hackney.Core.JWT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Hackney.Shared.Tenure.Boundary.Requests;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
 
 namespace TenureInformationApi.V1.UseCase.Interfaces
 {

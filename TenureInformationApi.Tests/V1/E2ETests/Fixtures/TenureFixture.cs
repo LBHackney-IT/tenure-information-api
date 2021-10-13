@@ -2,20 +2,18 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
+using Hackney.Shared.Tenure.Boundary.Requests;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Tenure.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using TenureInformationApi.V1.Boundary.Requests;
-using TenureInformationApi.V1.Domain;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 {
     public class TenureFixture : IDisposable
     {
-
         public readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
@@ -59,7 +57,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenNoTenuresExist()
         {
-
+            // Nothing to do here
         }
 
         public UpdateTenureForPersonRequestObject UpdateTenureRequestObject;
@@ -156,7 +154,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         {
             InvalidTenureId = "1234567";
         }
-
         public void GivenNewTenureRequest()
         {
             var tenureRequest = _fixture.Build<CreateTenureRequestObject>()
@@ -166,10 +163,12 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.PotentialEndDate, DateTime.UtcNow)
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
+                                        .With(x => x.TenuredAsset, _fixture.Build<TenuredAsset>()
+                                                                           .With(x => x.PropertyReference, "123456")
+                                                                           .Create())
                                         .Create();
             CreateSnsTopic();
             CreateTenureRequestObject = tenureRequest;
-
         }
 
         public void GivenNewTenureRequestWithValidationErrors()
