@@ -14,7 +14,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
 {
     public class TenureFixture : IDisposable
     {
-
         public readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
         private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
@@ -157,10 +156,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
         }
         public void GivenNewTenureRequest()
         {
-            GivenNewTenureRequest(null);
-        }
-        public void GivenNewTenureRequest(string propRef)
-        {
             var tenureRequest = _fixture.Build<CreateTenureRequestObject>()
                                         .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddDays(1))
                                         .With(x => x.StartOfTenureDate, DateTime.UtcNow)
@@ -169,7 +164,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
                                         .With(x => x.TenuredAsset, _fixture.Build<TenuredAsset>()
-                                                                           .With(x => x.PropertyReference, propRef)
+                                                                           .With(x => x.PropertyReference, "123456")
                                                                            .Create())
                                         .Create();
             CreateSnsTopic();
