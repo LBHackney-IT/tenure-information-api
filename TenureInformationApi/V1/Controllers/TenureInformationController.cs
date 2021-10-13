@@ -87,10 +87,6 @@ namespace TenureInformationApi.V1.Controllers
         {
             var token = _tokenFactory.Create(_contextWrapper.GetContextRequestHeaders(HttpContext));
 
-            // TODO - Remove this when the FE is complete
-            if (string.IsNullOrEmpty(createTenureRequestObject.TenuredAsset.PropertyReference))
-                createTenureRequestObject.TenuredAsset.PropertyReference = "000000";
-
             var tenure = await _postNewTenureUseCase.ExecuteAsync(createTenureRequestObject, token).ConfigureAwait(false);
             return Created(new Uri($"api/v1/tenures/{tenure.Id}", UriKind.Relative), tenure);
         }
