@@ -1,7 +1,8 @@
-using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Shared;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Factories;
@@ -19,25 +20,25 @@ using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
 {
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<DynamoDbGateway>> _logger;
         private readonly DynamoDbGateway _classUnderTest;
-        private readonly IDynamoDBContext _dynamoDb;
+        private readonly IDynamoDbFixture _dbFixture;
         private readonly List<Action> _cleanup = new List<Action>();
 
         private readonly Mock<IEntityUpdater> _mockUpdater;
 
         private readonly Random _random = new Random();
 
-        public DynamoDbGatewayTests(AwsIntegrationTests<Startup> dbTestFixture)
+        public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dynamoDb = dbTestFixture.DynamoDbContext;
+            _dbFixture = appFactory.DynamoDbFixture;
             _logger = new Mock<ILogger<DynamoDbGateway>>();
             _mockUpdater = new Mock<IEntityUpdater>();
-            _classUnderTest = new DynamoDbGateway(_dynamoDb, _mockUpdater.Object, _logger.Object);
+            _classUnderTest = new DynamoDbGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
         }
 
         public void Dispose()
@@ -137,12 +138,12 @@ namespace TenureInformationApi.Tests.V1.Gateways
             _ = await _classUnderTest.PostNewTenureAsync(entityRequest).ConfigureAwait(false);
 
             // Assert
-            var dbEntity = await _dynamoDb.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
+            var dbEntity = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
 
             dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase(), config => config.Excluding(y => y.VersionNumber));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
 
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
 
         [Theory]
@@ -172,8 +173,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             var result = await _classUnderTest.UpdateTenureForPerson(query, request, 0).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
+            var load = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
 
             //Updated tenure with new Household Member
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
@@ -239,8 +239,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var request = ConstructUpdateFullNameRequest();
             var result = await _classUnderTest.UpdateTenureForPerson(query, request, 0).ConfigureAwait(false);
 
-            var load = await _dynamoDb.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(load.Id).ConfigureAwait(false));
+            var load = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false);
 
             result.UpdatedEntity.Should().BeEquivalentTo(load, config => config.Excluding(y => y.VersionNumber));
 
@@ -309,8 +308,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         private async Task InsertDatatoDynamoDB(TenureInformation entity)
         {
             var entityDb = entity.ToDatabase();
-            await _dynamoDb.SaveAsync(entityDb).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync<TenureInformationDb>(entityDb.Id).ConfigureAwait(false));
+            await _dbFixture.SaveEntityAsync(entityDb).ConfigureAwait(false);
         }
 
         [Fact]
@@ -364,7 +362,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
 
             // load entity from database
-            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
 
             // assert entity wasnt updated (matches inserted data)
             databaseResponse.StartOfTenureDate.Should().BeCloseTo((DateTime) mockTenure.StartOfTenureDate, 1.Seconds());
@@ -408,7 +406,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             response.Should().BeOfType(typeof(UpdateEntityResult<TenureInformationDb>));
 
             // load entity from database
-            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
 
             // assert entity was updated (matches mockRequestObject data)
             databaseResponse.StartOfTenureDate.Should().BeCloseTo((DateTime) updaterResponse.UpdatedEntity.StartOfTenureDate, 2.Seconds());
@@ -696,7 +694,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             await func.Should().NotThrowAsync<Exception>().ConfigureAwait(false);
 
             // check database
-            var databaseResponse = await _dynamoDb.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(mockTenure.Id).ConfigureAwait(false);
             databaseResponse.HouseholdMembers.Should().HaveCount(numberOfHouseholdMembers - 1);
 
             databaseResponse.HouseholdMembers.Should().NotContain(x => x.Id == personToRemove.Id);

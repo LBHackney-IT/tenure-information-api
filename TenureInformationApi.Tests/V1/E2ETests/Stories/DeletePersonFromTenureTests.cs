@@ -1,4 +1,6 @@
 using AutoFixture;
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using System;
 using System.Linq;
@@ -8,27 +10,27 @@ using TestStack.BDDfy;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.E2ETests.Stories
-
 {
     [Story(
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "the ability to delete a person from a tenure",
         SoThat = " can end their relationship to the legal tenure"
     )]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class DeletePersonFromTenureTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
-
+        private readonly IDynamoDbFixture _dbFixture;
+        private readonly ISnsFixture _snsFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly DeletePersonFromTenureStep _steps;
         private readonly Fixture _fixture = new Fixture();
 
-        public DeletePersonFromTenureTests(AwsIntegrationTests<Startup> dbFixture)
+        public DeletePersonFromTenureTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new DeletePersonFromTenureStep(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _snsFixture = appFactory.SnsFixture;
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _snsFixture.SimpleNotificationService);
+            _steps = new DeletePersonFromTenureStep(appFactory.Client);
         }
 
         public void Dispose()
@@ -86,9 +88,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 }))
                 .Then(t => _steps.NoContentResponseReturned())
                 .And(a => _steps.PersonRemovedFromTenure(_tenureFixture.TenureId, _tenureFixture.Tenure.HouseholdMembers.First().Id, _tenureFixture))
-                .And(t => _steps.ThenThePersonRemovedFromTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .And(t => _steps.ThenThePersonRemovedFromTenureEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
-
     }
 }
