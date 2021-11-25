@@ -1,3 +1,5 @@
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using System;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
@@ -10,18 +12,20 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
        AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
        IWant = "the ability to add a person to a tenure",
        SoThat = "I can create a link between a tenure and a person")]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class AddPersonToTenureTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
+        private readonly IDynamoDbFixture _dbFixture;
+        private readonly ISnsFixture _snsFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly AddPersonToTenureStep _steps;
 
-        public AddPersonToTenureTests(AwsIntegrationTests<Startup> dbFixture)
+        public AddPersonToTenureTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new AddPersonToTenureStep(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _snsFixture = appFactory.SnsFixture;
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _snsFixture.SimpleNotificationService);
+            _steps = new AddPersonToTenureStep(appFactory.Client);
         }
 
         public void Dispose()
@@ -52,7 +56,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenAnUpdateTenureWithNewHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenANewHouseholdMemberIsAdded(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
-                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
 
@@ -64,7 +68,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenAnUpdateTenureHouseholdMemberRequest(nullTenuredAssetType))
                 .When(w => _steps.WhenTheUpdateTenureApiIsCalled(_tenureFixture.TenureId, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
                 .Then(t => _steps.ThenTheHouseholdMemberTenureDetailsAreUpdated(_tenureFixture, _tenureFixture.PersonId, _tenureFixture.UpdateTenureRequestObject))
-                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .Then(t => _steps.ThenThePersonAddedToTenureEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
         [Theory]
