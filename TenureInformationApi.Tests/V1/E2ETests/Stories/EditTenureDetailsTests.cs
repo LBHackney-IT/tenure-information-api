@@ -1,4 +1,6 @@
 using AutoFixture;
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using System;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
@@ -13,20 +15,21 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         IWant = "the ability to edit details of a tenure",
         SoThat = "I can ensure that the tenure details are up to date"
     )]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class EditTenureDetailsTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
-
+        private readonly IDynamoDbFixture _dbFixture;
+        private readonly ISnsFixture _snsFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly EditTenureDetailsStep _steps;
         private readonly Fixture _fixture = new Fixture();
 
-        public EditTenureDetailsTests(AwsIntegrationTests<Startup> dbFixture)
+        public EditTenureDetailsTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new EditTenureDetailsStep(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _snsFixture = appFactory.SnsFixture;
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _snsFixture.SimpleNotificationService);
+            _steps = new EditTenureDetailsStep(appFactory.Client);
         }
 
         public void Dispose()
@@ -103,7 +106,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
                 .Then(t => _steps.ThenNoContentResponseReturned())
                 .And(a => _steps.TheTenureHasBeenUpdatedInTheDatabase(_tenureFixture, requestObject))
-                .And(t => _steps.ThenTheTenureUpdatedEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .And(t => _steps.ThenTheTenureUpdatedEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
 

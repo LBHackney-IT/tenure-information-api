@@ -1,3 +1,4 @@
+using Hackney.Core.Testing.DynamoDb;
 using System;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
@@ -10,18 +11,18 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
          AsA = "Service",
          IWant = "an endpoint to return person details",
          SoThat = "it is possible to view the details of a person")]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class GetTenureByIdTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
+        private readonly IDynamoDbFixture _dbFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly GetTenureStep _steps;
 
-        public GetTenureByIdTests(AwsIntegrationTests<Startup> dbFixture)
+        public GetTenureByIdTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new GetTenureStep(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, appFactory.SnsFixture.SimpleNotificationService);
+            _steps = new GetTenureStep(appFactory.Client);
         }
 
         public void Dispose()

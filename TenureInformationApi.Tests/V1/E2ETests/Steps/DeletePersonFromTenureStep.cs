@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
@@ -56,7 +57,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             tenure.HouseholdMembers.Should().NotContain(x => x.Id == personId);
         }
 
-        public async Task ThenThePersonRemovedFromTenureEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<EntityEventSns> snsVerifer)
+        public async Task ThenThePersonRemovedFromTenureEventIsRaised(TenureFixture tenureFixture, ISnsFixture snsFixture)
         {
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
@@ -78,7 +79,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(PersonRemovedFromTenureConstants.V1_VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         private void VerifyEventData(object eventDataJsonObj, List<HouseholdMembers> expected)

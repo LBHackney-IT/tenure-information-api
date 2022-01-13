@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Domain;
@@ -141,7 +142,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
         }
 
-        public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<EntityEventSns> snsVerifer)
+        public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, ISnsFixture snsFixture)
         {
             var dbRecord = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.Tenure.Id).ConfigureAwait(false);
 
@@ -175,7 +176,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(UpdateTenureConstants.V1_VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         private void VerifyEventData(object eventDataJsonObj, Dictionary<string, object> expected)

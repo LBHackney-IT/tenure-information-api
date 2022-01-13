@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Domain;
@@ -55,7 +56,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
         }
 
-        public async Task ThenTheTenureCreatedEventIsRaised(TenureFixture tenureFixture, SnsEventVerifier<EntityEventSns> snsVerifer)
+        public async Task ThenTheTenureCreatedEventIsRaised(TenureFixture tenureFixture, ISnsFixture snsFixture)
         {
             var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             var apiTenure = JsonSerializer.Deserialize<TenureResponseObject>(responseContent, CreateJsonOptions());
@@ -81,7 +82,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(CreateTenureEventConstants.V1_VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<EntityEventSns>();
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         public async Task ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(TenureFixture tenureFixture)

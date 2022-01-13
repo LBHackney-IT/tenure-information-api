@@ -1,3 +1,5 @@
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using System;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
@@ -10,18 +12,20 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
        AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
        IWant = "the ability to capture a new tenure",
        SoThat = "I can create a new tenure in the system with all the relevant information")]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class PostTenureTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
+        private readonly IDynamoDbFixture _dbFixture;
+        private readonly ISnsFixture _snsFixture;
         private readonly TenureFixture _tenureFixture;
         private readonly PostTenureSteps _steps;
 
-        public PostTenureTests(AwsIntegrationTests<Startup> dbFixture)
+        public PostTenureTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new PostTenureSteps(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _snsFixture = appFactory.SnsFixture;
+            _tenureFixture = new TenureFixture(_dbFixture.DynamoDbContext, _snsFixture.SimpleNotificationService);
+            _steps = new PostTenureSteps(appFactory.Client);
         }
 
         public void Dispose()
@@ -50,7 +54,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureFixture.GivenNewTenureRequest())
                 .When(w => _steps.WhenCreateTenureApiIsCalled(_tenureFixture.CreateTenureRequestObject))
                 .Then(t => _steps.ThenTheTenureDetailsAreReturnedAndIdIsNotEmpty(_tenureFixture))
-                .Then(t => _steps.ThenTheTenureCreatedEventIsRaised(_tenureFixture, _dbFixture.SnsVerifer))
+                .Then(t => _steps.ThenTheTenureCreatedEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
 
