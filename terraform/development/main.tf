@@ -64,3 +64,17 @@ module "tenure_information_api_cloudwatch_dashboard" {
   sns_topic_name      = aws_sns_topic.tenure.name
   dynamodb_table_name = aws_dynamodb_table.tenureinformationapi_dynamodb_table.name
 }
+
+module "tenure_information_api_waf"{
+  source              = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/waf"
+  name                = "tenure-api-waf"
+  scope               = "REGIONAL"
+  default_action      {
+    allow{}
+  }
+  visibility_config   {
+      cloudwatch_metrics_enabled = false
+      metric_name                = "tenure-api-waf-web-acl"
+      sampled_requests_enabled   = false
+  }
+}
