@@ -10,8 +10,6 @@ provider:
   stage: ${opt:stage}
   account: ${opt:account}
   region: eu-west-2
-  endpointType: regional
-
 
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
