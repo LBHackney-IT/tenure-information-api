@@ -131,7 +131,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./TenureInformationApi/
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
+            sls deploy --stage <<parameters.stage>> --aws-account <<parameters.aws-account>> --conceal
 
 jobs:
   check-code-formatting:
@@ -263,9 +263,9 @@ workflows:
           context: api-nuget-token-context
           requires:
             - terraform-apply-development
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
   check-and-deploy-staging-and-production:
       jobs:
       - check-code-formatting:
