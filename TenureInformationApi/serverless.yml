@@ -136,7 +136,7 @@ resources:
     webACL:
       Type: 'AWS::WAFv2::WebACL'
       Properties:
-        Name: Tenure API Web ACL 
+        Name: TenureAPIWebACL 
         Scope: REGIONAL
         DefaultAction:
           Allow:
@@ -168,7 +168,7 @@ resources:
 
 custom:
   associateWaf:
-      name: Tenure API Web ACL 
+      name: TenureAPIWebACL 
       version: V2
 
   vpc:
