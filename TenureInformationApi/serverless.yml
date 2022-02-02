@@ -7,7 +7,7 @@ provider:
     lambda: true
     apiGateway: true
   vpc: ${self:custom.vpc.${opt:stage}}
-  # stage: ${opt:stage}
+  stage: ${opt:stage}
   region: eu-west-2
 
 plugins:

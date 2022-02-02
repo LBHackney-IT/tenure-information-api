@@ -129,8 +129,8 @@ commands:
       - run:
           name: Deploy lambda
           command: |
-            cd ./TenureInformationApi/
             serverless plugin install -n serverless-associate-waf
+            cd ./TenureInformationApi/
             sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
