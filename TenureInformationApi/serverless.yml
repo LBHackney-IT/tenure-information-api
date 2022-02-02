@@ -137,7 +137,6 @@ resources:
       Type: 'AWS::WAFv2::WebACL'
       Properties:
         Name: Tenure API Web ACL 
-        version: V2
         Scope: REGIONAL
         DefaultAction:
           Allow:
@@ -170,6 +169,8 @@ resources:
 custom:
   associateWaf:
       name: Tenure API Web ACL 
+      version: V2
+
   vpc:
     development:
       subnetIds:
