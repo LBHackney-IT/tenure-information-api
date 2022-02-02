@@ -129,9 +129,9 @@ commands:
       - run:
           name: Deploy lambda
           command: |
-            serverless plugin install -n serverless-associate-waf
             cd ./TenureInformationApi/
             sls deploy --stage <<parameters.stage>> --conceal
+            serverless plugin install -n serverless-associate-waf
 
 jobs:
   check-code-formatting:
