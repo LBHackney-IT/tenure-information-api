@@ -1,4 +1,8 @@
 service: tenure-information-api
+
+plugins:
+  - serverless-associate-waf
+
 provider:
   name: aws
   runtime: dotnetcore3.1
@@ -9,9 +13,6 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
-
-plugins:
-  - serverless-associate-waf
 
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
