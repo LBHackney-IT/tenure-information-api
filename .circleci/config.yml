@@ -120,7 +120,6 @@ commands:
           name: Install serverless CLI
           command: |
             npm i -g serverless
-            serverless plugin install -n serverless-associate-waf
       - run:
           name: Build lambda
           command: |
@@ -131,6 +130,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./TenureInformationApi/
+            serverless plugin install -n serverless-associate-waf
             sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
