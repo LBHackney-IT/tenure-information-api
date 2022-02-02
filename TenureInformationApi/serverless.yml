@@ -133,10 +133,11 @@ resources:
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
                           - 'table/TenureInformation'
-    WebACL:
+    webACL:
       Type: 'AWS::WAFv2::WebACL'
       Properties:
         Name: Tenure API Web ACL 
+        version: V2
         Scope: REGIONAL
         DefaultAction:
           Allow:
