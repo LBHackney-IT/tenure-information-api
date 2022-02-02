@@ -130,7 +130,7 @@ commands:
           name: Install waf
           command: |
             cd ./TenureInformationApi/
-            npm install serverless-associate-waf --save-dev
+            serverless plugin install -n serverless-associate-waf
             sls deploy 
       - run:
           name: Deploy lambda
