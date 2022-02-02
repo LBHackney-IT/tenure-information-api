@@ -10,6 +10,9 @@ provider:
   stage: ${opt:stage}
   region: eu-west-2
 
+plugins:
+  - serverless-associate-waf
+
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
 
@@ -130,6 +133,15 @@ resources:
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
                           - 'table/TenureInformation'
+    wafAcl:
+      Type: AWS::WAFv2::WebACLAssociation
+      Properties: 
+        ResourceArn: String
+        WebACLArn: String
+
+custom:
+  associateWaf:
+      name: tenure-information-api-waf-acl
 custom:
   vpc:
     development:
