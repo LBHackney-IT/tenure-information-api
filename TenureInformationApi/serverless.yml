@@ -142,7 +142,6 @@ resources:
 custom:
   associateWaf:
       name: tenure-information-api-waf-acl
-custom:
   vpc:
     development:
       subnetIds:
