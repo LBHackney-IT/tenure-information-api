@@ -131,6 +131,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./TenureInformationApi/
+            npm i serverless-associate-waf
             sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
 
 jobs:
@@ -240,7 +241,7 @@ workflows:
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
-          context: 
+          context:
             - api-nuget-token-context
             - SonarCloud
       - assume-role-development:
@@ -271,7 +272,7 @@ workflows:
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
-          context: 
+          context:
               - api-nuget-token-context
               - SonarCloud
           filters:

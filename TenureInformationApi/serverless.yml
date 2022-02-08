@@ -12,6 +12,8 @@ provider:
   region: eu-west-2
   endpointType: regional
 
+plugins:
+  - serverless-associate-waf
 
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
@@ -32,7 +34,7 @@ functions:
             type: request
             resultTtlInSeconds: 0
             identitySource: method.request.header.Authorization
-            managedExternally: true 
+            managedExternally: true
           cors:
             origin: '*'
             headers:
@@ -134,6 +136,9 @@ resources:
                           - Ref: 'AWS::AccountId'
                           - 'table/TenureInformation'
 custom:
+  associateWaf:
+    name: TenureApiWafAcl
+    version: V2
   vpc:
     development:
       subnetIds:
