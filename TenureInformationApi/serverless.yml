@@ -137,7 +137,7 @@ resources:
                           - 'table/TenureInformation'
 custom:
   associateWaf:
-    name: TenureApiWafAcl
+    name: Platform_APIs_Web_ACL
     version: V2
   vpc:
     development:
