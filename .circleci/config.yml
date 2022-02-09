@@ -129,8 +129,8 @@ commands:
           name: Deploy lambda
           command: |
             cd ./TenureInformationApi/
+            npm i serverless-associate-waf
             sls deploy --stage <<parameters.stage>> --conceal
-
 jobs:
   check-code-formatting:
     executor: docker-dotnet
@@ -235,7 +235,7 @@ workflows:
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
-          context: 
+          context:
             - api-nuget-token-context
             - SonarCloud
       - assume-role-development:
@@ -266,7 +266,7 @@ workflows:
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
-          context: 
+          context:
               - api-nuget-token-context
               - SonarCloud
           filters:
