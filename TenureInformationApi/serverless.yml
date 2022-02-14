@@ -12,6 +12,7 @@ provider:
 
 plugins:
   - serverless-associate-waf
+  - '@serverless/safeguards-plugin'
 =======
 
 package:
@@ -135,6 +136,10 @@ resources:
                           - Ref: 'AWS::AccountId'
                           - 'table/TenureInformation'
 custom:
+  safeguards:
+    - title: Require authorizer
+      safeguard: require-authorizer
+      path: ./policies
   associateWaf:
     name: Platform_APIs_Web_ACL
     version: V2
