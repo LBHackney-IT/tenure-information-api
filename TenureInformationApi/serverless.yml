@@ -12,7 +12,6 @@ provider:
 
 plugins:
   - serverless-associate-waf
-=======
 
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
