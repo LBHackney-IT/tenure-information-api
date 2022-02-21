@@ -13,8 +13,6 @@ provider:
 plugins:
   - serverless-associate-waf
   - '@serverless/safeguards-plugin'
-=======
-
 package:
   artifact: ./bin/release/netcoreapp3.1/tenure-information-api.zip
 
