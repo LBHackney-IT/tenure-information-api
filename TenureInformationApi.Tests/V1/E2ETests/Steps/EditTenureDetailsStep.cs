@@ -137,6 +137,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var databaseResponse = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.TenureId).ConfigureAwait(false);
 
             databaseResponse.Id.Should().Be(tenureFixture.ExistingTenure.Id);
+            databaseResponse.PaymentReference.Should().Be(requestObject.PaymentReference);
             databaseResponse.StartOfTenureDate.Should().Be(requestObject.StartOfTenureDate);
             databaseResponse.EndOfTenureDate.Should().Be(requestObject.EndOfTenureDate);
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
@@ -154,12 +155,14 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
                 var expectedOldData = new Dictionary<string, object>
                 {
+                    { "paymentReference", tenureFixture.Tenure.PaymentReference },
                     { "startOfTenureDate", tenureFixture.Tenure.StartOfTenureDate?.ToString(DateFormat) },
                     { "endOfTenureDate", tenureFixture.Tenure.EndOfTenureDate?.ToString(DateFormat) },
                     { "tenureType", tenureFixture.Tenure.TenureType }
                 };
                 var expectedNewData = new Dictionary<string, object>
                 {
+                    { "paymentReference", dbRecord.PaymentReference },
                     { "startOfTenureDate", dbRecord.StartOfTenureDate?.ToString(DateFormat) },
                     { "endOfTenureDate", dbRecord.EndOfTenureDate?.ToString(DateFormat) },
                     { "tenureType", dbRecord.TenureType }
