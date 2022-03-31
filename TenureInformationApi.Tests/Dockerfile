@@ -33,6 +33,8 @@ RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.cspro
 # Copy everything else and build
 COPY . .
 
+RUN dotnet build -c Release -o out TenureInformationApi/TenureInformationApi.csproj
 RUN dotnet build -c debug -o out TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
 
 CMD dotnet test
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
