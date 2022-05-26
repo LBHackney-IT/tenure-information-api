@@ -44,10 +44,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                if (null != _tenureFixture)
-                    _tenureFixture.Dispose();
-                if (null != _steps)
-                    _steps.Dispose();
+                _tenureFixture?.Dispose();
+                _steps?.Dispose();
+                _snsFixture?.PurgeAllQueueMessages();
+
                 _disposed = true;
             }
         }
