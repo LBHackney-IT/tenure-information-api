@@ -75,7 +75,7 @@ namespace TenureInformationApi.Tests
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-                SnsFixture.CreateSnsTopic<EntityEventSns>("tenure", "TENURE_SNS_ARN");
+                SnsFixture.CreateSnsTopic<EntityEventSns>("tenure.fifo", "TENURE_SNS_ARN");
             });
         }
     }
