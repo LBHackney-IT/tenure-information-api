@@ -137,7 +137,6 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             var databaseResponse = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.TenureId).ConfigureAwait(false);
 
             databaseResponse.Id.Should().Be(tenureFixture.ExistingTenure.Id);
-            databaseResponse.PaymentReference.Should().Be(requestObject.PaymentReference);
             databaseResponse.StartOfTenureDate.Should().Be(requestObject.StartOfTenureDate);
             databaseResponse.EndOfTenureDate.Should().Be(requestObject.EndOfTenureDate);
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
