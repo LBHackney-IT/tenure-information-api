@@ -164,8 +164,8 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Fixtures
                                         .With(x => x.SubletEndDate, DateTime.UtcNow)
                                         .With(x => x.EvictionDate, DateTime.UtcNow)
                                         .With(x => x.TenuredAsset, _fixture.Build<TenuredAsset>()
-                                                                           .With(x => x.PropertyReference, "123456")
-                                                                           .Create())
+                                            .With(x => x.PropertyReference, "123456")
+                                            .Create())
                                         .Create();
             CreateTenureRequestObject = tenureRequest;
         }
