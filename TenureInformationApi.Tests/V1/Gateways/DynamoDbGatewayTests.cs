@@ -126,23 +126,12 @@ namespace TenureInformationApi.Tests.V1.Gateways
         {
             // Arrange
             var entityRequest = _fixture.Build<CreateTenureRequestObject>()
-                                .With(x => x.EndOfTenureDate, DateTime.UtcNow)
-                                .With(x => x.StartOfTenureDate, DateTime.UtcNow)
-                                .With(x => x.SuccessionDate, DateTime.UtcNow)
-                                .With(x => x.PotentialEndDate, DateTime.UtcNow)
-                                .With(x => x.SubletEndDate, DateTime.UtcNow)
-                                .With(x => x.EvictionDate, DateTime.UtcNow)
-                                .With(x => x.TenureSource, "test source")
-                                .With(x => x.FundingSource, "test funding source")
-                                .With(x => x.NumberOfAdultsInProperty, 2)
-                                .With(x => x.NumberOfChildrenInProperty, 1)
-                                .With(x => x.HasOffsiteStorage, false)
-                                .With(x => x.FurtherAccountInformation, _fixture.Build<FurtherAccountInformation>()
-                                    .With(x => x.IsRentAccountRequired, true)
-                                    .With(x => x.NoRentAccountReason, "No reason given.")
-                                    .With(x => x.RentCardGivenDate, DateTime.UtcNow)
-                                    .With(x => x.RentLetterSentDate, DateTime.UtcNow)
-                                    .Create())
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Create();
 
             // Act
@@ -163,23 +152,12 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public async Task UpdateTenureWithNewHouseHoldMemberSuccessfullyUpdates(bool nullTenuredAssetType)
         {
             var entity = _fixture.Build<TenureInformation>()
-                                .With(x => x.EndOfTenureDate, DateTime.UtcNow)
-                                .With(x => x.StartOfTenureDate, DateTime.UtcNow)
-                                .With(x => x.SuccessionDate, DateTime.UtcNow)
-                                .With(x => x.PotentialEndDate, DateTime.UtcNow)
-                                .With(x => x.SubletEndDate, DateTime.UtcNow)
-                                .With(x => x.EvictionDate, DateTime.UtcNow)
-                                .With(x => x.TenureSource, "test source")
-                                .With(x => x.FundingSource, "test funding source")
-                                .With(x => x.NumberOfAdultsInProperty, 2)
-                                .With(x => x.NumberOfChildrenInProperty, 1)
-                                .With(x => x.HasOffsiteStorage, false)
-                                .With(x => x.FurtherAccountInformation, _fixture.Build<FurtherAccountInformation>()
-                                    .With(x => x.IsRentAccountRequired, true)
-                                    .With(x => x.NoRentAccountReason, "No reason given.")
-                                    .With(x => x.RentCardGivenDate, DateTime.UtcNow)
-                                    .With(x => x.RentLetterSentDate, DateTime.UtcNow)
-                                    .Create())
+                                 .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                                 .With(x => x.SuccessionDate, DateTime.UtcNow)
+                                 .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                                 .With(x => x.SubletEndDate, DateTime.UtcNow)
+                                 .With(x => x.EvictionDate, DateTime.UtcNow)
                                  .Without(x => x.HouseholdMembers)
                                  .With(x => x.VersionNumber, (int?) null)
                                  .Create();
@@ -220,14 +198,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             load.TenureType.Should().BeEquivalentTo(dbEntity.TenureType);
             load.Terminated.Should().BeEquivalentTo(dbEntity.Terminated);
             load.VersionNumber.Should().Be(1);
-
-            load.TenureSource.Should().Be(dbEntity.TenureSource);
-            load.FundingSource.Should().Be(dbEntity.FundingSource);
-            load.NumberOfAdultsInProperty.Should().Be(dbEntity.NumberOfAdultsInProperty);
-            load.NumberOfChildrenInProperty.Should().Be(dbEntity.NumberOfChildrenInProperty);
-            load.HasOffsiteStorage.Should().Be(dbEntity.HasOffsiteStorage);
-            load.FurtherAccountInformation.Should().Be(dbEntity.FurtherAccountInformation);
-
 
             var expected = new HouseholdMembers()
             {
