@@ -68,8 +68,7 @@ namespace TenureInformationApi
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                });
 
             services.AddFluentValidation(Assembly.GetAssembly(typeof(ChargesValidator)));
 
