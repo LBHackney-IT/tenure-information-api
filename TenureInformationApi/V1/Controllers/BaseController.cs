@@ -10,11 +10,6 @@ namespace TenureInformationApi.V1.Controllers
 {
     public class BaseController : Controller
     {
-        public BaseController()
-        {
-            ConfigureJsonSerializer();
-        }
-
         public string GetCorrelationId()
         {
             StringValues correlationId;
@@ -24,21 +19,6 @@ namespace TenureInformationApi.V1.Controllers
                 throw new KeyNotFoundException("Request is missing a correlationId");
 
             return correlationId.First();
-        }
-
-        public static void ConfigureJsonSerializer()
-        {
-            JsonConvert.DefaultSettings = () =>
-            {
-                var settings = new JsonSerializerSettings();
-                settings.Formatting = Formatting.Indented;
-                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-                settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-
-                return settings;
-            };
         }
     }
 }

@@ -38,7 +38,7 @@ namespace TenureInformationApi.Tests.V1.Factories
             var result = factory.CreateTenure(tenure, token);
 
             result.CorrelationId.Should().NotBeEmpty();
-            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, 100);
+            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(100));
             result.EntityId.Should().Be(tenure.Id);
             result.EventData.Should().BeEquivalentTo(expectedEventData);
             result.EventType.Should().Be(CreateTenureEventConstants.EVENTTYPE);
@@ -64,7 +64,7 @@ namespace TenureInformationApi.Tests.V1.Factories
             var result = factory.UpdateTenure(updateResult, token);
 
             result.CorrelationId.Should().NotBeEmpty();
-            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, 100);
+            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(100));
             result.EntityId.Should().Be(tenureDb.Id);
             result.EventData.Should().BeEquivalentTo(expectedEventData);
             result.EventType.Should().Be(UpdateTenureConstants.EVENTTYPE);
@@ -90,7 +90,7 @@ namespace TenureInformationApi.Tests.V1.Factories
             var result = factory.PersonAddedToTenure(updateResult, token);
 
             result.CorrelationId.Should().NotBeEmpty();
-            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, 100);
+            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(100));
             result.EntityId.Should().Be(tenureDb.Id);
             result.EventData.Should().BeEquivalentTo(expectedEventData);
             result.EventType.Should().Be(PersonAddedToTenureConstants.EVENTTYPE);
@@ -116,7 +116,7 @@ namespace TenureInformationApi.Tests.V1.Factories
             var result = factory.PersonRemovedFromTenure(updateResult, token);
 
             result.CorrelationId.Should().NotBeEmpty();
-            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, 100);
+            result.DateTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(100));
             result.EntityId.Should().Be(tenureDb.Id);
             result.EventData.Should().BeEquivalentTo(expectedEventData);
             result.EventType.Should().Be(PersonRemovedFromTenureConstants.EVENTTYPE);

@@ -4,7 +4,7 @@ Base API is a boilerplate code for being reused for new APIs for LBH
 
 ## Stack
 
-- .NET Core as a web framework.
+- .NET 6 as a web framework.
 - nUnit as a test framework.
 
 ## Dependencies
