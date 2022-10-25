@@ -183,7 +183,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         }
 
         [Fact]
-        public void PostNewTenureIdAsyncExceptionIsThrown()
+        public async Task PostNewTenureIdAsyncExceptionIsThrown()
         {
             // Arrange
             var exception = new ApplicationException("Test exception");
@@ -196,7 +196,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 .ConfigureAwait(false);
 
             // Assert
-            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+            (await func.Should().ThrowAsync<ApplicationException>()).WithMessage(exception.Message);
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
         }
 
         [Fact]
-        public void UpdateTenureForPersonAsyncExceptionIsThrown()
+        public async Task UpdateTenureForPersonAsyncExceptionIsThrown()
         {
             // Arrange
             var query = ConstructUpdateQuery();
@@ -247,7 +247,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
                 .ConfigureAwait(false);
 
             // Assert
-            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+            (await func.Should().ThrowAsync<ApplicationException>()).WithMessage(exception.Message);
         }
 
         [Theory]

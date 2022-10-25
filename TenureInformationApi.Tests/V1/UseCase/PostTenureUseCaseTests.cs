@@ -52,7 +52,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
         }
 
         [Fact]
-        public void CreateTenureByIdAsyncExceptionIsThrown()
+        public async Task CreateTenureByIdAsyncExceptionIsThrown()
         {
             // Arrange
             var tenureRequest = new CreateTenureRequestObject();
@@ -65,7 +65,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             Func<Task<TenureResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(tenureRequest, token).ConfigureAwait(false);
 
             // Assert
-            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+            (await func.Should().ThrowAsync<ApplicationException>()).WithMessage(exception.Message);
         }
     }
 }

@@ -53,13 +53,13 @@ namespace TenureInformationApi.Tests.V1.UseCase
         }
 
         [Fact]
-        public void GetByIdThrowsException()
+        public async Task GetByIdThrowsException()
         {
             var request = ConstructRequest();
             var exception = new ApplicationException("Test Exception");
             _mockGateway.Setup(x => x.GetEntityById(request)).ThrowsAsync(exception);
             Func<Task<TenureInformation>> throwException = async () => await _classUnderTest.Execute(request).ConfigureAwait(false);
-            throwException.Should().Throw<ApplicationException>().WithMessage("Test Exception");
+            (await throwException.Should().ThrowAsync<ApplicationException>()).WithMessage("Test Exception");
         }
     }
 }
