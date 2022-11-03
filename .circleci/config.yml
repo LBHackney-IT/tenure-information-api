@@ -231,18 +231,14 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "production"
-  api-performance-testing-development:
-    executor: docker-python
-    steps:
-      - grafana/k6:
-            arguments: --env TOKEN=$AUTH_TOKEN_DEVELOPMENT--env API_URL=$API_URL_LOAD_TESTING
-            script: scripts/performance-testing-script.js    
 
 workflows:
   check-and-deploy-development:
     jobs:
-      - api-performance-testing-development:
-          context: mtfh-mfe-e2e-tests
+      - grafana/k6:
+            context: api-load-testing
+            arguments: --env TOKEN=$API_DEVELOPMENT_TOKEN --env API_URL=$TENURE_API_URL
+            script: scripts/performance-testing-script.js    
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
