@@ -78,7 +78,7 @@ module "api-alarm" {
 }
 
 resource "aws_sns_topic_policy" "default" {
-  arn = aws_sns_topic.tenure_sns_arn.arn
+  arn = aws_sns_topic.tenure.arn
 
   policy = data.aws_iam_policy_document.sns_topic_policy.json
 }
@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "sns_topic_policy" {
       }
 
       resources = [
-        aws_sns_topic.tenure_sns_arn.arn
+        aws_sns_topic.tenure.arn
       ]
 
       sid = "__default_statement_ID"
@@ -140,7 +140,7 @@ data "aws_iam_policy_document" "sns_topic_policy" {
         identifiers = ["arn:aws:iam::${data.aws_ssm_parameter.dev_account_id.value}:role/LBH_Circle_CI_Deployment_Role"]
       }
       resources = [
-        aws_sns_topic.tenure_sns_arn.arn
+        aws_sns_topic.tenure.arn
       ]
 
       sid = "dev-statement"
@@ -158,7 +158,7 @@ data "aws_iam_policy_document" "sns_topic_policy" {
       }
 
       resources = [
-        aws_sns_topic.tenure_sns_arn.arn
+        aws_sns_topic.tenure.arn
       ]
 
       sid = "staging_statement"
