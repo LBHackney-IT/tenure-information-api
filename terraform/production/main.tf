@@ -79,3 +79,77 @@ module "api-alarm" {
   error_threshold  = "1"
   sns_topic_arn    = data.aws_ssm_parameter.cloudwatch_topic_arn.value
 }
+    
+module "sns-delivery-failure-alarm" {
+  source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/sns-delivery-metric-and-alarm"
+  environment_name = var.environment_name
+  region           = data.aws_region.current.name
+  account_id       = data.aws_caller_identity.current.account_id
+  sns_topic_name   = "tenure.fifo"
+  sns_topic_arn_for_notifications = data.aws_ssm_parameter.cloudwatch_topic_arn.value
+}
+
+resource "aws_sns_topic_policy" "default" {
+  arn = aws_sns_topic.tenure.arn
+
+  policy = data.aws_iam_policy_document.sns_topic_policy.json
+}
+
+data "aws_ssm_parameter" "prod_account_id" {
+  name = "/prod-apis/account-id"
+}
+
+data "aws_iam_policy_document" "sns_topic_policy" {
+  policy_id = "__default_policy_ID"
+  statement {
+      actions = [
+        "sns:GetTopicAttributes",
+        "sns:SetTopicAttributes",
+        "sns:AddPermission",
+        "sns:RemovePermission",
+        "sns:DeleteTopic",
+        "sns:Subscribe",
+        "sns:ListSubscriptionsByTopic",
+        "sns:Publish"
+      ]
+
+      condition {
+        test     = "StringEquals"
+        variable = "AWS:SourceOwner"
+
+        values = [
+          data.aws_caller_identity.current.account_id
+        ]
+
+      }
+
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = ["*"]
+      }
+
+      resources = [
+        aws_sns_topic.tenure.arn
+      ]
+
+      sid = "__default_statement_ID"
+    }
+  statement {
+      actions = [
+        "sns:Subscribe"
+      ]
+
+      effect = "Allow"
+
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:aws:iam::${data.aws_ssm_parameter.prod_account_id.value}:role/LBH_Circle_CI_Deployment_Role"]
+      }
+      resources = [
+        aws_sns_topic.tenure.arn
+      ]
+
+      sid = "prod-statement"
+    }	
