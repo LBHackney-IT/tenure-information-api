@@ -16,6 +16,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
+using TenureInformationApi.Tests.V1.Helper;
 using TenureInformationApi.V1.Infrastructure;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -26,13 +27,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
     {
         public PostTenureSteps(HttpClient httpClient) : base(httpClient)
         { }
-        private static void ShouldHaveErrorFor(JEnumerable<JToken> errors, string propertyName, string errorCode = null)
-        {
-            var error = errors.FirstOrDefault(x => (x.Path.Split('.').Last().Trim('\'', ']')) == propertyName) as JProperty;
-            error.Should().NotBeNull();
-            if (!string.IsNullOrEmpty(errorCode))
-                error.Value.ToString().Should().Contain(errorCode);
-        }
+
         /// <summary>
         /// You can use jwt.io to decode the token - it is the same one we'd use on dev, etc. 
         /// </summary>
@@ -65,7 +60,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             Action<EntityEventSns> verifyFunc = (actual) =>
             {
                 actual.CorrelationId.Should().NotBeEmpty();
-                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 2000);
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMilliseconds(2000));
                 actual.EntityId.Should().Be(dbRecord.Id);
 
                 var expected = dbRecord.ToDomain();
@@ -118,7 +113,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             JObject jo = JObject.Parse(responseContent);
             var errors = jo["errors"].Children();
 
-            ShouldHaveErrorFor(errors, "EndOfTenureDate");
+            ErrorHelper.ShouldHaveErrorFor(errors, "EndOfTenureDate");
         }
 
         public void ThenBadRequestIsReturned()

@@ -89,7 +89,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
         [Theory]
         [InlineData(null)]
         [InlineData(3)]
-        public void UpdateTenureByIdAsyncExceptionIsThrown(int? ifMatch)
+        public async Task UpdateTenureByIdAsyncExceptionIsThrown(int? ifMatch)
         {
             // Arrange
             var request = ConstructUpdateRequest();
@@ -103,7 +103,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
                 await _classUnderTest.ExecuteAsync(query, request, token, ifMatch).ConfigureAwait(false);
 
             // Assert
-            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+            (await func.Should().ThrowAsync<ApplicationException>()).WithMessage(exception.Message);
         }
     }
 }

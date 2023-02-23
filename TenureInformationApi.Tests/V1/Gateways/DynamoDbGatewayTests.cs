@@ -300,7 +300,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
                                                                                                    .ConfigureAwait(false);
 
             // Assert
-            func.Should().Throw<VersionNumberConflictException>()
+            (await func.Should().ThrowAsync<VersionNumberConflictException>())
                          .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync to update id {query.Id}", Times.Never());
         }
@@ -444,7 +444,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // assert no exception is called
-            act.Should().NotThrow<EditTenureInformationValidationException>();
+            await act.Should().NotThrowAsync<EditTenureInformationValidationException>();
         }
 
         [Fact]
@@ -481,7 +481,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // assert no exception is called
-            act.Should().NotThrow<EditTenureInformationValidationException>();
+            await act.Should().NotThrowAsync<EditTenureInformationValidationException>();
         }
 
         [Fact]
@@ -522,7 +522,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // assert exception is thrown
-            act.Should().Throw<EditTenureInformationValidationException>();
+            await act.Should().ThrowAsync<EditTenureInformationValidationException>();
         }
 
         [Fact]
@@ -558,7 +558,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // assert exception is thrown
-            act.Should().NotThrow<EditTenureInformationValidationException>();
+            await act.Should().NotThrowAsync<EditTenureInformationValidationException>();
         }
 
         [Fact]
@@ -597,7 +597,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // assert exception is thrown
-            act.Should().Throw<EditTenureInformationValidationException>();
+            await act.Should().ThrowAsync<EditTenureInformationValidationException>();
         }
 
         [Theory]
@@ -623,7 +623,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             };
 
             // Assert
-            act.Should().Throw<VersionNumberConflictException>()
+            (await act.Should().ThrowAsync<VersionNumberConflictException>())
                .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
         }
 
