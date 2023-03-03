@@ -43,11 +43,11 @@ namespace TenureInformationApi.V1.Gateways
         public async Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync");
-            _logger.LogDebug($"isTemporaryAccommodation Request={createTenureRequestObject.TenuredAsset?.IsTemporaryAccommodation}");
+            _logger.LogInformation($"isTemporaryAccommodation Request={createTenureRequestObject.TenuredAsset?.IsTemporaryAccommodation}");
             var tenureDbEntity = createTenureRequestObject.ToDatabase();
 
             await _dynamoDbContext.SaveAsync(tenureDbEntity).ConfigureAwait(false);
-            _logger.LogDebug($"isTemporaryAccommodation DB={tenureDbEntity.TenuredAsset?.IsTemporaryAccommodation}");
+            _logger.LogInformation($"isTemporaryAccommodation DB={tenureDbEntity.TenuredAsset?.IsTemporaryAccommodation}");
             return tenureDbEntity.ToDomain();
         }
 
