@@ -13,6 +13,7 @@ using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
+using EditTenureDetailsRequestObject = TenureInformationApi.V1.EditTenureDetailsRequestObject;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
@@ -31,6 +32,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new Mock<ISnsFactory>();
 
+            Environment.SetEnvironmentVariable(EditTenureDetailsUseCase.EditChargesAllowedGroupsVariable, "TestGroup");
             _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
         }
 

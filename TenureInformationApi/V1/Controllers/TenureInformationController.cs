@@ -155,6 +155,10 @@ namespace TenureInformationApi.V1.Controllers
 
                 return BadRequest(response);
             }
+            catch (EditTenureInformationUnauthorisedChangeException unauthorizedChangeException)
+            {
+                return Unauthorized($"The current user is not authorised to edit {unauthorizedChangeException.Member}");
+            }
             catch (VersionNumberConflictException vncErr)
             {
                 return Conflict(vncErr.Message);

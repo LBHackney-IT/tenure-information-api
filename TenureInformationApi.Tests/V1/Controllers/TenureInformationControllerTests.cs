@@ -22,6 +22,7 @@ using TenureInformationApi.V1.Controllers;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
+using EditTenureDetailsRequestObject = TenureInformationApi.V1.EditTenureDetailsRequestObject;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Controllers
