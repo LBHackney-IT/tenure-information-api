@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using TenureInformationApi.V1.UseCase;
 
 namespace TenureInformationApi.Tests
 {
@@ -32,6 +33,8 @@ namespace TenureInformationApi.Tests
 
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
+
+            EnsureEnvVarConfigured(EditTenureDetailsUseCase.EditChargesAllowedGroupsVariable, "TESTGROUP");
 
             Client = CreateClient();
         }
