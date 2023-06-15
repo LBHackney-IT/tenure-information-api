@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Infrastructure.Authorization;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using HeaderConstants = TenureInformationApi.V1.Infrastructure.HeaderConstants;
@@ -128,6 +129,7 @@ namespace TenureInformationApi.V1.Controllers
         [HttpPatch]
         [Route("{id}")]
         [LogCall(LogLevel.Information)]
+        [AuthorizePropertyByGroups(nameof(EditTenureDetailsRequestObject.Charges), "EDIT_CHARGES_ALLOWED_GROUPS")]
         public async Task<IActionResult> EditTenureDetails([FromRoute] TenureQueryRequest query, [FromBody] EditTenureDetailsRequestObject editTenureDetailsRequestObject)
         {
             // get raw body text (Only the parameters that need to be changed will be sent.
@@ -154,10 +156,6 @@ namespace TenureInformationApi.V1.Controllers
                 var response = BuildCustomEditTenureBadRequestResponse(e.ValidationResult);
 
                 return BadRequest(response);
-            }
-            catch (EditTenureInformationUnauthorisedChangeException unauthorizedChangeException)
-            {
-                return Unauthorized($"The current user is not authorised to edit {unauthorizedChangeException.Member}");
             }
             catch (VersionNumberConflictException vncErr)
             {

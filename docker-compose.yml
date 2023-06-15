@@ -18,6 +18,7 @@ services:
      - AWS_REGION=eu-west-2
      - AWS_ACCESS_KEY_ID=local
      - AWS_SECRET_ACCESS_KEY=local
+     - EDIT_CHARGES_ALLOWED_GROUPS=TEST
     links:
       - dynamodb-database
       - localstack-tenure-information-api
@@ -38,6 +39,7 @@ services:
       - AWS_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
+      - EDIT_CHARGES_ALLOWED_GROUPS=TEST
     links:
       - dynamodb-database
       - localstack-tenure-information-api

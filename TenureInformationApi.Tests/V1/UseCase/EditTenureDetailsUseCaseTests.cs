@@ -32,7 +32,6 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new Mock<ISnsFactory>();
 
-            Environment.SetEnvironmentVariable(EditTenureDetailsUseCase.EditChargesAllowedGroupsVariable, "TestGroup");
             _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
         }
 

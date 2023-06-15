@@ -22,57 +22,16 @@ namespace TenureInformationApi.V1.UseCase
         private readonly ISnsGateway _snsGateway;
         private readonly ISnsFactory _snsFactory;
 
-        private readonly ISet<string> _editChargesGroups;
-
-        public const string EditChargesAllowedGroupsVariable = "EDIT_CHARGES_ALLOWED_GROUPS";
-
         public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;
             _snsFactory = snsFactory;
-
-            var editChargesGroupString = Environment.GetEnvironmentVariable(EditChargesAllowedGroupsVariable);
-            if (string.IsNullOrWhiteSpace(editChargesGroupString))
-            {
-                throw new Exception($"Environment variable not found: {EditChargesAllowedGroupsVariable}");
-            }
-            _editChargesGroups = editChargesGroupString.Split(',', StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        }
-
-        private bool CanEditCharges(string[] groups) => groups?.Any(g => _editChargesGroups.Contains(g)) ?? false;
-
-        private JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
-        }
-
-        private bool HasCharges(string updateJson)
-        {
-            var returnValue = false;
-            if (!string.IsNullOrWhiteSpace(updateJson))
-            {
-                var updateDic = JsonSerializer.Deserialize<Dictionary<string, object>>(updateJson, CreateJsonOptions());
-                returnValue = updateDic.ContainsKey(nameof(EditTenureDetailsRequestObject.Charges));
-            }
-            return returnValue;
         }
 
         public async Task<TenureResponseObject> ExecuteAsync(
             TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token, int? ifMatch)
         {
-            // Perform the least-expensive check first            
-            if (!CanEditCharges(token.Groups) && HasCharges(requestBody))
-            {
-                throw new EditTenureInformationUnauthorisedChangeException(nameof(editTenureDetailsRequestObject.Charges));
-            }
-
             var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
