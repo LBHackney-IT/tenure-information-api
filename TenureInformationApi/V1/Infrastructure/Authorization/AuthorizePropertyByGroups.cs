@@ -96,7 +96,8 @@ namespace TenureInformationApi.V1.Infrastructure.Authorization
             if (token?.Groups is null ||
                 (!CanEditProperty(token.Groups) && await HasProperty(context)))
             {
-                context.Result = new UnauthorizedObjectResult($"User {token?.Name} is not authorized to access this endpoint.");
+                context.Result =
+                    new UnauthorizedObjectResult($"User {token?.Name} is not authorized to access the {_jsonPropertyName} property on this endpoint.");
             }
         }
 

@@ -13,7 +13,6 @@ using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
-using EditTenureDetailsRequestObject = TenureInformationApi.V1.EditTenureDetailsRequestObject;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.UseCase
