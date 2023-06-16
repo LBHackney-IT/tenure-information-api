@@ -34,7 +34,7 @@ namespace TenureInformationApi.Tests
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
 
-            EnsureEnvVarConfigured("EDIT_CHARGES_ALLOWED_GROUPS", "TESTGROUP");
+            EnsureEnvVarConfigured("EDIT_CHARGES_ALLOWED_GROUPS", "e2e-testing");
 
             Client = CreateClient();
         }
