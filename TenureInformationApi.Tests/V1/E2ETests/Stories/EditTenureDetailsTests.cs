@@ -150,7 +150,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 composer = composer.Without(x => x.Charges);
             }
-               
+
             return composer.Create();
         }
 
@@ -167,7 +167,7 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
             {
                 composer = composer.Without(x => x.Charges);
             }
-                
+
             return composer.Create();
         }
     }
