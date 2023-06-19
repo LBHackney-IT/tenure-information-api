@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Hackney.Core.JWT;
-using Hackney.Core.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using Hackney.Core;
-using Amazon.Runtime.Internal;
 using System.IO;
 using System.Text;
 

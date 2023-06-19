@@ -3,6 +3,7 @@ using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using System;
+using TenureInformationApi.Tests.V1.E2ETests.Constants;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.E2ETests.Steps;
 using TestStack.BDDfy;
@@ -93,21 +94,36 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact]
-        public void ServiceReturns204AndUpdatesDatabase()
-        {
-            // request with empty body should still return 204 no content.
-            // the request also shouldnt update the database since no changes were sent.
 
-            var requestObject = CreateValidRequestObject();
+        [Theory]
+        [InlineData(false, AuthenticationConstants.E2EToken)]
+        [InlineData(true, AuthenticationConstants.E2ETokenEditCharges)]
+        [InlineData(false, AuthenticationConstants.E2ETokenEditCharges)]
+        public void ServiceReturns204AndUpdatesDatabase(bool includeCharges, string token)
+        {
+            var requestObject = CreateValidRequestObject(includeCharges);
 
             this.Given(g => _tenureFixture.GivenATenureExist(false))
-                .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject))
+                .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject, default(int), token))
                 .Then(t => _steps.ThenNoContentResponseReturned())
                 .And(a => _steps.TheTenureHasBeenUpdatedInTheDatabase(_tenureFixture, requestObject))
                 .And(t => _steps.ThenTheTenureUpdatedEventIsRaised(_tenureFixture, _snsFixture))
                 .BDDfy();
         }
+
+        [Fact]
+        public void ServiceDoesNotEditChargesWhenUserInIncorrectGroup()
+        {
+            var requestObject = CreateValidRequestObject(true);
+
+            var token = AuthenticationConstants.E2EToken;
+
+            this.Given(g => _tenureFixture.GivenATenureExist(false))
+                .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject, default(int), token))
+                .Then(t => _steps.ThenUnauthorizedIsReturned())
+                .BDDfy();
+        }
+
 
         [Theory]
         [InlineData(null)]
@@ -122,26 +138,37 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
                 .BDDfy();
         }
 
-        private EditTenureDetailsRequestObject CreateValidRequestObject()
+        private EditTenureDetailsRequestObject CreateValidRequestObject(bool includeCharges = false)
         {
             var tenureStartDate = DateTime.UtcNow.AddYears(-1);
             var tenureEndDate = tenureStartDate.AddDays(150);
 
-            return _fixture.Build<EditTenureDetailsRequestObject>()
+            var composer = _fixture.Build<EditTenureDetailsRequestObject>()
                 .With(x => x.StartOfTenureDate, tenureStartDate)
-                .With(x => x.EndOfTenureDate, tenureEndDate)
-                .Create();
+                .With(x => x.EndOfTenureDate, tenureEndDate);
+            if (!includeCharges)
+            {
+                composer = composer.Without(x => x.Charges);
+            }
+               
+            return composer.Create();
         }
 
-        private EditTenureDetailsRequestObject CreateInvalidRequestObject()
+        private EditTenureDetailsRequestObject CreateInvalidRequestObject(bool includeCharges = false)
         {
             var tenureStartDate = DateTime.UtcNow.AddYears(-1);
             var tenureEndDate = tenureStartDate.AddDays(-7);
 
-            return _fixture.Build<EditTenureDetailsRequestObject>()
+            var composer = _fixture.Build<EditTenureDetailsRequestObject>()
                 .With(x => x.StartOfTenureDate, tenureStartDate)
-                .With(x => x.EndOfTenureDate, tenureEndDate)
-                .Create();
+                .With(x => x.EndOfTenureDate, tenureEndDate);
+
+            if (!includeCharges)
+            {
+                composer = composer.Without(x => x.Charges);
+            }
+                
+            return composer.Create();
         }
     }
 }

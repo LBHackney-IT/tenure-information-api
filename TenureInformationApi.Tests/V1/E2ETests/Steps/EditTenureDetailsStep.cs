@@ -11,12 +11,12 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using TenureInformationApi.Tests.V1.E2ETests.Constants;
 using TenureInformationApi.Tests.V1.E2ETests.Fixtures;
 using TenureInformationApi.Tests.V1.Helper;
 using TenureInformationApi.V1.Infrastructure;
@@ -40,9 +40,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
 
         public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject, int? ifMatch)
         {
-            var token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
+            await WhenEditTenureDetailsApiIsCalled(id, requestObject, ifMatch, AuthenticationConstants.E2EToken).ConfigureAwait(false);
+        }
 
+        public async Task WhenEditTenureDetailsApiIsCalled(Guid id, object requestObject, int? ifMatch, string token)
+        {
             // setup request
             var uri = new Uri($"api/v1/tenures/{id}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Patch, uri);
@@ -125,6 +127,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             responseContent.Should().Contain($"The version number supplied ({sentVersionNumberString}) does not match the current value on the entity (0).");
         }
 
+        public void ThenUnauthorizedIsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
         public async Task TheTenureHasBeenUpdatedInTheDatabase(TenureFixture tenureFixture, EditTenureDetailsRequestObject requestObject)
         {
             var databaseResponse = await tenureFixture._dbContext.LoadAsync<TenureInformationDb>(tenureFixture.TenureId).ConfigureAwait(false);
@@ -133,6 +140,10 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             databaseResponse.StartOfTenureDate.Should().Be(requestObject.StartOfTenureDate);
             databaseResponse.EndOfTenureDate.Should().Be(requestObject.EndOfTenureDate);
             databaseResponse.TenureType.Code.Should().Be(requestObject.TenureType.Code);
+            if (requestObject.Charges != null)
+            {
+                databaseResponse.Charges.Should().BeEquivalentTo(requestObject.Charges);
+            }
         }
 
         public async Task ThenTheTenureUpdatedEventIsRaised(TenureFixture tenureFixture, ISnsFixture snsFixture)
