@@ -1,4 +1,5 @@
 using AutoFixture;
+using Hackney.Core;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
@@ -118,9 +119,14 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Stories
 
             var token = AuthenticationConstants.E2EToken;
 
+            var user = AuthenticationConstants.E2EFullName;
+            var propertyName = nameof(requestObject.Charges).ToCamelCase();
+
+            var expectedMessage = $"User {user} is not authorized to access the {propertyName} property on this endpoint.";
+
             this.Given(g => _tenureFixture.GivenATenureExist(false))
                 .When(w => _steps.WhenEditTenureDetailsApiIsCalled(_tenureFixture.TenureId, requestObject, default(int), token))
-                .Then(t => _steps.ThenUnauthorizedIsReturned())
+                .Then(t => _steps.ThenUnauthorizedIsReturned(expectedMessage))
                 .BDDfy();
         }
 

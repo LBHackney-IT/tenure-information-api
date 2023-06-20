@@ -127,9 +127,11 @@ namespace TenureInformationApi.Tests.V1.E2ETests.Steps
             responseContent.Should().Contain($"The version number supplied ({sentVersionNumberString}) does not match the current value on the entity (0).");
         }
 
-        public void ThenUnauthorizedIsReturned()
+        public async Task ThenUnauthorizedIsReturned(string message)
         {
             _lastResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+            responseContent.Should().Contain(message);
         }
 
         public async Task TheTenureHasBeenUpdatedInTheDatabase(TenureFixture tenureFixture, EditTenureDetailsRequestObject requestObject)
