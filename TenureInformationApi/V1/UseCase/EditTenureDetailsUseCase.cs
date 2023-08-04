@@ -4,10 +4,14 @@ using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Factories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase
