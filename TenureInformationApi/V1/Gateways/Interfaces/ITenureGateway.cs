@@ -4,7 +4,7 @@ using Hackney.Shared.Tenure.Infrastructure;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Infrastructure;
 
-namespace TenureInformationApi.V1.Gateways
+namespace TenureInformationApi.V1.Gateways.Interfaces
 {
     public interface ITenureGateway
     {

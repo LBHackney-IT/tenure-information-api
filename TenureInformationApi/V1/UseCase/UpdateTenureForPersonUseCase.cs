@@ -7,7 +7,7 @@ using Hackney.Shared.Tenure.Factories;
 using System;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase

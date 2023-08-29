@@ -24,8 +24,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly Mock<ILogger<DynamoDbGateway>> _logger;
-        private readonly DynamoDbGateway _classUnderTest;
+        private readonly Mock<ILogger<TenureGateway>> _logger;
+        private readonly TenureGateway _classUnderTest;
         private readonly IDynamoDbFixture _dbFixture;
         private readonly List<Action> _cleanup = new List<Action>();
 
@@ -36,9 +36,9 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
-            _logger = new Mock<ILogger<DynamoDbGateway>>();
+            _logger = new Mock<ILogger<TenureGateway>>();
             _mockUpdater = new Mock<IEntityUpdater>();
-            _classUnderTest = new DynamoDbGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
+            _classUnderTest = new TenureGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
         }
 
         public void Dispose()

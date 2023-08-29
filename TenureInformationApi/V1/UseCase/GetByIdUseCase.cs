@@ -2,7 +2,7 @@ using Hackney.Core.Logging;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Domain;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase

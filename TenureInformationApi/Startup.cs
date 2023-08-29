@@ -39,6 +39,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
 using TenureInformationApi.V1.UseCase.Interfaces;
@@ -170,7 +171,7 @@ namespace TenureInformationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<ITenureGateway, DynamoDbGateway>();
+            services.AddScoped<ITenureGateway, TenureGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
