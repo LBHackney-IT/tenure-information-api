@@ -9,6 +9,7 @@ using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,11 +33,27 @@ namespace TenureInformationApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
+        private async Task<TenureInformationDb> LoadTenureInformation(Guid tenureId)
+        {
+            _logger.LogInformation("Calling LoadTenureInformation for {TenureId}", tenureId);
+
+            return await _dynamoDbContext.LoadAsync<TenureInformationDb>(tenureId).ConfigureAwait(false);
+        }
+
+        private async Task SaveTenureInformation(TenureInformationDb tenure)
+        {
+            _logger.LogInformation("Calling SaveTenureInformation for {TenureId}", tenure.Id);
+
+            await _dynamoDbContext.SaveAsync(tenure).ConfigureAwait(false);
+        }
+
         [LogCall]
         public async Task<TenureInformation> GetEntityById(TenureQueryRequest query)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
-            var result = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
+            _logger.LogInformation("Calling GetEntityById for {TenureId}", query.Id);
+
+            var result = await LoadTenureInformation(query.Id);
+
             return result?.ToDomain();
         }
 
@@ -44,26 +61,29 @@ namespace TenureInformationApi.V1.Gateways
 
         public async Task<TenureInformation> PostNewTenureAsync(CreateTenureRequestObject createTenureRequestObject)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync");
-            _logger.LogInformation($"isTemporaryAccommodation Request={createTenureRequestObject.TenuredAsset?.IsTemporaryAccommodation}");
+            _logger.LogInformation("Calling PostNewTenureAsync");
+
+            _logger.LogInformation("isTemporaryAccommodation {Request}", createTenureRequestObject.TenuredAsset?.IsTemporaryAccommodation);
+
             var tenureDbEntity = createTenureRequestObject.ToDatabase();
 
-            await _dynamoDbContext.SaveAsync(tenureDbEntity).ConfigureAwait(false);
-            _logger.LogInformation($"isTemporaryAccommodation DB={tenureDbEntity.TenuredAsset?.IsTemporaryAccommodation}");
+            await SaveTenureInformation(tenureDbEntity);
+
+            _logger.LogInformation("isTemporaryAccommodation {DB}", tenureDbEntity.TenuredAsset?.IsTemporaryAccommodation);
+
             return tenureDbEntity.ToDomain();
         }
 
         [LogCall]
-        public async Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject,
-                                                                                         int? ifMatch)
+        public async Task<UpdateEntityResult<TenureInformationDb>> UpdateTenureForPerson(UpdateTenureRequest query, UpdateTenureForPersonRequestObject updateTenureRequestObject, int? ifMatch)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id} and then IDynamoDBContext.SaveAsync");
-            var tenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
+            _logger.LogInformation("Calling UpdateTenureForPerson for {TenureId}", query.Id);
+
+            var tenure = await LoadTenureInformation(query.Id);
             if (tenure == null) return null;
+
             if (ifMatch != tenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, tenure.VersionNumber);
-
-
 
             var result = new UpdateEntityResult<TenureInformationDb>()
             {
@@ -101,7 +121,7 @@ namespace TenureInformationApi.V1.Gateways
 
             householdMember.PersonTenureType = TenureTypes.GetPersonTenureType(tenure.TenureType, householdMember.IsResponsible);
 
-            await _dynamoDbContext.SaveAsync(tenure).ConfigureAwait(false);
+            await SaveTenureInformation(tenure);
 
             result.NewValues = new Dictionary<string, object>
             {
@@ -112,14 +132,17 @@ namespace TenureInformationApi.V1.Gateways
         }
 
 
-
         [LogCall]
         public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.Id}");
+            _logger.LogInformation("Calling EditTenureDetails for {TenureId}", query.Id);
 
-            var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.Id).ConfigureAwait(false);
-            if (existingTenure == null) return null;
+            var existingTenure = await LoadTenureInformation(query.Id);
+            if (existingTenure == null)
+            {
+                _logger.LogInformation("Existing tenure not found with {TenureId}", query.Id);
+                return null;
+            }
 
             if (ifMatch != existingTenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
@@ -142,8 +165,7 @@ namespace TenureInformationApi.V1.Gateways
 
             if (response.NewValues.Any())
             {
-                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.Id}");
-                await _dynamoDbContext.SaveAsync<TenureInformationDb>(response.UpdatedEntity).ConfigureAwait(false);
+                await SaveTenureInformation(response.UpdatedEntity);
             }
 
             return response;
@@ -178,9 +200,9 @@ namespace TenureInformationApi.V1.Gateways
         [LogCall]
         public async Task<UpdateEntityResult<TenureInformationDb>> DeletePersonFromTenure(DeletePersonFromTenureQueryRequest query)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {query.TenureId}");
+            _logger.LogInformation("Calling DeletePersonFromTenure for {TenureId}", query.TenureId);
 
-            var existingTenure = await _dynamoDbContext.LoadAsync<TenureInformationDb>(query.TenureId).ConfigureAwait(false);
+            var existingTenure = await LoadTenureInformation(query.TenureId);
             if (existingTenure == null) throw new TenureNotFoundException();
 
             // remove person from tenure
@@ -204,11 +226,9 @@ namespace TenureInformationApi.V1.Gateways
                 }
             };
 
-            // save changes to database
-            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {query.TenureId}");
-
             existingTenure.HouseholdMembers = filteredHouseholdMembers;
-            await _dynamoDbContext.SaveAsync(existingTenure).ConfigureAwait(false);
+
+            await SaveTenureInformation(existingTenure);
 
             return result;
         }

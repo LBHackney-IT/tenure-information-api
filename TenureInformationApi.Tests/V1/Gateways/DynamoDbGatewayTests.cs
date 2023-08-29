@@ -94,7 +94,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeNull();
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         [Theory]
@@ -119,7 +118,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeEquivalentTo(entity, config => config.Excluding(y => y.VersionNumber));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         [Fact]
@@ -142,7 +140,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var dbEntity = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
 
             dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase(), config => config.Excluding(y => y.VersionNumber));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
@@ -303,7 +300,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // Assert
             (await func.Should().ThrowAsync<VersionNumberConflictException>())
                          .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync to update id {query.Id}", Times.Never());
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

@@ -5,6 +5,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new Mock<ITenureSnsFactory>();
 
-            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
+            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object, new NullLogger<EditTenureDetailsUseCase>());
         }
 
         [Fact]
