@@ -38,6 +38,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Factories.Interfaces;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
@@ -156,7 +157,7 @@ namespace TenureInformationApi
 
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddScoped<ISnsFactory, TenureSnsFactory>();
+            services.AddScoped<ITenureSnsFactory, TenureSnsFactory>();
             services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             ConfigureHackneyCoreDI(services);

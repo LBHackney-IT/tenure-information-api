@@ -13,6 +13,7 @@ using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using TenureInformationApi.V1.Gateways.Interfaces;
+using TenureInformationApi.V1.Factories.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase
 {
@@ -20,9 +21,9 @@ namespace TenureInformationApi.V1.UseCase
     {
         private readonly ITenureGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
-        private readonly ISnsFactory _snsFactory;
+        private readonly ITenureSnsFactory _snsFactory;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
+        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;
