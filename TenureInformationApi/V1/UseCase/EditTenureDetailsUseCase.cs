@@ -4,27 +4,23 @@ using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Factories;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Gateways;
-using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
+using TenureInformationApi.V1.Gateways.Interfaces;
+using TenureInformationApi.V1.Factories.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace TenureInformationApi.V1.UseCase
 {
     public class EditTenureDetailsUseCase : IEditTenureDetailsUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
-        private readonly ISnsFactory _snsFactory;
+        private readonly ITenureSnsFactory _snsFactory;
         private readonly ILogger<EditTenureDetailsUseCase> _logger;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory, ILogger<EditTenureDetailsUseCase> logger)
+        public EditTenureDetailsUseCase(ITenureDynamoDbGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory, ILogger<EditTenureDetailsUseCase> logger)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;

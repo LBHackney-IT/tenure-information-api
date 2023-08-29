@@ -7,17 +7,18 @@ using Hackney.Shared.Tenure.Factories;
 using System;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Factories.Interfaces;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.UseCase.Interfaces;
 
 namespace TenureInformationApi.V1.UseCase
 {
     public class UpdateTenureForPersonUseCase : IUpdateTenureForPersonUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
-        private readonly ISnsFactory _snsFactory;
-        public UpdateTenureForPersonUseCase(ITenureGateway gateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
+        private readonly ITenureSnsFactory _snsFactory;
+        public UpdateTenureForPersonUseCase(ITenureDynamoDbGateway gateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
         {
             _tenureGateway = gateway;
             _snsGateway = snsGateway;

@@ -6,7 +6,7 @@ using Hackney.Shared.Tenure.Factories;
 using Moq;
 using System;
 using System.Threading.Tasks;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
 
@@ -15,12 +15,12 @@ namespace TenureInformationApi.Tests.V1.UseCase
     [Collection("LogCall collection")]
     public class GetByIdUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly GetByIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         public GetByIdUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
 
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }

@@ -10,7 +10,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
@@ -20,7 +20,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
     [Collection("LogCall collection")]
     public class UpdateTenureForPersonUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly UpdateTenureForPersonUseCase _classUnderTest;
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
         private readonly TenureSnsFactory _tenureSnsFactory;
@@ -28,7 +28,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
         public UpdateTenureForPersonUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new TenureSnsFactory();
             _classUnderTest = new UpdateTenureForPersonUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);
