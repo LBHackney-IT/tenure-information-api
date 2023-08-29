@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 
 namespace TenureInformationApi.V1.Infrastructure
 {

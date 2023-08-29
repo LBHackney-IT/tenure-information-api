@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways

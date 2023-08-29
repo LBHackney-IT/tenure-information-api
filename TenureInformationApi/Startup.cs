@@ -42,6 +42,7 @@ using TenureInformationApi.V1.Factories.Interfaces;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 using TenureInformationApi.V1.UseCase;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using TenureInformationApi.Versioning;
