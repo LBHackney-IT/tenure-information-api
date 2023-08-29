@@ -4,9 +4,9 @@ using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
 using TenureInformationApi.V1.Infrastructure;
 
-namespace TenureInformationApi.V1.Factories
+namespace TenureInformationApi.V1.Factories.Interfaces
 {
-    public interface ISnsFactory
+    public interface ITenureSnsFactory
     {
         EntityEventSns CreateTenure(TenureInformation tenure, Token token);
         EntityEventSns PersonAddedToTenure(UpdateEntityResult<TenureInformationDb> updateResult, Token token);

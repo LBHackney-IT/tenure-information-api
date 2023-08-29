@@ -38,8 +38,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using TenureInformationApi.V1.Factories;
+using TenureInformationApi.V1.Factories.Interfaces;
 using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 using TenureInformationApi.V1.UseCase;
 using TenureInformationApi.V1.UseCase.Interfaces;
 using TenureInformationApi.Versioning;
@@ -155,7 +158,7 @@ namespace TenureInformationApi
 
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddScoped<ISnsFactory, TenureSnsFactory>();
+            services.AddScoped<ITenureSnsFactory, TenureSnsFactory>();
             services.AddScoped<IEntityUpdater, EntityUpdater>();
 
             ConfigureHackneyCoreDI(services);
@@ -170,7 +173,7 @@ namespace TenureInformationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<ITenureGateway, DynamoDbGateway>();
+            services.AddScoped<ITenureDynamoDbGateway, TenureDynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

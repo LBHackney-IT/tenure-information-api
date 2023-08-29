@@ -12,18 +12,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 
 namespace TenureInformationApi.V1.Gateways
 {
-    public class DynamoDbGateway : ITenureGateway
+    public class TenureDynamoDbGateway : ITenureDynamoDbGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly IEntityUpdater _updater;
-        private readonly ILogger<DynamoDbGateway> _logger;
+        private readonly ILogger<TenureDynamoDbGateway> _logger;
 
-        public DynamoDbGateway(IDynamoDBContext dynamoDbContext, IEntityUpdater updater, ILogger<DynamoDbGateway> logger)
+        public TenureDynamoDbGateway(IDynamoDBContext dynamoDbContext, IEntityUpdater updater, ILogger<TenureDynamoDbGateway> logger)
         {
             _logger = logger;
             _updater = updater;
