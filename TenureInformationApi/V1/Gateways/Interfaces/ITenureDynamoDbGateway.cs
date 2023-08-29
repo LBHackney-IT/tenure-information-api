@@ -6,7 +6,7 @@ using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Gateways.Interfaces
 {
-    public interface ITenureGateway
+    public interface ITenureDynamoDbGateway
     {
         Task<TenureInformation> GetEntityById(TenureQueryRequest query);
 

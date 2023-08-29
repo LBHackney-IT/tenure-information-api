@@ -19,7 +19,7 @@ using TenureInformationApi.V1.Infrastructure.Interfaces;
 
 namespace TenureInformationApi.V1.Gateways
 {
-    public class TenureDynamoDbGateway : ITenureGateway
+    public class TenureDynamoDbGateway : ITenureDynamoDbGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly IEntityUpdater _updater;
