@@ -139,7 +139,7 @@ namespace TenureInformationApi.V1.Gateways
             var existingTenure = await LoadTenureInformation(query.Id);
             if (existingTenure == null)
             {
-                _logger.LogInformation("Existing Tenure not found with {TenureId}", query.Id);
+                _logger.LogInformation("Existing tenure not found with {TenureId}", query.Id);
                 return null;
             }
 
