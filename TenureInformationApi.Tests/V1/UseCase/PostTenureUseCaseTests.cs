@@ -18,7 +18,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 {
     public class PostTenureUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly PostNewTenureUseCase _classUnderTest;
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
         private readonly TenureSnsFactory _tenureSnsFactory;
@@ -26,7 +26,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
         public PostTenureUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new TenureSnsFactory();
             _classUnderTest = new PostNewTenureUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory);

@@ -13,11 +13,11 @@ namespace TenureInformationApi.V1.UseCase
 {
     public class DeletePersonFromTenureUseCase : IDeletePersonFromTenureUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ITenureSnsFactory _snsFactory;
 
-        public DeletePersonFromTenureUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
+        public DeletePersonFromTenureUseCase(ITenureDynamoDbGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;

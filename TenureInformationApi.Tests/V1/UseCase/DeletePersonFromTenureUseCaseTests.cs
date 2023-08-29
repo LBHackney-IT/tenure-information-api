@@ -17,7 +17,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
     [Collection("LogCall collection")]
     public class DeletePersonFromTenureUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
         private readonly Mock<ITenureSnsFactory> _tenureSnsFactory;
 
@@ -26,7 +26,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
         public DeletePersonFromTenureUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new Mock<ITenureSnsFactory>();
 

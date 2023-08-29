@@ -19,11 +19,11 @@ namespace TenureInformationApi.V1.UseCase
 {
     public class EditTenureDetailsUseCase : IEditTenureDetailsUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ITenureSnsFactory _snsFactory;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
+        public EditTenureDetailsUseCase(ITenureDynamoDbGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;

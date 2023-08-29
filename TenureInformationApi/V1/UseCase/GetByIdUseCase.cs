@@ -9,11 +9,11 @@ namespace TenureInformationApi.V1.UseCase
 {
     public class GetByIdUseCase : IGetByIdUseCase
     {
-        private readonly ITenureGateway _gateway;
+        private readonly ITenureDynamoDbGateway _gateway;
 
 
 
-        public GetByIdUseCase(ITenureGateway gateway)
+        public GetByIdUseCase(ITenureDynamoDbGateway gateway)
         {
             _gateway = gateway;
         }

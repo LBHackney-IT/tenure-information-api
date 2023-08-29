@@ -173,7 +173,7 @@ namespace TenureInformationApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<ITenureGateway, TenureGateway>();
+            services.AddScoped<ITenureDynamoDbGateway, TenureDynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)

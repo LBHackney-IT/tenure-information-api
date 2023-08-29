@@ -20,7 +20,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 {
     public class EditTenureDetailsUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly EditTenureDetailsUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
@@ -28,7 +28,7 @@ namespace TenureInformationApi.Tests.V1.UseCase
 
         public EditTenureDetailsUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
             _tenureSnsFactory = new Mock<ITenureSnsFactory>();
 

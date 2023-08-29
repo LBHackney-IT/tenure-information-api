@@ -19,13 +19,13 @@ using TenureInformationApi.V1.Infrastructure.Interfaces;
 
 namespace TenureInformationApi.V1.Gateways
 {
-    public class TenureGateway : ITenureGateway
+    public class TenureDynamoDbGateway : ITenureGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly IEntityUpdater _updater;
-        private readonly ILogger<TenureGateway> _logger;
+        private readonly ILogger<TenureDynamoDbGateway> _logger;
 
-        public TenureGateway(IDynamoDBContext dynamoDbContext, IEntityUpdater updater, ILogger<TenureGateway> logger)
+        public TenureDynamoDbGateway(IDynamoDBContext dynamoDbContext, IEntityUpdater updater, ILogger<TenureDynamoDbGateway> logger)
         {
             _logger = logger;
             _updater = updater;

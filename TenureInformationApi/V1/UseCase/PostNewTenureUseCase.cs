@@ -14,11 +14,11 @@ namespace TenureInformationApi.V1.UseCase
 {
     public class PostNewTenureUseCase : IPostNewTenureUseCase
     {
-        private readonly ITenureGateway _tenureGateway;
+        private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ITenureSnsFactory _snsFactory;
 
-        public PostNewTenureUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
+        public PostNewTenureUseCase(ITenureDynamoDbGateway tenureGateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;
