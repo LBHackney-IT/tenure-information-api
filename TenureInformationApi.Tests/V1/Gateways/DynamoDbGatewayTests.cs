@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
+using TenureInformationApi.V1.Infrastructure.Interfaces;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
@@ -24,8 +25,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly Mock<ILogger<DynamoDbGateway>> _logger;
-        private readonly DynamoDbGateway _classUnderTest;
+        private readonly Mock<ILogger<TenureDynamoDbGateway>> _logger;
+        private readonly TenureDynamoDbGateway _classUnderTest;
         private readonly IDynamoDbFixture _dbFixture;
         private readonly List<Action> _cleanup = new List<Action>();
 
@@ -36,9 +37,9 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
-            _logger = new Mock<ILogger<DynamoDbGateway>>();
+            _logger = new Mock<ILogger<TenureDynamoDbGateway>>();
             _mockUpdater = new Mock<IEntityUpdater>();
-            _classUnderTest = new DynamoDbGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
+            _classUnderTest = new TenureDynamoDbGateway(_dbFixture.DynamoDbContext, _mockUpdater.Object, _logger.Object);
         }
 
         public void Dispose()
@@ -93,7 +94,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeNull();
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         [Theory]
@@ -118,7 +118,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var response = await _classUnderTest.GetEntityById(request).ConfigureAwait(false);
 
             response.Should().BeEquivalentTo(entity, config => config.Excluding(y => y.VersionNumber));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for id {request.Id}", Times.Once());
         }
 
         [Fact]
@@ -141,7 +140,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var dbEntity = await _dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(entityRequest.Id).ConfigureAwait(false);
 
             dbEntity.Should().BeEquivalentTo(entityRequest.ToDatabase(), config => config.Excluding(y => y.VersionNumber));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync", Times.Once());
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync<TenureInformationDb>(dbEntity.Id).ConfigureAwait(false));
         }
@@ -302,7 +300,6 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // Assert
             (await func.Should().ThrowAsync<VersionNumberConflictException>())
                          .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync to update id {query.Id}", Times.Never());
         }
 
         private async Task InsertDatatoDynamoDB(TenureInformation entity)

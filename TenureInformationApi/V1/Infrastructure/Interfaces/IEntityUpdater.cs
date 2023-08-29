@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TenureInformationApi.V1.Infrastructure
+namespace TenureInformationApi.V1.Infrastructure.Interfaces
 {
     // TODO - move to common nuget package
 

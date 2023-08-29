@@ -3,11 +3,12 @@ using Hackney.Core.Sns;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
 using System;
+using TenureInformationApi.V1.Factories.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
 
 namespace TenureInformationApi.V1.Factories
 {
-    public class TenureSnsFactory : ISnsFactory
+    public class TenureSnsFactory : ITenureSnsFactory
     {
         public EntityEventSns CreateTenure(TenureInformation tenure, Token token)
         {

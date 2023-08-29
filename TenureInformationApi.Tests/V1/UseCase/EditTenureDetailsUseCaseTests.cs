@@ -5,12 +5,14 @@ using Hackney.Core.Sns;
 using Hackney.Shared.Tenure.Boundary.Requests;
 using Hackney.Shared.Tenure.Boundary.Response;
 using Hackney.Shared.Tenure.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Factories;
-using TenureInformationApi.V1.Gateways;
+using TenureInformationApi.V1.Factories.Interfaces;
+using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.UseCase;
 using Xunit;
@@ -19,19 +21,19 @@ namespace TenureInformationApi.Tests.V1.UseCase
 {
     public class EditTenureDetailsUseCaseTests
     {
-        private readonly Mock<ITenureGateway> _mockGateway;
+        private readonly Mock<ITenureDynamoDbGateway> _mockGateway;
         private readonly EditTenureDetailsUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ISnsGateway> _tenureSnsGateway;
-        private readonly Mock<ISnsFactory> _tenureSnsFactory;
+        private readonly Mock<ITenureSnsFactory> _tenureSnsFactory;
 
         public EditTenureDetailsUseCaseTests()
         {
-            _mockGateway = new Mock<ITenureGateway>();
+            _mockGateway = new Mock<ITenureDynamoDbGateway>();
             _tenureSnsGateway = new Mock<ISnsGateway>();
-            _tenureSnsFactory = new Mock<ISnsFactory>();
+            _tenureSnsFactory = new Mock<ITenureSnsFactory>();
 
-            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object);
+            _classUnderTest = new EditTenureDetailsUseCase(_mockGateway.Object, _tenureSnsGateway.Object, _tenureSnsFactory.Object, new NullLogger<EditTenureDetailsUseCase>());
         }
 
         [Fact]
