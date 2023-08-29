@@ -13,6 +13,7 @@ using TenureInformationApi.V1.Factories;
 using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.UseCase.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace TenureInformationApi.V1.UseCase
 {
@@ -21,19 +22,27 @@ namespace TenureInformationApi.V1.UseCase
         private readonly ITenureGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ISnsFactory _snsFactory;
+        private readonly ILogger<EditTenureDetailsUseCase> _logger;
 
-        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
+        public EditTenureDetailsUseCase(ITenureGateway tenureGateway, ISnsGateway snsGateway, ISnsFactory snsFactory, ILogger<EditTenureDetailsUseCase> logger)
         {
             _tenureGateway = tenureGateway;
             _snsGateway = snsGateway;
             _snsFactory = snsFactory;
+            _logger = logger;
         }
 
         public async Task<TenureResponseObject> ExecuteAsync(
             TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, Token token, int? ifMatch)
         {
+            _logger.LogInformation("Calling EditTenureDetailsUseCase for {TenureId}", query.Id);
+
             var result = await _tenureGateway.EditTenureDetails(query, editTenureDetailsRequestObject, requestBody, ifMatch).ConfigureAwait(false);
-            if (result == null) return null;
+            if (result == null)
+            {
+                _logger.LogInformation("No updates returned from EditTenureDetails with {TenureId}", query.Id);
+                return null;
+            }
 
             if (result.NewValues.Any())
             {
