@@ -137,7 +137,11 @@ namespace TenureInformationApi.V1.Gateways
             _logger.LogInformation("Calling EditTenureDetails for {TenureId}", query.Id);
 
             var existingTenure = await LoadTenureInformation(query.Id);
-            if (existingTenure == null) return null;
+            if (existingTenure == null)
+            {
+                _logger.LogInformation("Existing Tenure not found with {TenureId}", query.Id);
+                return null;
+            }
 
             if (ifMatch != existingTenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
