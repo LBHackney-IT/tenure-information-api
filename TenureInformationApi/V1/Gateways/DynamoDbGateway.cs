@@ -65,8 +65,7 @@ namespace TenureInformationApi.V1.Gateways
 
             var tenureDbEntity = createTenureRequestObject.ToDatabase();
 
-            _logger.LogInformation("Calling IDynamoDBContext.SaveAsync");
-            await _dynamoDbContext.SaveAsync(tenureDbEntity).ConfigureAwait(false);
+            await SaveTenureInformation(tenureDbEntity);
 
             _logger.LogInformation("isTemporaryAccommodation {DB}", tenureDbEntity.TenuredAsset?.IsTemporaryAccommodation);
 
