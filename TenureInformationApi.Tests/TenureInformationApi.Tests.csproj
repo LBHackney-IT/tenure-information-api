@@ -9,7 +9,7 @@
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <NoWarn>CA1305;CA1051;CA1822;CA1001;CA1062;CA2000;CA1303;S3881</NoWarn>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <Content Remove="TestResults\**" />
@@ -30,7 +30,7 @@
     <PackageReference Include="Hackney.Core.Testing.DynamoDb" Version="1.57.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.54.0" />
     <PackageReference Include="Hackney.Core.Testing.Sns" Version="1.71.0" />
-    <PackageReference Include="Hackney.Shared.Tenure" Version="0.24.0" />
+    <PackageReference Include="Hackney.Shared.Tenure" Version="0.25.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
