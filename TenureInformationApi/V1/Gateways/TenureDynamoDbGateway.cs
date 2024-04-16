@@ -133,6 +133,8 @@ namespace TenureInformationApi.V1.Gateways
 
 
         [LogCall]
+        // TODO: Refactor the 'EditTenureDetails' - the current implementation squashes UC and GW concerns into a GW.
+        // Validation and Decision making for which fields to update should be a UC logic, not GW!
         public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(
             TenureQueryRequest query,
             EditTenureDetailsRequestObject editTenureDetailsRequestObject,
