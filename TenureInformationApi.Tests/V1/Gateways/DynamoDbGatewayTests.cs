@@ -510,10 +510,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
-            var mockRequestObject = _fixture
-                .Build<EditTenureDetailsRequestObject>()
-                .Without(et => et.TempAccommodationInfo)
-                .Create();
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
             var mockRequestBody = "";
 
@@ -591,10 +588,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
-            var mockRequestObject = _fixture
-                .Build<EditTenureDetailsRequestObject>()
-                .Without(et => et.TempAccommodationInfo)
-                .Create();
+            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
 
             var mockRequestBody = "";
 

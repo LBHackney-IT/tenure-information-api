@@ -141,7 +141,8 @@ namespace TenureInformationApi.V1.Gateways
         {
             _logger.LogInformation("Calling EditTenureDetails for {TenureId}", query.Id);
 
-            var existingTenure = await LoadTenureInformation(query.Id);
+            var existingTenure = (await LoadTenureInformation(query.Id)).ToDomain();
+
             if (existingTenure == null)
             {
                 _logger.LogInformation("Existing tenure not found with {TenureId}", query.Id);
@@ -151,41 +152,36 @@ namespace TenureInformationApi.V1.Gateways
             if (ifMatch != existingTenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
 
-            var tempAccomInfoEntity = editTenureDetailsRequestObject?.TempAccommodationInfo?.ToDatabase();
-            editTenureDetailsRequestObject.TempAccommodationInfo = null;
-            Regex.Replace(requestBody, nameof(editTenureDetailsRequestObject.TempAccommodationInfo), "ignoredField", RegexOptions.IgnoreCase);
-
-            var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
-
-            if (tempAccomInfoEntity is not null)
-            {
-                var tempAccomFieldName = nameof(editTenureDetailsRequestObject.TempAccommodationInfo);
-                response.IgnoredProperties.RemoveAll(ip => ip == tempAccomFieldName);
-                response.OldValues.Add(tempAccomFieldName, existingTenure.TempAccommodationInfo);
-                response.NewValues.Add(tempAccomFieldName, tempAccomInfoEntity);
-                response.UpdatedEntity.TempAccommodationInfo = tempAccomInfoEntity;
-            }
+            var updateDomainWrapper = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
 
             // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
-            if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))
+            if (updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate"))
             {
-                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
+                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) updateDomainWrapper.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
             // if only tenureEndDate is passed, check that it's later than tenureStartDate
-            if (response.NewValues.ContainsKey("endOfTenureDate") && !response.NewValues.ContainsKey("startOfTenureDate"))
+            if (updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate"))
             {
-                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
+                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) updateDomainWrapper.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
-            if (response.NewValues.Any())
+            var updateDbWrapper = new UpdateEntityResult<TenureInformationDb>
             {
-                await SaveTenureInformation(response.UpdatedEntity);
+                UpdatedEntity = updateDomainWrapper.UpdatedEntity.ToDatabase(),
+                IgnoredProperties = updateDomainWrapper.IgnoredProperties,
+                OldValues = updateDomainWrapper.OldValues,
+                NewValues = updateDomainWrapper.NewValues
+            };
+
+            if (updateDbWrapper.NewValues.Any())
+            {
+                await SaveTenureInformation(updateDbWrapper.UpdatedEntity);
             }
 
-            return response;
+            return updateDbWrapper;
         }
 
         private static ValidationResult ValidateTenureEndDateIsGreaterThanTenureStartDate(DateTime? tenureEndDate, DateTime? tenureStartDate)
