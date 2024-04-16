@@ -9,9 +9,9 @@ using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
@@ -133,7 +133,11 @@ namespace TenureInformationApi.V1.Gateways
 
 
         [LogCall]
-        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)
+        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(
+            TenureQueryRequest query,
+            EditTenureDetailsRequestObject editTenureDetailsRequestObject,
+            string requestBody,
+            int? ifMatch)
         {
             _logger.LogInformation("Calling EditTenureDetails for {TenureId}", query.Id);
 
@@ -147,7 +151,20 @@ namespace TenureInformationApi.V1.Gateways
             if (ifMatch != existingTenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
 
+            var tempAccomInfoEntity = editTenureDetailsRequestObject?.TempAccommodationInfo?.ToDatabase();
+            editTenureDetailsRequestObject.TempAccommodationInfo = null;
+            Regex.Replace(requestBody, nameof(editTenureDetailsRequestObject.TempAccommodationInfo), "ignoredField", RegexOptions.IgnoreCase);
+
             var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
+
+            if (tempAccomInfoEntity is not null)
+            {
+                var tempAccomFieldName = nameof(editTenureDetailsRequestObject.TempAccommodationInfo);
+                response.IgnoredProperties.RemoveAll(ip => ip == tempAccomFieldName);
+                response.OldValues.Add(tempAccomFieldName, existingTenure.TempAccommodationInfo);
+                response.NewValues.Add(tempAccomFieldName, tempAccomInfoEntity);
+                response.UpdatedEntity.TempAccommodationInfo = tempAccomInfoEntity;
+            }
 
             // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
             if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))

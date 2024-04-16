@@ -510,12 +510,18 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
-            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestObject = _fixture
+                .Build<EditTenureDetailsRequestObject>()
+                .Without(et => et.TempAccommodationInfo)
+                .Create();
+
             var mockRequestBody = "";
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber).ConfigureAwait(false);
+                await _classUnderTest
+                    .EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber)
+                    .ConfigureAwait(false);
             };
 
             // assert exception is thrown
@@ -585,7 +591,11 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
-            var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+            var mockRequestObject = _fixture
+                .Build<EditTenureDetailsRequestObject>()
+                .Without(et => et.TempAccommodationInfo)
+                .Create();
+
             var mockRequestBody = "";
 
             Func<Task> act = async () =>
