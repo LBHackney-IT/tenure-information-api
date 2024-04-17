@@ -9,9 +9,9 @@ using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.Infrastructure;
@@ -133,11 +133,18 @@ namespace TenureInformationApi.V1.Gateways
 
 
         [LogCall]
-        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(TenureQueryRequest query, EditTenureDetailsRequestObject editTenureDetailsRequestObject, string requestBody, int? ifMatch)
+        // TODO: Refactor the 'EditTenureDetails' - the current implementation squashes UC and GW concerns into a GW.
+        // Validation and Decision making for which fields to update should be a UC logic, not GW!
+        public async Task<UpdateEntityResult<TenureInformationDb>> EditTenureDetails(
+            TenureQueryRequest query,
+            EditTenureDetailsRequestObject editTenureDetailsRequestObject,
+            string requestBody,
+            int? ifMatch)
         {
             _logger.LogInformation("Calling EditTenureDetails for {TenureId}", query.Id);
 
-            var existingTenure = await LoadTenureInformation(query.Id);
+            var existingTenure = (await LoadTenureInformation(query.Id)).ToDomain();
+
             if (existingTenure == null)
             {
                 _logger.LogInformation("Existing tenure not found with {TenureId}", query.Id);
@@ -147,28 +154,36 @@ namespace TenureInformationApi.V1.Gateways
             if (ifMatch != existingTenure.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingTenure.VersionNumber);
 
-            var response = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
+            var updateDomainWrapper = _updater.UpdateEntity(existingTenure, requestBody, editTenureDetailsRequestObject);
 
             // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
-            if (response.NewValues.ContainsKey("startOfTenureDate") && !response.NewValues.ContainsKey("endOfTenureDate"))
+            if (updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate"))
             {
-                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) response.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
+                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) updateDomainWrapper.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
             // if only tenureEndDate is passed, check that it's later than tenureStartDate
-            if (response.NewValues.ContainsKey("endOfTenureDate") && !response.NewValues.ContainsKey("startOfTenureDate"))
+            if (updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate"))
             {
-                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) response.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
+                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) updateDomainWrapper.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
-            if (response.NewValues.Any())
+            var updateDbWrapper = new UpdateEntityResult<TenureInformationDb>
             {
-                await SaveTenureInformation(response.UpdatedEntity);
+                UpdatedEntity = updateDomainWrapper.UpdatedEntity.ToDatabase(),
+                IgnoredProperties = updateDomainWrapper.IgnoredProperties,
+                OldValues = updateDomainWrapper.OldValues,
+                NewValues = updateDomainWrapper.NewValues
+            };
+
+            if (updateDbWrapper.NewValues.Any())
+            {
+                await SaveTenureInformation(updateDbWrapper.UpdatedEntity);
             }
 
-            return response;
+            return updateDbWrapper;
         }
 
         private static ValidationResult ValidateTenureEndDateIsGreaterThanTenureStartDate(DateTime? tenureEndDate, DateTime? tenureStartDate)

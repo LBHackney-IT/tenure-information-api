@@ -48,6 +48,7 @@ namespace TenureInformationApi.V1.UseCase
                 await _snsGateway.Publish(tenureSnsMessage, tenureTopicArn).ConfigureAwait(false);
             }
 
+            // TODO: UseCase shouldn't be returning Response objects, this breaks the architecture.
             return result.UpdatedEntity.ToDomain().ToResponse();
         }
     }
