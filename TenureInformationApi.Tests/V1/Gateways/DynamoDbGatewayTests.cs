@@ -345,11 +345,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             var mockRequestObject = new EditTenureDetailsRequestObject();
             var mockRawBody = "";
 
-            var updaterResponse = new UpdateEntityResult<TenureInformationDb>(); // with no changes
+            var updaterResponse = new UpdateEntityResult<TenureInformation>(); // with no changes
 
             // setup updater
             _mockUpdater
-                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Setup(x => x.UpdateEntity(
+                    It.IsAny<TenureInformation>(),
+                    It.IsAny<string>(),
+                    It.IsAny<EditTenureDetailsRequestObject>()))
                 .Returns(updaterResponse);
 
             // call gateway method
@@ -393,7 +396,10 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
             // setup updater
             _mockUpdater
-                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Setup(
+                    x => x.UpdateEntity(It.IsAny<TenureInformation>(),
+                    It.IsAny<string>(),
+                    It.IsAny<EditTenureDetailsRequestObject>()))
                 .Returns(updaterResponse);
 
             // call gateway method
@@ -511,11 +517,14 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+
             var mockRequestBody = "";
 
             Func<Task> act = async () =>
             {
-                await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber).ConfigureAwait(false);
+                await _classUnderTest
+                    .EditTenureDetails(mockQuery, mockRequestObject, mockRequestBody, expectedVersionNumber)
+                    .ConfigureAwait(false);
             };
 
             // assert exception is thrown
@@ -586,6 +595,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // call gateway method
             var mockQuery = new TenureQueryRequest { Id = mockTenure.Id };
             var mockRequestObject = _fixture.Create<EditTenureDetailsRequestObject>();
+
             var mockRequestBody = "";
 
             Func<Task> act = async () =>
@@ -622,6 +632,67 @@ namespace TenureInformationApi.Tests.V1.Gateways
             // Assert
             (await act.Should().ThrowAsync<VersionNumberConflictException>())
                .Where(x => (x.IncomingVersionNumber == ifMatch) && (x.ExpectedVersionNumber == 0));
+        }
+
+        // EditTenureDetails GW Method is doing 3 responsibilities, so to write
+        // good tests, this would need to be split up to proper units.
+        // TODO: refactor the EditTenureDetails and related tests.
+        [Fact]
+        public async Task EditTenureDetailsGWMethodCorrectlyUpdatesTempAccommodationInfoWhenRequested()
+        {
+            #region nearly redundant set up
+            var mockTenure = _fixture.Build<TenureInformation>()
+                .With(x => x.StartOfTenureDate, DateTime.UtcNow)
+                .With(x => x.EndOfTenureDate, DateTime.UtcNow)
+                .With(x => x.SuccessionDate, DateTime.UtcNow)
+                .With(x => x.PotentialEndDate, DateTime.UtcNow)
+                .With(x => x.SubletEndDate, DateTime.UtcNow)
+                .With(x => x.EvictionDate, DateTime.UtcNow)
+                .With(x => x.VersionNumber, (int?) null)
+                .Create();
+
+            // insert mock tenure into database
+            await InsertDatatoDynamoDB(mockTenure).ConfigureAwait(false);
+            mockTenure.VersionNumber = 0;
+
+            var mockQuery = _fixture
+                .Build<TenureQueryRequest>()
+                .With(x => x.Id, mockTenure.Id)
+                .Create();
+            #endregion
+
+            var newTempAccommodationInfo = _fixture.Create<TemporaryAccommodationInfo>();
+
+            var mockRequestObject = new EditTenureDetailsRequestObject();
+            var mockRawBody = "";
+
+            var updaterResponse = CreateUpdateEntityResultWithChanges(mockTenure);
+            updaterResponse.UpdatedEntity.TempAccommodationInfo = newTempAccommodationInfo;
+            updaterResponse.NewValues.Add(nameof(mockTenure.TempAccommodationInfo), newTempAccommodationInfo);
+
+            // setup updater
+            _mockUpdater
+                .Setup(
+                    x => x.UpdateEntity(It.IsAny<TenureInformation>(),
+                    It.IsAny<string>(),
+                    It.IsAny<EditTenureDetailsRequestObject>()))
+                .Returns(updaterResponse);
+
+            // call gateway method
+            var response = await _classUnderTest.EditTenureDetails(mockQuery, mockRequestObject, mockRawBody, mockTenure.VersionNumber).ConfigureAwait(false);
+
+            // load entity from database
+            var databaseResponse = await _dbFixture.DynamoDbContext
+                .LoadAsync<TenureInformationDb>(mockTenure.Id)
+                .ConfigureAwait(false);
+
+            // assert entity was updated (matches mockRequestObject data)
+            databaseResponse.TempAccommodationInfo.Should().NotBeNull();
+            databaseResponse.TempAccommodationInfo.BookingStatus.Should().Be(newTempAccommodationInfo.BookingStatus);
+            databaseResponse.TempAccommodationInfo.AssignedOfficer.Should().NotBeNull();
+            databaseResponse.TempAccommodationInfo.AssignedOfficer.FirstName.Should().Be(newTempAccommodationInfo.AssignedOfficer.FirstName);
+            databaseResponse.TempAccommodationInfo.AssignedOfficer.LastName.Should().Be(newTempAccommodationInfo.AssignedOfficer.LastName);
+            databaseResponse.TempAccommodationInfo.AssignedOfficer.Email.Should().Be(newTempAccommodationInfo.AssignedOfficer.Email);
         }
 
         [Fact]
@@ -733,15 +804,15 @@ namespace TenureInformationApi.Tests.V1.Gateways
             (result.NewValues["householdMembers"] as List<HouseholdMembers>).Should().NotContain(x => x.Id == personToRemove.Id);
         }
 
-        private UpdateEntityResult<TenureInformationDb> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)
+        private UpdateEntityResult<TenureInformation> CreateUpdateEntityResultWithChanges(TenureInformation entityInsertedIntoDatabase)
         {
-            var updatedEntity = entityInsertedIntoDatabase.ToDatabase();
+            var updatedEntity = entityInsertedIntoDatabase;
 
             updatedEntity.StartOfTenureDate = DateTime.UtcNow + _fixture.Create<TimeSpan>();
             updatedEntity.EndOfTenureDate = DateTime.UtcNow + _fixture.Create<TimeSpan>();
             updatedEntity.TenureType = _fixture.Create<TenureType>();
 
-            return new UpdateEntityResult<TenureInformationDb>
+            return new UpdateEntityResult<TenureInformation>
             {
                 UpdatedEntity = updatedEntity,
                 NewValues = new Dictionary<string, object>
@@ -755,7 +826,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private void SetupUpdaterToOnlyReturnStartOfTenureDate(DateTime tenureStartDate)
         {
-            var updaterResponse = new UpdateEntityResult<TenureInformationDb>
+            var updaterResponse = new UpdateEntityResult<TenureInformation>
             {
                 NewValues = new Dictionary<string, object>
                 {
@@ -769,7 +840,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
 
         private void SetupUpdaterToOnlyReturnEndOfTenureDate(DateTime tenureEndDate)
         {
-            var updaterResponse = new UpdateEntityResult<TenureInformationDb>
+            var updaterResponse = new UpdateEntityResult<TenureInformation>
             {
                 NewValues = new Dictionary<string, object>
                 {
@@ -780,10 +851,13 @@ namespace TenureInformationApi.Tests.V1.Gateways
             SetupUpdater(updaterResponse);
         }
 
-        private void SetupUpdater(UpdateEntityResult<TenureInformationDb> updaterResponse)
+        private void SetupUpdater(UpdateEntityResult<TenureInformation> updaterResponse)
         {
             _mockUpdater
-                .Setup(x => x.UpdateEntity(It.IsAny<TenureInformationDb>(), It.IsAny<string>(), It.IsAny<EditTenureDetailsRequestObject>()))
+                .Setup(
+                    x => x.UpdateEntity(It.IsAny<TenureInformation>(),
+                    It.IsAny<string>(),
+                    It.IsAny<EditTenureDetailsRequestObject>()))
                 .Returns(updaterResponse);
         }
     }
