@@ -14,12 +14,21 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
-# Install and run sonar cloud scanner
+# Update the system & install java binaries (for sonar)
 RUN apt-get update && apt-get install -y openjdk-17-jdk
+# Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
+# Install report generator
+RUN dotnet tool install --global dotnet-reportgenerator-globaltool
+
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-RUN dotnet sonarscanner begin /k:"LBHackney-IT_tenure-api" /o:"lbhackney-it" /d:sonar.host.url=https://sonarcloud.io /d:sonar.login="${SONAR_TOKEN}"
+RUN dotnet sonarscanner begin \
+    /k:"LBHackney-IT_tenure-api" \
+    /o:"lbhackney-it" \
+    /d:sonar.host.url=https://sonarcloud.io \
+    /d:sonar.login="${SONAR_TOKEN}" \
+    /d:sonar.coverageReportPaths="coverage/SonarQube.xml"
 
 # Copy csproj and restore as distinct layers
 COPY ./TenureInformationApi.sln ./
@@ -36,5 +45,6 @@ COPY . .
 RUN dotnet build -c Release -o out TenureInformationApi/TenureInformationApi.csproj
 RUN dotnet build -c debug -o out TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
 
-CMD dotnet test
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage \
+    && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
+    && (dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" > /dev/null)
