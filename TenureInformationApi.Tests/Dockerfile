@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
 
 # disable microsoft telematry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
@@ -7,14 +7,18 @@ ENV DynamoDb_LocalMode='true'
 ENV Sns_LocalMode='true'
 
 ARG LBHPACKAGESTOKEN
+ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 
 ARG SONAR_TOKEN
 ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
+# Sync/update the environment  && apk upgrade --no-cache 140MB
+RUN apk update
+
 # Update the system & install java binaries (for sonar)
-RUN apt-get update && apt-get install -y openjdk-17-jdk
+RUN apk add openjdk17
 # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
@@ -27,7 +31,9 @@ RUN dotnet sonarscanner begin \
     /o:"lbhackney-it" \
     /d:sonar.host.url=https://sonarcloud.io \
     /d:sonar.login="${SONAR_TOKEN}" \
-    /d:sonar.coverageReportPaths="coverage/SonarQube.xml"
+    /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
+    /d:sonar.dotnet.excludeTestProjects=true \
+    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
 
 # Copy everything
 COPY . .
