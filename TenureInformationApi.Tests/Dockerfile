@@ -7,7 +7,6 @@ ENV DynamoDb_LocalMode='true'
 ENV Sns_LocalMode='true'
 
 ARG LBHPACKAGESTOKEN
-ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 
 ARG SONAR_TOKEN
 ENV SONAR_TOKEN=$SONAR_TOKEN
@@ -30,21 +29,13 @@ RUN dotnet sonarscanner begin \
     /d:sonar.login="${SONAR_TOKEN}" \
     /d:sonar.coverageReportPaths="coverage/SonarQube.xml"
 
-# Copy csproj and restore as distinct layers
-COPY ./TenureInformationApi.sln ./
-COPY ./TenureInformationApi/TenureInformationApi.csproj ./TenureInformationApi/
-COPY ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj ./TenureInformationApi.Tests/
-COPY /nuget.config /root/.nuget/NuGet/NuGet.Config
-
-RUN dotnet restore ./TenureInformationApi/TenureInformationApi.csproj
-RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
-
-# Copy everything else and build
+# Copy everything
 COPY . .
 
-RUN dotnet build -c Release -o out TenureInformationApi/TenureInformationApi.csproj
-RUN dotnet build -c debug -o out TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
+# Restore and build tests project
+RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
+RUN dotnet build --no-restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
 
-CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage \
+CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
     && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
     && (dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" > /dev/null)
