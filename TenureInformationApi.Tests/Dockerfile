@@ -14,12 +14,11 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
-# Sync/update the environment
-RUN apk update \
- && apk upgrade --no-cache
-
 # Update the system & install java binaries (for sonar)
-RUN apk add --no-cache openjdk17
+RUN apk update \
+ && apk upgrade --no-cache \
+ && apk add --no-cache openjdk17
+
 # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
