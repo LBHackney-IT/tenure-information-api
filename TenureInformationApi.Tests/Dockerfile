@@ -18,7 +18,7 @@ WORKDIR /app
 RUN apk update
 
 # Update the system & install java binaries (for sonar)
-RUN apk add openjdk17
+RUN apk add --no-cache openjdk17
 # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
