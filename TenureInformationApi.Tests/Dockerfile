@@ -14,8 +14,9 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
-# Sync/update the environment  && apk upgrade --no-cache 140MB
-RUN apk update
+# Sync/update the environment
+RUN apk update \
+ && apk upgrade --no-cache
 
 # Update the system & install java binaries (for sonar)
 RUN apk add --no-cache openjdk17
