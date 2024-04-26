@@ -41,8 +41,11 @@ COPY . .
 # Restore main & tests project
 RUN dotnet restore
 
+# Build dependency project DLLs
+RUN dotnet build ./TenureInformationApi/TenureInformationApi.csproj --no-restore --no-dependencies
+
 # Build tests project
-RUN dotnet build --no-restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
+RUN dotnet build ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-restore
 
 CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
     && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
