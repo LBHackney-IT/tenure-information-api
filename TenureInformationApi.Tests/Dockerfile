@@ -38,8 +38,10 @@ RUN dotnet sonarscanner begin \
 # Copy everything
 COPY . .
 
-# Restore and build tests project
-RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
+# Restore main & tests project
+RUN dotnet restore
+
+# Build tests project
 RUN dotnet build --no-restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
 
 CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
