@@ -35,7 +35,7 @@ RUN dotnet sonarscanner begin \
     /d:sonar.dotnet.excludeTestProjects=true \
     /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
 
-# Copy everything
+# Copy all that's needed
 COPY . .
 
 # Restore main & tests project

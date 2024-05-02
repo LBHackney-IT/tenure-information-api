@@ -1,1 +1,11 @@
-sonar-project.properties
+# Start with blank slate
+*
+
+# Include main & tests project files
+!nuget.config
+!/TenureInformationApi*
+!/TenureInformationApi*/**
+
+# Exclude build artifacts
+**/bin
+**/obj
