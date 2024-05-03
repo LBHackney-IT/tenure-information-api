@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine
 
 # disable microsoft telematry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
@@ -14,27 +14,39 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
-# Install and run sonar cloud scanner
-RUN apt-get update && apt-get install -y openjdk-17-jdk
-RUN dotnet tool install --global dotnet-sonarscanner --version 5.6.0
+# Update the system & install java binaries (for sonar)
+RUN apk update \
+ && apk upgrade --no-cache \
+ && apk add --no-cache openjdk17
+
+# Install sonarscanner
+RUN dotnet tool install --global dotnet-sonarscanner
+# Install report generator
+RUN dotnet tool install --global dotnet-reportgenerator-globaltool
+
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-RUN dotnet sonarscanner begin /k:"LBHackney-IT_tenure-api" /o:"lbhackney-it" /d:sonar.host.url=https://sonarcloud.io /d:sonar.login="${SONAR_TOKEN}"
+RUN dotnet sonarscanner begin \
+    /k:"LBHackney-IT_tenure-api" \
+    /o:"lbhackney-it" \
+    /d:sonar.host.url=https://sonarcloud.io \
+    /d:sonar.login="${SONAR_TOKEN}" \
+    /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
+    /d:sonar.dotnet.excludeTestProjects=true \
+    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
 
-# Copy csproj and restore as distinct layers
-COPY ./TenureInformationApi.sln ./
-COPY ./TenureInformationApi/TenureInformationApi.csproj ./TenureInformationApi/
-COPY ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj ./TenureInformationApi.Tests/
-COPY /nuget.config /root/.nuget/NuGet/NuGet.Config
-
-RUN dotnet restore ./TenureInformationApi/TenureInformationApi.csproj
-RUN dotnet restore ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
-
-# Copy everything else and build
+# Copy all that's needed
 COPY . .
 
-RUN dotnet build -c Release -o out TenureInformationApi/TenureInformationApi.csproj
-RUN dotnet build -c debug -o out TenureInformationApi.Tests/TenureInformationApi.Tests.csproj
+# Restore main & tests project
+RUN dotnet restore
 
-CMD dotnet test
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+# Build dependency project DLLs
+RUN dotnet build ./TenureInformationApi/TenureInformationApi.csproj --no-restore --no-dependencies
+
+# Build tests project
+RUN dotnet build ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-restore
+
+CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
+    && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
+    && (dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" > /dev/null)
