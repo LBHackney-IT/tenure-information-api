@@ -80,12 +80,13 @@ workflows:
     jobs:
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-            - build-and-test
+          filters:
+            branches:
+              only: dummy-dev-depl
       - deploy-to-development:
           context: api-nuget-token-context
           requires:
-            - terraform-apply-development
+            - assume-role-development
           filters:
             branches:
               only: dummy-dev-depl
