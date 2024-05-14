@@ -16,7 +16,6 @@ using TenureInformationApi.V1.Gateways;
 using TenureInformationApi.V1.Infrastructure;
 using TenureInformationApi.V1.Infrastructure.Exceptions;
 using TenureInformationApi.V1.Infrastructure.Interfaces;
-using TenureInformationApi.Tests.V1.Helper;
 using Xunit;
 
 namespace TenureInformationApi.Tests.V1.Gateways
@@ -453,8 +452,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsGreaterNoExceptionIsThrown()
         {
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow;
             var tenureEndDate = tenureStartDate.AddDays(7);
 
             // create mock tenure - end date that is greater
@@ -492,8 +490,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         public async Task EditTenureDetailsWhenStartDateIsInRequestButEndDateInDatabaseIsLessExceptionIsThrown()
         {
             // start date passed, end date is less - throw error
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow;
             var tenureEndDate = tenureStartDate.AddDays(-7);
 
             // create mock tenure - end date that is less
@@ -536,9 +533,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenStartDateIsInRequestAndEndDateInDatabaseIsEqualExceptionIsNotThrown()
         {
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
             // start date passed, end date is equal - do not throw error
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow;
             var tenureEndDate = tenureStartDate;
 
             // create mock tenure - end date that is equal
@@ -580,8 +576,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsLessExceptionIsNotThrown()
         {
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
-            var tenureEndDate = _fixture.Create<DateTime>();
+            var tenureEndDate = DateTime.UtcNow;
             var tenureStartDate = tenureEndDate.AddDays(-7);
 
             // create mock tenure - start date that is less
@@ -617,8 +612,7 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestButStartDateInDatabaseIsGreaterExceptionIsThrown()
         {
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
-            var tenureEndDate = _fixture.Create<DateTime>();
+            var tenureEndDate = DateTime.UtcNow;
             var tenureStartDate = tenureEndDate.AddDays(7);
 
             var expectedVersionNumber = 0;
@@ -658,9 +652,8 @@ namespace TenureInformationApi.Tests.V1.Gateways
         [Fact]
         public async Task EditTenureDetailsWhenEndDateIsInRequestAndStartDateInDatabaseIsEqualExceptionIsNotThrown()
         {
-            _fixture.Customizations.Add(new UtcDateTimeHelper());
             // end date passed, start date is equal - do not throw error
-            var tenureStartDate = _fixture.Create<DateTime>();
+            var tenureStartDate = DateTime.UtcNow;
             var tenureEndDate = tenureStartDate;
 
             // create mock tenure 
