@@ -159,14 +159,14 @@ namespace TenureInformationApi.V1.Gateways
             // if only tenureStartDate is passed, check if tenureStartDate exists in database and that it's later than the start date
             if (updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate"))
             {
-                var results = ValidateTenureStartDateIsLessThanCurrentTenureEndDate((DateTime?) updateDomainWrapper.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
+                var results = ValidateTenureStartDateIsLessOrEqualToCurrentTenureEndDate((DateTime?) updateDomainWrapper.NewValues["startOfTenureDate"], existingTenure.EndOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
             // if only tenureEndDate is passed, check that it's later than tenureStartDate
             if (updateDomainWrapper.NewValues.ContainsKey("endOfTenureDate") && !updateDomainWrapper.NewValues.ContainsKey("startOfTenureDate"))
             {
-                var results = ValidateTenureEndDateIsGreaterThanTenureStartDate((DateTime?) updateDomainWrapper.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
+                var results = ValidateTenureEndDateIsGreaterOrEqualToTenureStartDate((DateTime?) updateDomainWrapper.NewValues["endOfTenureDate"], existingTenure.StartOfTenureDate);
                 if (!results.IsValid) throw new EditTenureInformationValidationException(results);
             }
 
@@ -186,7 +186,7 @@ namespace TenureInformationApi.V1.Gateways
             return updateDbWrapper;
         }
 
-        private static ValidationResult ValidateTenureEndDateIsGreaterThanTenureStartDate(DateTime? tenureEndDate, DateTime? tenureStartDate)
+        private static ValidationResult ValidateTenureEndDateIsGreaterOrEqualToTenureStartDate(DateTime? tenureEndDate, DateTime? tenureStartDate)
         {
             var testObject = new TenureInformation
             {
@@ -199,7 +199,7 @@ namespace TenureInformationApi.V1.Gateways
             return validator.Validate(testObject);
         }
 
-        private static ValidationResult ValidateTenureStartDateIsLessThanCurrentTenureEndDate(DateTime? tenureStartDate, DateTime? tenureEndDate)
+        private static ValidationResult ValidateTenureStartDateIsLessOrEqualToCurrentTenureEndDate(DateTime? tenureStartDate, DateTime? tenureEndDate)
         {
             var testObject = new TenureInformation
             {

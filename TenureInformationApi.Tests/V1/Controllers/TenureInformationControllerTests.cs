@@ -308,7 +308,7 @@ namespace TenureInformationApi.Tests.V1.Controllers
             var tenureEndDate = tenureStartDate.AddDays(-7);
 
             var mockQuery = _fixture.Create<TenureQueryRequest>();
-            var mockRequestObject = new EditTenureDetailsRequestObject { StartOfTenureDate = tenureEndDate };
+            var mockRequestObject = new EditTenureDetailsRequestObject { StartOfTenureDate = tenureStartDate, EndOfTenureDate = tenureEndDate };
 
             var numberOfErrors = _random.Next(2, 5);
             var mockValidationResult = new ValidationResult(_fixture.CreateMany<ValidationFailure>(numberOfErrors));
