@@ -18,11 +18,11 @@ namespace TenureInformationApi.V1.UseCase
         private readonly ITenureDynamoDbGateway _tenureGateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ITenureSnsFactory _snsFactory;
-        public UpdateTenureForPersonUseCase(ITenureDynamoDbGateway gateway, ISnsGateway snsGateway, ITenureSnsFactory snsFactory)
+        public UpdateTenureForPersonUseCase(ITenureDynamoDbGateway gatewayF, ISnsGateway snsGatewayS, ITenureSnsFactory snsFactoryN)
         {
-            _tenureGateway = gateway;
-            _snsGateway = snsGateway;
-            _snsFactory = snsFactory;
+            _tenureGateway = gatewayF;
+            _snsGateway = snsGatewayS;
+            _snsFactory = snsFactoryN;
         }
 
         [LogCall]
