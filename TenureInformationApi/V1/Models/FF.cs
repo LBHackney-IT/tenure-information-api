@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace namespace TenureInformationApi.V1.Models
+namespace TenureInformationApi.V1.Models
 {
     public class FF
     {

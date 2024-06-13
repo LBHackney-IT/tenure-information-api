@@ -1,5 +1,5 @@
 
-namespace namespace TenureInformationApi.V1.Models
+namespace TenureInformationApi.V1.Models
 {
     public static class GG
     {
