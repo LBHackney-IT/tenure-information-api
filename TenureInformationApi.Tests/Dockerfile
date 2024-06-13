@@ -34,7 +34,7 @@ RUN dotnet sonarscanner begin \
     /d:sonar.login="${SONAR_TOKEN}" \
     /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
     /d:sonar.dotnet.excludeTestProjects=true \
-    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
+    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css" \
     /d:sonar.verbose=true
 
 # Copy all that's needed
