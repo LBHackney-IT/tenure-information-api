@@ -15,11 +15,12 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 WORKDIR /app
 
 # Update the system & install java binaries (for sonar)
+# It could be the APK!!!!
 RUN apk update \
  && apk upgrade --no-cache \
  && apk add --no-cache openjdk17
 
-# Install sonarscanner
+ # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
 RUN dotnet tool install --global dotnet-reportgenerator-globaltool
@@ -34,19 +35,13 @@ RUN dotnet sonarscanner begin \
     /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
     /d:sonar.dotnet.excludeTestProjects=true \
     /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
+    /d:sonar.verbose=true
 
 # Copy all that's needed
 COPY . .
 
-# Restore main & tests project
-RUN dotnet restore
+RUN dotnet build
 
-# Build dependency project DLLs
-RUN dotnet build ./TenureInformationApi/TenureInformationApi.csproj --no-restore --no-dependencies
-
-# Build tests project
-RUN dotnet build ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-restore
-
-CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
+CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage \
     && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
     && dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
