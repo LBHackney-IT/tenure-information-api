@@ -27,6 +27,9 @@ RUN dotnet tool install --global dotnet-reportgenerator-globaltool
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 
+# Copy all that's needed
+COPY . .
+
 RUN dotnet sonarscanner begin \
     /k:"LBHackney-IT_tenure-api" \
     /o:"lbhackney-it" \
@@ -35,10 +38,8 @@ RUN dotnet sonarscanner begin \
     /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
     /d:sonar.dotnet.excludeTestProjects=true \
     /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css" \
-    /d:sonar.verbose=true
-
-# Copy all that's needed
-COPY . .
+    /d:sonar.verbose=true \
+    /d:sonar.branch.name=$(git branch --show-current)
 
 RUN dotnet build
 
