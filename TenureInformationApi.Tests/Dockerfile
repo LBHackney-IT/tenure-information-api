@@ -39,7 +39,7 @@ RUN BNAME=$(git branch --show-current) && dotnet sonarscanner begin \
     /d:sonar.dotnet.excludeTestProjects=true \
     /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css" \
     /d:sonar.verbose=true \
-    /d:sonar.branch.name=BNAME
+    /d:sonar.branch.name=$BNAME
 
 RUN dotnet build
 
