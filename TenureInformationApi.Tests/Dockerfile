@@ -30,7 +30,7 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 # Copy all that's needed
 COPY . .
 
-RUN dotnet sonarscanner begin \
+RUN BNAME=$(git branch --show-current) && dotnet sonarscanner begin \
     /k:"LBHackney-IT_tenure-api" \
     /o:"lbhackney-it" \
     /d:sonar.host.url=https://sonarcloud.io \
@@ -39,7 +39,7 @@ RUN dotnet sonarscanner begin \
     /d:sonar.dotnet.excludeTestProjects=true \
     /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css" \
     /d:sonar.verbose=true \
-    /d:sonar.branch.name=$(git branch --show-current)
+    /d:sonar.branch.name=BNAME
 
 RUN dotnet build
 
