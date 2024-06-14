@@ -9,3 +9,5 @@
 # Exclude build artifacts
 **/bin
 **/obj
+
+!/.git/**
