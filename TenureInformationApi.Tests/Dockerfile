@@ -47,8 +47,10 @@ RUN dotnet build ./TenureInformationApi/TenureInformationApi.csproj --no-restore
 # Build tests project
 RUN dotnet build ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-restore
 
+# && cat coverage/SonarQube.xml \
+
 CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
     && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
     && tree coverage \
-    && cat coverage/SonarQube.xml \
+    && git branch -a
     && (dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" > /dev/null)
