@@ -8,12 +8,12 @@ namespace TenureInformationApi.V1
 
         public Yo()
         {
-            Target = "dawg"
+            Target = "dawg";
         }
 
         public string Wassup(string customTarget = null)
         {
-            return $"Wassup, {customTarget ?? this.Target}?"
+            return $"Wassup, {customTarget ?? this.Target}?";
         }
 
         // Intends to trigger analysis issue.
