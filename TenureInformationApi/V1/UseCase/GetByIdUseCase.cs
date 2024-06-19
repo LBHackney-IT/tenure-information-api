@@ -4,6 +4,8 @@ using Hackney.Shared.Tenure.Domain;
 using System.Threading.Tasks;
 using TenureInformationApi.V1.Gateways.Interfaces;
 using TenureInformationApi.V1.UseCase.Interfaces;
+using System;
+using TenureInformationApi.V1;
 
 namespace TenureInformationApi.V1.UseCase
 {

@@ -17,7 +17,7 @@ namespace TenureInformationApi.V1
         }
 
         // Intends to trigger analysis issue.
-        public bool InvalidFunctionality(Guid guid)
+        public bool InvalidFunctionality(Guid? guid)
         {
             if (guid is null)
                 return true;
