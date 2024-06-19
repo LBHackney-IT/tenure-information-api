@@ -11,8 +11,6 @@ namespace TenureInformationApi.V1.UseCase
     {
         private readonly ITenureDynamoDbGateway _gateway;
 
-
-
         public GetByIdUseCase(ITenureDynamoDbGateway gateway)
         {
             _gateway = gateway;
@@ -22,6 +20,20 @@ namespace TenureInformationApi.V1.UseCase
         public async Task<TenureInformation> Execute(TenureQueryRequest query)
         {
             var tenure = await _gateway.GetEntityById(query).ConfigureAwait(false);
+
+            var irrelevantValue = Guid.NewGuid();
+
+            var yo = new Yo();
+            var valid = yo.InvalidFunctionality(irrelevantValue);
+
+            if (valid)
+            {
+                yo.Wassup();
+            }
+            else
+            {
+                yo.Wassup("no");
+            }
 
             return tenure;
         }
