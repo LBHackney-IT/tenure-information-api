@@ -1,4 +1,4 @@
-# LBH Base API
+# Yes, it's LBH Base API
 
 Base API is a boilerplate code for being reused for new APIs for LBH
 
