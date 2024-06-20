@@ -26,14 +26,15 @@ RUN dotnet tool install --global dotnet-reportgenerator-globaltool
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 
-RUN dotnet sonarscanner begin \
+RUN BNAME=$(git branch --show-current) && dotnet sonarscanner begin \
     /k:"LBHackney-IT_tenure-api" \
     /o:"lbhackney-it" \
     /d:sonar.host.url=https://sonarcloud.io \
     /d:sonar.login="${SONAR_TOKEN}" \
     /d:sonar.coverageReportPaths="coverage/SonarQube.xml" \
     /d:sonar.dotnet.excludeTestProjects=true \
-    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css"
+    /d:sonar.exclusions="**/*.js, **/*.ts, **/*.css" \
+    /d:sonar.branch.name=$BNAME
 
 # Copy all that's needed
 COPY . .
@@ -47,9 +48,6 @@ RUN dotnet build ./TenureInformationApi/TenureInformationApi.csproj --no-restore
 # Build tests project
 RUN dotnet build ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-restore
 
-# && cat coverage/SonarQube.xml \
-
 CMD dotnet test ./TenureInformationApi.Tests/TenureInformationApi.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage \
     && reportgenerator "-reports:./coverage/*/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:SonarQube" "-verbosity:Off" \
-    && tree coverage \
     && (dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}" > /dev/null)
