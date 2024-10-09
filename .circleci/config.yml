@@ -152,6 +152,10 @@ jobs:
           name: build
           command: docker-compose build tenure-information-api-test
       - run:
+          name: Install Node.js
+          command: |
+            apt-get update && apt-get install -y nodejs
+      - run:
           name: Run tests
           command: docker-compose run tenure-information-api-test
   assume-role-development:
