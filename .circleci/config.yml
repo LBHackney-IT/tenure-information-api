@@ -114,7 +114,6 @@ commands:
       - run:
           name: Install Node.js
           command: |
-            curl -sL https://deb.nodesource.com/setup_18.x | bash -
             apt-get update && apt-get install -y nodejs
       - run:
           name: Install serverless CLI
@@ -151,7 +150,7 @@ jobs:
       - sonarcloud/scan
       - run:
           name: build
-          command: docker-compose build tenure-information-api-test
+          command: docker-compose build tenure-information-api-test           
       - run:
           name: Run tests
           command: docker-compose run tenure-information-api-test
@@ -232,14 +231,51 @@ jobs:
           stage: "production"
 
 workflows:
-  check-and-deploy-development:
+  check:
     jobs:
       - check-code-formatting:
           context: api-nuget-token-context
+          filters:
+            branches:
+              ignore:
+                - master
+                - release
       - build-and-test:
           context:
             - api-nuget-token-context
             - SonarCloud
+          filters:
+            branches:
+              ignore:
+                - master
+                - release
+      - assume-role-development:
+          context: api-assume-role-housing-development-context
+          filters:
+            branches:
+              ignore:
+                - master
+                - release
+      - terraform-init-and-plan-development:
+          requires:
+            - assume-role-development
+      - terraform-compliance-development:
+          requires:
+            - terraform-init-and-plan-development
+
+  check-and-deploy-development:
+    jobs:
+      - check-code-formatting:
+          context: api-nuget-token-context
+          filters:
+            branches:
+              only: master
+      - build-and-test:
+          context:
+            - api-nuget-token-context
+            - SonarCloud
+          requires:
+            - check-code-formatting
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
@@ -253,27 +289,23 @@ workflows:
       - terraform-apply-development:
           requires:
             - terraform-compliance-development
-          filters:
-            branches:
-              only: master
       - deploy-to-development:
           context: api-nuget-token-context
           requires:
             - terraform-apply-development
-          filters:
-            branches:
-              only: master
   check-and-deploy-staging-and-production:
       jobs:
       - check-code-formatting:
           context: api-nuget-token-context
+          filters:
+            branches:
+              only: release
       - build-and-test:
           context:
               - api-nuget-token-context
               - SonarCloud
-          filters:
-            branches:
-              only: release
+          requires:
+              - check-code-formatting
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
