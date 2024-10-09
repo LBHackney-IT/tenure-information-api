@@ -270,13 +270,15 @@ workflows:
       jobs:
       - check-code-formatting:
           context: api-nuget-token-context
+          filters:
+            branches:
+              only: release
       - build-and-test:
           context:
               - api-nuget-token-context
               - SonarCloud
-          filters:
-            branches:
-              only: release
+          requires:
+              - check-code-formatting
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
