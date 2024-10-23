@@ -12,13 +12,13 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "~> 5.0"
     }
   }
 }
 
 provider "aws" {
-  region = "eu-west-2"
+  region        = "eu-west-2"
 }
 
 data "aws_caller_identity" "current" {}
@@ -49,7 +49,7 @@ resource "aws_sns_topic" "tenure" {
   fifo_topic                  = true
   content_based_deduplication = true
   kms_master_key_id           = "alias/aws/sns"
-  tracing_config              = "active"
+  tracing_config              = "Active"
 }
 
 resource "aws_ssm_parameter" "tenure_sns_arn" {
