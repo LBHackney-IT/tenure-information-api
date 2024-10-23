@@ -49,6 +49,7 @@ resource "aws_sns_topic" "tenure" {
   fifo_topic                  = true
   content_based_deduplication = true
   kms_master_key_id           = "alias/aws/sns"
+  tracing_config              = "active"
 }
 
 resource "aws_ssm_parameter" "tenure_sns_arn" {
@@ -82,7 +83,6 @@ resource "aws_sns_topic_policy" "default" {
   arn = aws_sns_topic.tenure.arn
 
   policy = data.aws_iam_policy_document.sns_topic_policy.json
-  tracing_config = "active"
 }
 
 data "aws_ssm_parameter" "dev_account_id" {
