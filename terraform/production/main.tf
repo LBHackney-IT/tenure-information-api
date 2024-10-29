@@ -158,7 +158,7 @@ data "aws_iam_policy_document" "sns_topic_policy" {
 
 # TO DO: Add lambda function name once created
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
-  event_source_arn  = aws_dynamodb_table.dynamodb_table.stream_arn
+  event_source_arn  = aws_dynamodb_table.TenureInformation.stream_arn
   function_name     = aws_lambda_function.lambda_function.arn
   starting_position = "LATEST"
 }
