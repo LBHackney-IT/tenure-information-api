@@ -15,7 +15,7 @@ namespace TenureInformationApi
 
         public void Hello()
         {
-                
+
         }
     }
 }
