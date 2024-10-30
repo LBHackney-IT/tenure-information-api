@@ -19,6 +19,7 @@ functions:
   DynamodbStreamPoc:
     name: dynamodb-stream-poc
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::Hello
+    role: lambdaExecutionRole
   TenureInformationApi:
     name: ${self:service}-${self:provider.stage}
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
