@@ -12,5 +12,10 @@ namespace TenureInformationApi
             builder
                 .UseStartup<Startup>();
         }
+
+        public void Hello()
+        {
+                
+        }
     }
 }
