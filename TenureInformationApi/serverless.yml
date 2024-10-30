@@ -16,9 +16,12 @@ plugins:
 package:
   artifact: ./bin/release/net6.0/tenure-information-api.zip
 functions:
-  dynamodb-stream-poc:
-    name: dynamodb-stream-poc
+  hello:
     handler: handler.hello
+  # dynamodb-stream-poc:
+  # index:
+  #   name: dynamodb-stream-poc
+  #   handler: handler.hello
   TenureInformationApi:
     name: ${self:service}-${self:provider.stage}
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
