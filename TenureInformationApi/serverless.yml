@@ -17,6 +17,9 @@ package:
   artifact: ./bin/release/net6.0/tenure-information-api.zip
 
 functions:
+  dynamodb-stream-poc:
+    name: dynamodb-stream-poc
+    handler: handler.hello
   TenureInformationApi:
     name: ${self:service}-${self:provider.stage}
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
@@ -51,6 +54,7 @@ functions:
           path: /swagger/{proxy+}
           method: GET
           private: false
+
 resources:
   Resources:
     lambdaExecutionRole:
