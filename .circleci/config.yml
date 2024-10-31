@@ -115,10 +115,7 @@ commands:
           name: Install Node.js
           command: |
             curl -sL https://deb.nodesource.com/setup_20.x | bash -
-            apt-get update && apt-get install -y nodejs
-      - run:
-          name: install npm
-          command: npm install
+            apt-get update && apt-get install -y nodejs npm 
       - run:
           name: Install serverless CLI
           command: npm i -g serverless@^3
