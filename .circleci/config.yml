@@ -115,7 +115,7 @@ commands:
           name: Install Node.js
           command: |
             apt-get update 
-            apt-get install -y nodejs@^14 npm
+            apt-get install -y nodejs=14.0.0 npm
       - run:
           name: Install serverless CLI
           command: npm i -g serverless@^3
