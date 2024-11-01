@@ -47,7 +47,7 @@ resource "aws_lambda_function" "dynamodb_stream_poc" {
 # TO DO: Add lambda function name once created
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
   event_source_arn  = aws_dynamodb_table.tenureinformationapi_dynamodb_table.stream_arn
-  function_name     = aws_lambda_function.dynamodb-stream-poc.arn
+  function_name     = aws_lambda_function.dynamodb_stream_poc.arn
   starting_position = "LATEST"
 }
 
