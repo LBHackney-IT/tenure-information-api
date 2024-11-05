@@ -274,7 +274,7 @@ workflows:
       - build-and-test:
           context:
             - api-nuget-token-context
-            - SonarCloud
+            - SonarCloud  
           requires:
             - check-code-formatting
       - assume-role-development:
