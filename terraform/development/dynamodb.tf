@@ -46,7 +46,6 @@ data "aws_iam_policy_document" "assume_role" {
 data "aws_lambda_function" "dynamodb_stream_poc" {
   function_name = "dynamodb-stream-poc"
   role          = aws_iam_role.iam_for_lambda.arn
-  handler       = LambdaEntryPoint.Hello
 }
 
 # TO DO: Add lambda function name once created
