@@ -126,12 +126,15 @@ resources:
                     - "dynamodb:BatchWrite"
                     - "dynamodb:DeleteItem"
                     - "dynamodb:DescribeStream"
+                    - "dynamodb:ListStream"
                     - "dynamodb:DescribeTable"
                     - "dynamodb:Get*"
                     - "dynamodb:PutItem"
                     - "dynamodb:Query"
                     - "dynamodb:Scan"
                     - "dynamodb:UpdateItem"
+                    - "iam:GetRecords"
+                    - "iam:GetShardIterator"
                   Resource:
                     - 'Fn::Join':
                         - ':'
