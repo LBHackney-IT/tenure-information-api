@@ -116,15 +116,15 @@ resources:
                   Action:
                     - "lambda:InvokeFunction"
                   Resource: "*"
-          - PolicyName: iam
+          - PolicyName: dynamo-stream
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
                 - Effect: Allow
                   Action:
-                    - "dynamodb:DescribeStream"
-                    - "dynamodb:ListStreams"
-                    - "iam:GetRecords"
+                    - "iam:DescribeStream"
+                    - "iam:ListStreams"
+                    - "iam:GetRecords"  
                     - "iam:GetShardIterator"
                   Resource: "*"
           - PolicyName: dynamoDBAccess
