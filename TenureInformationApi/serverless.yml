@@ -116,14 +116,6 @@ resources:
                   Action:
                     - "lambda:InvokeFunction"
                   Resource: "*"
-          - PolicyName: iam
-              Version: '2012-10-17'
-                Statement:
-                  - Effect: Allow
-                    Action:
-                      - "iam:GetRecords"
-                      - "iam:GetShardIterator"
-                    Resource: "*"
           - PolicyName: dynamoDBAccess
             PolicyDocument:
               Version: '2012-10-17'
@@ -141,6 +133,8 @@ resources:
                     - "dynamodb:Query"
                     - "dynamodb:Scan"
                     - "dynamodb:UpdateItem"
+                    - "dynamodb:GetRecords"
+                    - "dynamodb:GetShardIterator"
                   Resource:
                     - 'Fn::Join':
                         - ':'
