@@ -134,7 +134,7 @@ resources:
                     - "dynamodb:BatchWrite"
                     - "dynamodb:DeleteItem"
                     - "dynamodb:DescribeStream"
-                    - "dynamodb:ListStream"
+                    - "dynamodb:ListStreams"
                     - "dynamodb:DescribeTable"
                     - "dynamodb:Get*"
                     - "dynamodb:PutItem"
