@@ -16,8 +16,8 @@ plugins:
 package:
   artifact: ./bin/release/net6.0/tenure-information-api.zip
 functions:
-  DynamodbStreamPoc:
-    name: dynamodb-stream-poc
+  DynamodbStream:
+    name: dynamodb-stream
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::Hello
     role: lambdaExecutionRole
   TenureInformationApi:

@@ -34,13 +34,16 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 data "aws_lambda_function" "dynamodb_stream_poc" {
-  function_name = "dynamodb-stream-poc"
+  function_name = "dynamodb-stream"
 }
 
-# TO DO: Add lambda function name once created
+data "aws_lambda_function" "dynamodb_stream_finance" {
+  function_name = "interimFinanceSystem"
+}
+
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
   event_source_arn  = aws_dynamodb_table.tenureinformationapi_dynamodb_table.stream_arn
-  function_name     = data.aws_lambda_function.dynamodb_stream_poc.arn
+  function_name     = data.aws_lambda_function.dynamodb_stream_finance.arn
   starting_position = "LATEST"
 }
 
