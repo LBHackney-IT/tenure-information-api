@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31112.23
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TenureInformationApi", "TenureInformationApi\TenureInformationApi.csproj", "{6F482163-3F51-487F-8F7D-37A1D4DAEA8B}"
 EndProject
@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Terraform", "Terraform", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{8D8E7751-252E-4D37-AE8D-20DA2EFC9546}"
 	ProjectSection(SolutionItems) = preProject
+		terraform\development\dynamodb.tf = terraform\development\dynamodb.tf
 		terraform\development\main.tf = terraform\development\main.tf
 	EndProjectSection
 EndProject
