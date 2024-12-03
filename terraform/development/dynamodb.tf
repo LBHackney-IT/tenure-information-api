@@ -38,7 +38,7 @@ data "aws_lambda_function" "dynamodb_stream_finance" {
 }
 
 data "aws_lambda_function" "dynamodb_stream_finance_new" {
-  function_name = "housing-finance-interim-api-development-dynamodbStream"
+  function_name = "housing-finance-interim-api-development-dynamodb-stream"
 }
 
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
