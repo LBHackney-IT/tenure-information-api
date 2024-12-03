@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 data "aws_lambda_function" "dynamodb_stream_finance" {
-  function_name = "interimFinanceSystem"
+  function_name = "housing-finance-interim-api-development"
 }
 
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
