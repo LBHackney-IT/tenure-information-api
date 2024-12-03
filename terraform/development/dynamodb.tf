@@ -33,10 +33,6 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_lambda_function" "dynamodb_stream_poc" {
-  function_name = "dynamodb-stream"
-}
-
 data "aws_lambda_function" "dynamodb_stream_finance" {
   function_name = "interimFinanceSystem"
 }
