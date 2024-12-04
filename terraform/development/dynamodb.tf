@@ -43,7 +43,7 @@ data "aws_lambda_function" "dynamodb_stream_finance_new" {
 
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
   event_source_arn  = aws_dynamodb_table.tenureinformationapi_dynamodb_table.stream_arn
-  function_name     = data.aws_lambda_function.dynamodb_stream_finance.arn
+  function_name     = data.aws_lambda_function.dynamodb_stream_finance_new.arn
   starting_position = "LATEST"
 }
 
