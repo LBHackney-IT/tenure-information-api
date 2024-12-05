@@ -16,10 +16,6 @@ plugins:
 package:
   artifact: ./bin/release/net6.0/tenure-information-api.zip
 functions:
-  DynamodbStream:
-    name: dynamodb-stream
-    handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::Hello
-    role: lambdaExecutionRole
   TenureInformationApi:
     name: ${self:service}-${self:provider.stage}
     handler: TenureInformationApi::TenureInformationApi.LambdaEntryPoint::FunctionHandlerAsync
@@ -126,7 +122,13 @@ resources:
                     - "iam:ListStreams"
                     - "iam:GetRecords"  
                     - "iam:GetShardIterator"
-                  Resource: "*"
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:dynamodb'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'table/TenureInformation'
           - PolicyName: dynamoDBAccess
             PolicyDocument:
               Version: '2012-10-17'
