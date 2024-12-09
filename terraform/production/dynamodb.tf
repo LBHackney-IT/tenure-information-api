@@ -34,12 +34,12 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 
-data "aws_lambda_function" "dynamodb_stream_trigger_to_finance" {
-  function_name = "housing-finance-interim-api-production-dynamodb-stream"
+data "aws_lambda_function" "dynamodb_stream_trigger" {
+  function_name = "dynamodb-stream-listener-development"
 }
 
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
   event_source_arn  = aws_dynamodb_table.tenureinformationapi_dynamodb_table.stream_arn
-  function_name     = data.aws_lambda_function.dynamodb_stream_trigger_to_finance.arn
+  function_name     = data.aws_lambda_function.dynamodb_stream_trigger.arn
   starting_position = "LATEST"
 }
