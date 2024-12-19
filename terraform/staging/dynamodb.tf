@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 
 data "aws_lambda_function" "dynamodb_stream_trigger" {
-  function_name = "dynamodb-stream-listener-development"
+  function_name = "dynamodb-tenure-stream-listener-development"
 }
 
 resource "aws_lambda_event_source_mapping" "aws_lambda_event_source" {
