@@ -24,7 +24,7 @@ RUN apk update \
 # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
-RUN dotnet tool install --global dotnet-reportgenerator-globaltool
+RUN dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.2.0
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 

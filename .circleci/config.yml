@@ -114,10 +114,11 @@ commands:
       - run:
           name: Install Node.js
           command: |
-            apt-get update && apt-get install -y nodejs npm
+            curl -sL https://deb.nodesource.com/setup_20.x | bash -
+            apt-get update && apt-get install -y nodejs
       - run:
           name: Install serverless CLI
-          command: npm i -g serverless
+          command: npm i -g serverless@^3
       - run:
           name: Build lambda
           command: |
@@ -273,7 +274,7 @@ workflows:
       - build-and-test:
           context:
             - api-nuget-token-context
-            - SonarCloud
+            - SonarCloud  
           requires:
             - check-code-formatting
       - assume-role-development:
