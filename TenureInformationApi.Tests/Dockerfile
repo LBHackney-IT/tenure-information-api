@@ -14,6 +14,8 @@ ENV SONAR_TOKEN=$SONAR_TOKEN
 
 WORKDIR /app
 
+RUN apk update && apk add --no-cache nodejs
+
 # Update the system & install java binaries (for sonar)
 RUN apk update \
  && apk upgrade --no-cache \
@@ -22,7 +24,7 @@ RUN apk update \
 # Install sonarscanner
 RUN dotnet tool install --global dotnet-sonarscanner
 # Install report generator
-RUN dotnet tool install --global dotnet-reportgenerator-globaltool
+RUN dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.2.0
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 
