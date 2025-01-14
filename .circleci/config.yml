@@ -151,10 +151,10 @@ jobs:
       - sonarcloud/scan
       - run:
           name: build
-          command: docker-compose build tenure-information-api-test           
+          command: docker compose build tenure-information-api-test           
       - run:
           name: Run tests
-          command: docker-compose run tenure-information-api-test
+          command: docker compose run tenure-information-api-test
   assume-role-development:
     executor: docker-python
     steps:
