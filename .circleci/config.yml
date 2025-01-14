@@ -255,11 +255,6 @@ workflows:
               ignore:
                 - master
                 - release
-      - deploy-to-development:
-          context: api-nuget-token-context
-          requires:
-            - assume-role-development
-            - build-and-test
       - terraform-init-and-plan-development:
           requires:
             - assume-role-development
