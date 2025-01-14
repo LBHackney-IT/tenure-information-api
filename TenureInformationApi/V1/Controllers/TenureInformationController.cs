@@ -75,7 +75,7 @@ namespace TenureInformationApi.V1.Controllers
             if (result.VersionNumber.HasValue)
                 eTag = result.VersionNumber.ToString();
 
-            HttpContext.Response.Headers.Add(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
+            HttpContext.Response.Headers.Append(HeaderConstants.ETag, EntityTagHeaderValue.Parse($"\"{eTag}\"").Tag);
 
             return Ok(result.ToResponse());
         }
