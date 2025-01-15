@@ -1,21 +1,19 @@
 version: 2.1
 
 orbs:
-  aws-ecr: circleci/aws-ecr@3.0.0
-  aws-cli: circleci/aws-cli@0.1.9
   aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 executors:
   docker-python:
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.12
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:1.1.9"
   docker-dotnet:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:6.0
+      - image: mcr.microsoft.com/dotnet/sdk:8.0
 
 references:
   workspace_root: &workspace_root "~"
@@ -151,10 +149,10 @@ jobs:
       - sonarcloud/scan
       - run:
           name: build
-          command: docker-compose build tenure-information-api-test           
+          command: docker compose build tenure-information-api-test           
       - run:
           name: Run tests
-          command: docker-compose run tenure-information-api-test
+          command: docker compose run tenure-information-api-test
   assume-role-development:
     executor: docker-python
     steps:
