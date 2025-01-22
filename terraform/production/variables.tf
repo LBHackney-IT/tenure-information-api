@@ -10,5 +10,5 @@ variable "project_name" {
 
 variable stream_enabled {
   type    = bool
-  default = true
+  default = false
 }
